@@ -74,7 +74,7 @@ const tabs = ["Overview", "Season Pass", "Achievements"] as const;
 type Tab = typeof tabs[number];
 
 export default function Profile() {
-  const { player, loading, openLogin, setPlayer } = useAuth();
+  const { player, loading, openLogin, setPlayer, refreshPlayer } = useAuth();
   const [bannerUrl, setBannerUrl] = useState<string | null>(null);
   const bannerRef = useRef<HTMLInputElement>(null);
   const [hoverBanner, setHoverBanner] = useState(false);

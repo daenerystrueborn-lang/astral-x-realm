@@ -3,7 +3,7 @@ import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import astralIcon from "/astral_icon.png";
 import { useAuth } from "@/context/AuthContext"
-import { uploadAvatar } from "@/lib/api";
+import { uploadAvatar, uploadBanner } from "@/lib/api";
 import {
   UploadIcon, WeaponIcon, ShieldIcon, HelmetIcon, BootIcon,
   RingIcon, AmuletIcon, DragonIcon, CastleIcon, StarBadgeIcon, ArenaIcon, CrownIcon, SwordIcon, CheckIcon
@@ -75,7 +75,6 @@ type Tab = typeof tabs[number];
 
 export default function Profile() {
   const { player, loading, openLogin, setPlayer } = useAuth();
-  const bannerKey = player ? `banner_${player.name}` : null;
   const [bannerUrl, setBannerUrl] = useState<string | null>(null);
   const bannerRef = useRef<HTMLInputElement>(null);
   const [hoverBanner, setHoverBanner] = useState(false);
@@ -86,13 +85,12 @@ export default function Profile() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [avatarUploading, setAvatarUploading] = useState(false);
 
-  // Load avatar from player data, banner from localStorage
+  const [bannerUploading, setBannerUploading] = useState(false);
+
+  // Load avatar and banner from player data
   useEffect(() => {
     if (player?.avatarUrl) setAvatarUrl(player.avatarUrl);
-    if (bannerKey) {
-      const saved = localStorage.getItem(bannerKey);
-      if (saved) setBannerUrl(saved);
-    }
+    if (player?.bannerUrl) setBannerUrl(player.bannerUrl);
   }, [player?.name]);
 
   useEffect(() => {
@@ -118,16 +116,19 @@ export default function Profile() {
     }
   }
 
-  function handleBannerChange(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleBannerChange(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
-    if (!f || !bannerKey) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      const dataUrl = reader.result as string;
-      setBannerUrl(dataUrl);
-      try { localStorage.setItem(bannerKey, dataUrl); } catch { /* storage full */ }
-    };
-    reader.readAsDataURL(f);
+    if (!f) return;
+    setBannerUploading(true);
+    try {
+      const updated = await uploadBanner(f);
+      setPlayer(updated);
+      setBannerUrl(updated.bannerUrl || URL.createObjectURL(f));
+    } catch {
+      setBannerUrl(URL.createObjectURL(f));
+    } finally {
+      setBannerUploading(false);
+    }
   }
 
   if (!loading && !player) {
@@ -214,8 +215,11 @@ export default function Profile() {
               <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 30% 50%, rgba(255,255,255,0.03) 0%, transparent 60%)" }} />
               <div style={{ position: "absolute", bottom: 24, left: 140, fontSize: "0.72rem", color: "rgba(255,255,255,0.12)", fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase" }}>{player!.name} · {player!.class || "—"} · {guildDisplay}</div>
             </>}
-            <div style={{ position: "absolute", inset: 0, background: hoverBanner ? "rgba(0,0,0,0.45)" : "rgba(0,0,0,0)", transition: "background 0.2s", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-              {hoverBanner && <><UploadIcon size={16} color="rgba(255,255,255,0.9)" /><span style={{ fontSize: "0.8rem", fontWeight: 600, color: "rgba(255,255,255,0.9)", fontFamily: "Outfit, sans-serif" }}>{bannerUrl ? "Change Banner" : "Upload Banner"}</span></>}
+            <div style={{ position: "absolute", inset: 0, background: (hoverBanner || bannerUploading) ? "rgba(0,0,0,0.45)" : "rgba(0,0,0,0)", transition: "background 0.2s", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+              {bannerUploading
+                ? <><div style={{ width: 16, height: 16, border: "2px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", borderRadius: "50%", animation: "spin 0.7s linear infinite" }} /><span style={{ fontSize: "0.8rem", fontWeight: 600, color: "rgba(255,255,255,0.9)", fontFamily: "Outfit, sans-serif" }}>Uploading...</span></>
+                : hoverBanner && <><UploadIcon size={16} color="rgba(255,255,255,0.9)" /><span style={{ fontSize: "0.8rem", fontWeight: 600, color: "rgba(255,255,255,0.9)", fontFamily: "Outfit, sans-serif" }}>{bannerUrl ? "Change Banner" : "Upload Banner"}</span></>
+              }
             </div>
           </div>
           <input ref={bannerRef} type="file" accept="image/*" onChange={handleBannerChange} style={{ display: "none" }} />

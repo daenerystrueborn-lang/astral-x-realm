@@ -9,6 +9,7 @@ export interface Player {
   name: string
   portalUsername: string
   avatarUrl?: string
+  bannerUrl?: string
   level: number
   exp: number
   prestige: number
@@ -162,6 +163,22 @@ export async function uploadAvatar(file: File): Promise<Player> {
     reader.readAsDataURL(file)
   })
   const res = await fetch(`${API}/api/profile/avatar`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify({ imageBase64: base64, mimeType: file.type }),
+  })
+  return handleResponse<Player>(res)
+}
+
+// ─── BANNER ───────────────────────────────────────────────────────────────────
+export async function uploadBanner(file: File): Promise<Player> {
+  const base64 = await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve((reader.result as string).split(',')[1])
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  })
+  const res = await fetch(`${API}/api/profile/banner`, {
     method: 'POST',
     headers: authHeaders(),
     body: JSON.stringify({ imageBase64: base64, mimeType: file.type }),

@@ -1,5 +1,6 @@
 // src/context/AuthContext.tsx
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
+import { useLocation } from 'wouter'
 import { login as apiLogin, getProfile, logout as apiLogout, type Player } from '@/lib/api'
 
 interface AuthContextType {
@@ -11,6 +12,7 @@ interface AuthContextType {
   closeModal: () => void
   login: (username: string, password: string) => Promise<void>
   logout: () => void
+  setPlayer: (p: Player | null) => void
 }
 
 const AuthContext = createContext<AuthContextType | null>(null)
@@ -19,8 +21,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [player, setPlayer] = useState<Player | null>(null)
   const [loading, setLoading] = useState(true)
   const [modal, setModal] = useState<'login' | 'signup' | null>(null)
+  const [, navigate] = useLocation()
 
-  // On first load, check if they already have a valid token
   useEffect(() => {
     getProfile()
       .then(p => setPlayer(p))
@@ -28,10 +30,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const login = useCallback(async (username: string, password: string) => {
-    const p = await apiLogin(username, password)  // throws with message on failure
+    const p = await apiLogin(username, password)
     setPlayer(p)
     setModal(null)
-  }, [])
+    navigate('/profile')
+  }, [navigate])
 
   const logout = useCallback(() => {
     apiLogout()
@@ -48,6 +51,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       closeModal: () => setModal(null),
       login,
       logout,
+      setPlayer,
     }}>
       {children}
     </AuthContext.Provider>

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import GlowCard from "@/components/GlowCard";
@@ -6,6 +6,7 @@ import { SwordIcon, ShieldIcon, DiceIcon, ChestIcon, UsersIcon, MapIcon, GemIcon
 import { useAuth } from "@/context/AuthContext";
 import astralIcon from "/astral_icon.png";
 import { Link } from "wouter";
+import { getLeaderboard, type LeaderboardEntry } from "@/lib/api";
 
 /* ── Snow Canvas (home-only) ── */
 function SnowCanvas() {
@@ -41,67 +42,64 @@ function SnowCanvas() {
   return <canvas ref={ref} style={{ position: "fixed", inset: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 0 }} />;
 }
 
-/* ── Monster SVG icons for GlowCards ── */
-const mc = "rgba(255,255,255,0.8)";
-const md = "rgba(255,255,255,0.4)";
-
-function SvgWyvern() {
-  return <svg width="100" height="100" viewBox="0 0 100 100" fill="none">
-    <path d="M50 30 C42 34 36 42 36 52 C36 62 42 70 50 74 C58 70 64 62 64 52 C64 42 58 34 50 30Z" stroke={mc} strokeWidth="1.5" fill="rgba(255,255,255,0.04)"/>
-    <path d="M50 30 C44 22 30 18 22 26 C28 28 36 32 36 52" stroke={mc} strokeWidth="1.5" fill="none" strokeLinecap="round"/>
-    <path d="M50 30 C56 22 70 18 78 26 C72 28 64 32 64 52" stroke={mc} strokeWidth="1.5" fill="none" strokeLinecap="round"/>
-    <path d="M22 26 L16 20 M22 26 L18 32" stroke={mc} strokeWidth="1.2" strokeLinecap="round"/>
-    <path d="M78 26 L84 20 M78 26 L82 32" stroke={mc} strokeWidth="1.2" strokeLinecap="round"/>
-    <path d="M50 74 L46 82 L50 86 L54 82 Z" fill={mc} opacity="0.7"/>
-    <circle cx="44" cy="46" r="2" fill={mc}/>
-    <circle cx="56" cy="46" r="2" fill={mc}/>
-    <path d="M44 56 Q50 60 56 56" stroke={mc} strokeWidth="1.2" strokeLinecap="round" fill="none"/>
-    <path d="M36 52 L26 58 M36 52 L24 48" stroke={md} strokeWidth="1" strokeLinecap="round"/>
-    <path d="M64 52 L74 58 M64 52 L76 48" stroke={md} strokeWidth="1" strokeLinecap="round"/>
-  </svg>;
-}
-function SvgPhoenix() {
-  return <svg width="100" height="100" viewBox="0 0 100 100" fill="none">
-    <path d="M50 58 C46 52 44 44 46 36 C48 28 52 24 50 18 C56 24 58 34 54 44 C60 38 66 28 62 18 C72 26 72 40 64 50 C68 44 74 42 80 46 C76 52 68 54 62 52 C64 58 62 66 58 70 L50 78 L42 70 C38 66 36 58 38 52 C32 54 24 52 20 46 C26 42 32 44 36 50 C28 40 28 26 38 18 C34 28 40 38 46 44 C42 34 44 24 50 18 C48 24 52 28 54 36 C56 44 54 52 50 58Z" stroke={mc} strokeWidth="1.3" fill="rgba(255,255,255,0.04)"/>
-    <path d="M44 72 L50 78 L56 72" stroke={mc} strokeWidth="1.5" strokeLinecap="round" fill="none"/>
-    <circle cx="50" cy="30" r="3" fill={mc} opacity="0.8"/>
-  </svg>;
-}
-function SvgKraken() {
-  return <svg width="100" height="100" viewBox="0 0 100 100" fill="none">
-    <ellipse cx="50" cy="38" rx="16" ry="14" stroke={mc} strokeWidth="1.5" fill="rgba(255,255,255,0.04)"/>
-    <circle cx="44" cy="34" r="2.5" fill={mc}/>
-    <circle cx="56" cy="34" r="2.5" fill={mc}/>
-    <path d="M38 46 C34 56 32 66 30 78" stroke={mc} strokeWidth="2" strokeLinecap="round"/>
-    <path d="M62 46 C66 56 68 66 70 78" stroke={mc} strokeWidth="2" strokeLinecap="round"/>
-    <path d="M44 50 C42 60 42 70 40 80" stroke={mc} strokeWidth="2" strokeLinecap="round"/>
-    <path d="M56 50 C58 60 58 70 60 80" stroke={mc} strokeWidth="2" strokeLinecap="round"/>
-    <path d="M50 52 L50 82" stroke={mc} strokeWidth="2" strokeLinecap="round"/>
-    <path d="M46 52 C44 58 46 62 44 68" stroke={md} strokeWidth="1" strokeLinecap="round"/>
-    <path d="M54 52 C56 58 54 62 56 68" stroke={md} strokeWidth="1" strokeLinecap="round"/>
-    <path d="M34 36 C28 34 24 30 22 24" stroke={md} strokeWidth="1.2" strokeLinecap="round"/>
-    <path d="M66 36 C72 34 76 30 78 24" stroke={md} strokeWidth="1.2" strokeLinecap="round"/>
-  </svg>;
-}
-function SvgDragon() {
-  return <svg width="100" height="100" viewBox="0 0 100 100" fill="none">
-    <path d="M20 60 C24 52 32 46 42 44 C52 42 62 44 70 50 C78 56 82 64 80 72 C78 80 70 84 60 82 C50 80 40 74 34 66 Z" stroke={mc} strokeWidth="1.5" fill="rgba(255,255,255,0.04)"/>
-    <path d="M20 60 C16 54 16 44 22 38 C26 34 32 32 38 34 L42 44" stroke={mc} strokeWidth="1.5" fill="none" strokeLinecap="round"/>
-    <path d="M22 38 L18 28 L26 32" stroke={mc} strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M28 30 L26 20 L34 26" stroke={mc} strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
-    <circle cx="30" cy="48" r="3" fill={mc}/>
-    <path d="M34 54 Q38 58 44 56" stroke={mc} strokeWidth="1.3" strokeLinecap="round" fill="none"/>
-    <path d="M80 72 C84 68 88 62 84 56 C82 52 78 50 74 52" stroke={md} strokeWidth="1.2" strokeLinecap="round" fill="none"/>
-    <path d="M60 82 C60 88 56 92 52 90 C48 88 50 84 54 84" stroke={md} strokeWidth="1.2" strokeLinecap="round" fill="none"/>
-    <path d="M42 44 C44 38 48 34 54 34 C60 34 64 38 66 44" stroke={md} strokeWidth="1" strokeLinecap="round" fill="none"/>
-  </svg>;
-}
-
+/* ── Featured Cards — real images from Unsplash ── */
 const featuredCards = [
-  { name: "Phantom Wyrm",   subtitle: "Void · Legendary",   power: 580, rarity: "Legendary" as const, element: "Void",   icon: <SvgWyvern /> },
-  { name: "Solar Phoenix",  subtitle: "Fire · Legendary",   power: 650, rarity: "Legendary" as const, element: "Fire",   icon: <SvgPhoenix /> },
-  { name: "Abyssal Kraken", subtitle: "Dark · Legendary",   power: 610, rarity: "Legendary" as const, element: "Dark",   icon: <SvgKraken /> },
-  { name: "Ancient Dragon", subtitle: "Dragon · Legendary", power: 695, rarity: "Legendary" as const, element: "Dragon", icon: <SvgDragon /> },
+  {
+    name: "Phantom Wyrm",
+    subtitle: "Void · Legendary",
+    power: 580,
+    rarity: "Legendary" as const,
+    element: "Void",
+    icon: (
+      <img
+        src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=200&q=80&fit=crop"
+        alt="Phantom Wyrm"
+        style={{ width: 100, height: 100, objectFit: "cover", borderRadius: 12, opacity: 0.9, filter: "contrast(1.1) saturate(0.7)" }}
+      />
+    ),
+  },
+  {
+    name: "Solar Phoenix",
+    subtitle: "Fire · Legendary",
+    power: 650,
+    rarity: "Legendary" as const,
+    element: "Fire",
+    icon: (
+      <img
+        src="https://images.unsplash.com/photo-1504192010706-dd7f569ee2be?w=200&q=80&fit=crop"
+        alt="Solar Phoenix"
+        style={{ width: 100, height: 100, objectFit: "cover", borderRadius: 12, opacity: 0.9, filter: "contrast(1.15) saturate(0.6)" }}
+      />
+    ),
+  },
+  {
+    name: "Abyssal Kraken",
+    subtitle: "Dark · Legendary",
+    power: 610,
+    rarity: "Legendary" as const,
+    element: "Dark",
+    icon: (
+      <img
+        src="https://images.unsplash.com/photo-1542396601-dca920ea2807?w=200&q=80&fit=crop"
+        alt="Abyssal Kraken"
+        style={{ width: 100, height: 100, objectFit: "cover", borderRadius: 12, opacity: 0.9, filter: "contrast(1.1) saturate(0.5)" }}
+      />
+    ),
+  },
+  {
+    name: "Ancient Dragon",
+    subtitle: "Dragon · Legendary",
+    power: 695,
+    rarity: "Legendary" as const,
+    element: "Dragon",
+    icon: (
+      <img
+        src="https://images.unsplash.com/photo-1607347516831-2b0e79bc5cf9?w=200&q=80&fit=crop"
+        alt="Ancient Dragon"
+        style={{ width: 100, height: 100, objectFit: "cover", borderRadius: 12, opacity: 0.9, filter: "contrast(1.1) saturate(0.6)" }}
+      />
+    ),
+  },
 ];
 
 const features = [
@@ -114,7 +112,7 @@ const features = [
 ];
 
 const steps = [
-  { num: "01", title: "Add the Bot", desc: "Invite Astral X Realm to your Discord server in one click." },
+  { num: "01", title: "Add the Bot", desc: "Invite Astral X Realm to your Discord server or WhatsApp group in one click." },
   { num: "02", title: "Create Your Hero", desc: "Choose your class, name your character, and set up your profile." },
   { num: "03", title: "Battle & Collect", desc: "Fight monsters, collect loot, and rise through the ranks." },
 ];
@@ -126,15 +124,85 @@ const stats = [
   { value: "840+", label: "Active Guilds", Icon: UsersIcon },
 ];
 
-const guilds = [
-  { name: "Eclipse Order", rank: 1, members: 48, wins: 2841, tag: "Void Lancers" },
-  { name: "Solar Vanguard", rank: 2, members: 45, wins: 2480, tag: "Fire Mages" },
-  { name: "Crimson Dawn", rank: 3, members: 50, wins: 2210, tag: "Berserkers" },
-  { name: "Void Pact", rank: 4, members: 39, wins: 1990, tag: "Shadow Rogues" },
+/* ── Astral Cubes / Spin System ── */
+const cubes = [
+  {
+    id: "token_box_mid",
+    name: "Mid Token Box",
+    emoji: "📦",
+    tier: "Mid",
+    rarity: "Common",
+    desc: "A dusty crate from deep in the dungeon. Contains 1–15 Spin Tokens.",
+    drops: ["Spin Tokens (1–15)", "Random Common Items"],
+    howToGet: "Dungeon floors, daily quests",
+    borderColor: "rgba(255,255,255,0.08)",
+  },
+  {
+    id: "token_box_medium",
+    name: "Medium Token Box",
+    emoji: "🎁",
+    tier: "Medium",
+    rarity: "Rare",
+    desc: "A reinforced chest packed with a decent haul of Spin Tokens.",
+    drops: ["Spin Tokens (16–40)", "Random Uncommon Items"],
+    howToGet: "Boss drops, exploration rewards",
+    borderColor: "rgba(255,255,255,0.22)",
+  },
+  {
+    id: "token_box_peak",
+    name: "Peak Token Box",
+    emoji: "💠",
+    tier: "Peak",
+    rarity: "Epic",
+    desc: "A crystalline vault. Only the best adventurers crack one open.",
+    drops: ["Spin Tokens (41–100)", "Rare gear or summon fragments"],
+    howToGet: "World boss kills, ranked dungeon rewards",
+    borderColor: "rgba(255,255,255,0.4)",
+  },
+];
+
+/* ── Guild Spotlight — live from leaderboard ── */
+interface GuildRow {
+  name: string;
+  rank: number;
+  members: number;
+  kills: number;
+}
+
+function deriveTopGuilds(players: LeaderboardEntry[]): GuildRow[] {
+  const map = new Map<string, { kills: number; members: number; name: string }>();
+  for (const p of players) {
+    const gName = p.guildName || p.guild;
+    if (!gName || gName.startsWith('guild_')) continue;
+    const entry = map.get(gName) || { kills: 0, members: 0, name: gName };
+    entry.kills += p.kills || 0;
+    entry.members += 1;
+    map.set(gName, entry);
+  }
+  return Array.from(map.values())
+    .sort((a, b) => b.kills - a.kills)
+    .slice(0, 4)
+    .map((g, i) => ({ name: g.name, rank: i + 1, members: g.members, kills: g.kills }));
+}
+
+const fallbackGuilds: GuildRow[] = [
+  { name: "Eclipse Order",  rank: 1, members: 48, kills: 2841 },
+  { name: "Solar Vanguard", rank: 2, members: 45, kills: 2480 },
+  { name: "Crimson Dawn",   rank: 3, members: 50, kills: 2210 },
+  { name: "Void Pact",      rank: 4, members: 39, kills: 1990 },
 ];
 
 export default function Home() {
   const { openSignup } = useAuth();
+  const [guilds, setGuilds] = useState<GuildRow[]>(fallbackGuilds);
+
+  useEffect(() => {
+    getLeaderboard().then(players => {
+      const derived = deriveTopGuilds(players);
+      if (derived.length > 0) setGuilds(derived);
+    }).catch(() => {});
+  }, []);
+
   return (
     <div style={{ minHeight: "100vh", background: "#000", position: "relative" }}>
       <SnowCanvas />
@@ -144,7 +212,6 @@ export default function Home() {
 
           {/* ── Hero ── */}
           <section style={{ textAlign: "center", padding: "80px 0 60px", display: "flex", flexDirection: "column", alignItems: "center", gap: 0 }}>
-            {/* Glow orbs */}
             <div style={{ position: "absolute", top: 80, left: "50%", transform: "translateX(-50%)", width: 600, height: 400, background: "radial-gradient(ellipse at center, rgba(255,255,255,0.04) 0%, transparent 70%)", pointerEvents: "none", zIndex: 0 }} />
 
             <div className="animate-fade-in-up pulse-glow" style={{ position: "relative", display: "inline-block", marginBottom: 28, borderRadius: "50%" }}>
@@ -162,10 +229,10 @@ export default function Home() {
               Astral X Realm
             </h1>
             <p className="animate-fade-in-up delay-3" style={{ fontSize: "clamp(0.95rem, 2vw, 1.12rem)", color: "rgba(255,255,255,0.42)", maxWidth: 500, margin: "0 auto 36px", lineHeight: 1.75, fontWeight: 400 }}>
-              The ultimate Discord RPG. Battle dungeons, collect legendary cards, build your guild, and climb the global leaderboard — all inside Discord.
+              The ultimate Discord &amp; WhatsApp RPG. Battle dungeons, collect legendary cards, build your guild, and climb the global leaderboard.
             </p>
 
-            <div className="animate-fade-in-up delay-4" style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
+            <div className="animate-fade-in-up delay-4" style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", marginBottom: 20 }}>
               <button onClick={openSignup} style={{ background: "#fff", color: "#000", border: "none", borderRadius: 999, padding: "14px 38px", fontSize: "0.9rem", fontWeight: 700, cursor: "pointer", fontFamily: "Outfit, sans-serif", boxShadow: "0 0 40px rgba(255,255,255,0.12)", transition: "transform 0.2s, box-shadow 0.2s" }}
                 onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.03)"; e.currentTarget.style.boxShadow = "0 0 60px rgba(255,255,255,0.2)"; }}
                 onMouseLeave={e => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.boxShadow = "0 0 40px rgba(255,255,255,0.12)"; }}>
@@ -174,6 +241,48 @@ export default function Home() {
               <Link href="/leaderboard" style={{ background: "transparent", color: "rgba(255,255,255,0.8)", border: "0.5px solid rgba(255,255,255,0.2)", borderRadius: 999, padding: "14px 38px", fontSize: "0.9rem", fontWeight: 500, cursor: "pointer", fontFamily: "Outfit, sans-serif", textDecoration: "none", display: "inline-block", transition: "border-color 0.2s" }}>
                 View Leaderboard
               </Link>
+            </div>
+
+            {/* ── Discord + WhatsApp buttons ── */}
+            <div className="animate-fade-in-up delay-4" style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
+              <a
+                href="https://discord.gg/astralxrealm"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: "inline-flex", alignItems: "center", gap: 8,
+                  background: "#5865F2", color: "#fff", borderRadius: 999,
+                  padding: "11px 26px", fontSize: "0.85rem", fontWeight: 700,
+                  textDecoration: "none", fontFamily: "Outfit, sans-serif",
+                  transition: "opacity 0.2s, transform 0.2s",
+                }}
+                onMouseEnter={e => { e.currentTarget.style.opacity = "0.88"; e.currentTarget.style.transform = "scale(1.03)"; }}
+                onMouseLeave={e => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.transform = "scale(1)"; }}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.002.022.015.043.032.054a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.995a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/>
+                </svg>
+                Join Discord
+              </a>
+              <a
+                href="https://chat.whatsapp.com/astralxrealm"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: "inline-flex", alignItems: "center", gap: 8,
+                  background: "#25D366", color: "#fff", borderRadius: 999,
+                  padding: "11px 26px", fontSize: "0.85rem", fontWeight: 700,
+                  textDecoration: "none", fontFamily: "Outfit, sans-serif",
+                  transition: "opacity 0.2s, transform 0.2s",
+                }}
+                onMouseEnter={e => { e.currentTarget.style.opacity = "0.88"; e.currentTarget.style.transform = "scale(1.03)"; }}
+                onMouseLeave={e => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.transform = "scale(1)"; }}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/>
+                </svg>
+                Join WhatsApp
+              </a>
             </div>
           </section>
 
@@ -195,7 +304,7 @@ export default function Home() {
               </div>
               <div>
                 <div style={{ fontSize: "0.94rem", fontWeight: 700, color: "#fff" }}>Astral Premium — Season 12</div>
-                <div style={{ fontSize: "0.77rem", color: "rgba(255,255,255,0.4)", marginTop: 2 }}>1,500 Gold/day · 5 exclusive cards/mo · Elite PvP bracket · from $2.99/mo</div>
+                <div style={{ fontSize: "0.77rem", color: "rgba(255,255,255,0.4)", marginTop: 2 }}>1,500 Gold/day · 5 exclusive cards/mo · Elite PvP bracket · from ₦1,000/mo</div>
               </div>
             </div>
             <Link href="/shop" style={{ background: "#fff", color: "#000", borderRadius: 999, padding: "10px 24px", fontSize: "0.8rem", fontWeight: 700, textDecoration: "none", display: "inline-block", whiteSpace: "nowrap" }}>
@@ -236,6 +345,46 @@ export default function Home() {
             </div>
             <div className="animate-fade-in-up delay-2" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(210px, 1fr))", gap: 16 }}>
               {featuredCards.map(c => <GlowCard key={c.name} {...c} />)}
+            </div>
+          </section>
+
+          {/* ── Astral Cubes ── */}
+          <section style={{ marginBottom: 60 }}>
+            <div className="animate-fade-in-up delay-1" style={{ marginBottom: 28, textAlign: "center" }}>
+              <div style={{ display: "inline-block", background: "rgba(255,255,255,0.05)", border: "0.5px solid rgba(255,255,255,0.1)", borderRadius: 999, padding: "4px 14px", fontSize: "0.7rem", fontWeight: 600, color: "rgba(255,255,255,0.45)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 12 }}>Loot System</div>
+              <h2 style={{ fontSize: "clamp(1.5rem, 3vw, 2rem)", fontWeight: 800, color: "#fff", letterSpacing: "-0.03em" }}>Astral Cubes</h2>
+              <p style={{ fontSize: "0.83rem", color: "rgba(255,255,255,0.38)", marginTop: 8, maxWidth: 480, margin: "8px auto 0" }}>Crack open token boxes earned through battle. Collect Spin Tokens and trade them for gems, rare loot, or legendary seasonal weapons.</p>
+            </div>
+            <div className="animate-fade-in-up delay-2" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 14 }}>
+              {cubes.map(cube => (
+                <div key={cube.id} style={{ background: "rgba(10,10,10,0.85)", border: `0.5px solid ${cube.borderColor}`, borderRadius: 18, padding: "24px 22px", transition: "transform 0.2s, border-color 0.2s", backdropFilter: "blur(8px)" }}
+                  onMouseEnter={e => (e.currentTarget.style.transform = "translateY(-4px)")}
+                  onMouseLeave={e => (e.currentTarget.style.transform = "translateY(0)")}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 14 }}>
+                    <div style={{ fontSize: "2.2rem", lineHeight: 1 }}>{cube.emoji}</div>
+                    <div>
+                      <div style={{ fontSize: "0.95rem", fontWeight: 700, color: "#fff" }}>{cube.name}</div>
+                      <div style={{ fontSize: "0.68rem", color: "rgba(255,255,255,0.38)", marginTop: 2, fontWeight: 500 }}>{cube.rarity} · Tier {cube.tier}</div>
+                    </div>
+                  </div>
+                  <p style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.42)", lineHeight: 1.6, marginBottom: 14 }}>{cube.desc}</p>
+                  <div style={{ marginBottom: 10 }}>
+                    <div style={{ fontSize: "0.66rem", color: "rgba(255,255,255,0.28)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>Possible Drops</div>
+                    {cube.drops.map(d => (
+                      <div key={d} style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.55)", display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
+                        <span style={{ width: 4, height: 4, borderRadius: "50%", background: "rgba(255,255,255,0.3)", flexShrink: 0, display: "inline-block" }} />
+                        {d}
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.3)", borderTop: "0.5px solid rgba(255,255,255,0.06)", paddingTop: 10, marginTop: 8 }}>
+                    <span style={{ color: "rgba(255,255,255,0.2)", marginRight: 4 }}>How to get:</span>{cube.howToGet}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="animate-fade-in-up delay-3" style={{ marginTop: 16, textAlign: "center", fontSize: "0.78rem", color: "rgba(255,255,255,0.3)" }}>
+              Collect 1,000 Spin Tokens → convert to 50 Gems · use <code style={{ background: "rgba(255,255,255,0.06)", borderRadius: 5, padding: "1px 6px" }}>!unbox</code> in-game to open
             </div>
           </section>
 
@@ -286,10 +435,10 @@ export default function Home() {
                     </div>
                     <div>
                       <div style={{ fontSize: "0.9rem", fontWeight: 700, color: "#fff" }}>{g.name}</div>
-                      <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.35)", marginTop: 1 }}>{g.tag} · {g.members} members</div>
+                      <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.35)", marginTop: 1 }}>{g.members} members</div>
                     </div>
                   </div>
-                  <div style={{ fontSize: "0.85rem", fontWeight: 600, color: "rgba(255,255,255,0.6)" }}>{g.wins.toLocaleString()} wins</div>
+                  <div style={{ fontSize: "0.85rem", fontWeight: 600, color: "rgba(255,255,255,0.6)" }}>{g.kills.toLocaleString()} kills</div>
                 </div>
               ))}
             </div>
@@ -299,7 +448,7 @@ export default function Home() {
           <section className="animate-fade-in-up delay-2" style={{ textAlign: "center", padding: "60px 32px", marginBottom: 40, background: "rgba(10,10,10,0.85)", border: "0.5px solid rgba(255,255,255,0.1)", borderRadius: 22, backdropFilter: "blur(12px)", position: "relative", overflow: "hidden" }}>
             <div style={{ position: "absolute", top: -60, left: "50%", transform: "translateX(-50%)", width: 400, height: 300, background: "radial-gradient(ellipse at center, rgba(255,255,255,0.05) 0%, transparent 70%)", pointerEvents: "none" }} />
             <h2 style={{ fontSize: "clamp(1.6rem, 4vw, 2.6rem)", fontWeight: 800, color: "#fff", marginBottom: 14, letterSpacing: "-0.04em", position: "relative" }}>Ready to Enter the Realm?</h2>
-            <p style={{ fontSize: "0.92rem", color: "rgba(255,255,255,0.4)", marginBottom: 32, maxWidth: 420, margin: "0 auto 32px", lineHeight: 1.7 }}>Join 10,000+ players already battling across Discord. Free to start — always.</p>
+            <p style={{ fontSize: "0.92rem", color: "rgba(255,255,255,0.4)", marginBottom: 32, maxWidth: 420, margin: "0 auto 32px", lineHeight: 1.7 }}>Join 10,000+ players already battling across Discord and WhatsApp. Free to start — always.</p>
             <button onClick={openSignup} style={{ background: "#fff", color: "#000", border: "none", borderRadius: 999, padding: "14px 44px", fontSize: "0.92rem", fontWeight: 700, cursor: "pointer", fontFamily: "Outfit, sans-serif", boxShadow: "0 0 40px rgba(255,255,255,0.1)", transition: "transform 0.2s" }}
               onMouseEnter={e => (e.currentTarget.style.transform = "scale(1.04)")}
               onMouseLeave={e => (e.currentTarget.style.transform = "scale(1)")}>

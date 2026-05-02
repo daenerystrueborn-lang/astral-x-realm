@@ -16,6 +16,7 @@ export interface Player {
   evolved?: string
   race: string
   guild?: string
+  guildName?: string
   rank: string
   str: number; agi: number; int: number; def: number; lck: number
   hp: number; maxHp: number; mp: number; maxMp: number
@@ -32,6 +33,21 @@ export interface Player {
 
 export interface LeaderboardEntry extends Player {
   rank: number
+}
+
+export interface ShopItem {
+  id: string
+  name: string
+  emoji: string
+  type: string
+  slot: string
+  rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary'
+  price: number
+  str?: number
+  agi?: number
+  int?: number
+  def?: number
+  desc: string
 }
 
 // ─── HELPERS ──────────────────────────────────────────────────────────────────
@@ -115,4 +131,23 @@ export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
   } catch {
     return []
   }
+}
+
+// ─── SHOP ─────────────────────────────────────────────────────────────────────
+export async function getShopItems(): Promise<ShopItem[]> {
+  try {
+    const res = await fetch(`${API}/api/shop/items`)
+    return handleResponse<ShopItem[]>(res)
+  } catch {
+    return []
+  }
+}
+
+export async function buyItem(itemId: string): Promise<Player> {
+  const res = await fetch(`${API}/api/shop/buy`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify({ itemId }),
+  })
+  return handleResponse<Player>(res)
 }

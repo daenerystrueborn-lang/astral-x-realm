@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from "react";
-import { useLocation } from "wouter";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import astralIcon from "/astral_icon.png";
@@ -11,22 +10,22 @@ import {
 
 /* ── Animated stat bar ── */
 function StatBar({ label, value, max, pct }: { label: string; value: string; max: string; pct: number }) {
+  const safePct = Math.min(100, Math.max(0, pct));
   const [width, setWidth] = useState(0);
-  useEffect(() => { const t = setTimeout(() => setWidth(pct), 100); return () => clearTimeout(t); }, [pct]);
+  useEffect(() => { const t = setTimeout(() => setWidth(safePct), 100); return () => clearTimeout(t); }, [safePct]);
   return (
     <div style={{ marginBottom: 14 }}>
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
         <span style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.42)", fontWeight: 500 }}>{label}</span>
         <span style={{ fontSize: "0.78rem", fontWeight: 700, color: "#fff" }}>{value}<span style={{ color: "rgba(255,255,255,0.3)", fontWeight: 400 }}> / {max}</span></span>
       </div>
-      <div style={{ height: 4, background: "rgba(255,255,255,0.06)", borderRadius: 999, overflow: "visible", position: "relative" }}>
+      <div style={{ height: 4, background: "rgba(255,255,255,0.06)", borderRadius: 999, overflow: "hidden", position: "relative" }}>
         <div style={{
           height: "100%", borderRadius: 999, background: "#fff",
           width: `${width}%`, transition: "width 0.9s cubic-bezier(0.22,1,0.36,1)",
           position: "relative", boxShadow: "0 0 6px rgba(255,255,255,0.4)",
-        }}>
-          <div style={{ position: "absolute", right: -2, top: -2, width: 8, height: 8, borderRadius: "50%", background: "#fff", boxShadow: "0 0 8px rgba(255,255,255,0.8)" }} className="glow-bar" />
-        </div>
+          maxWidth: "100%",
+        }} />
       </div>
     </div>
   );
@@ -75,7 +74,6 @@ type Tab = typeof tabs[number];
 
 export default function Profile() {
   const { player, loading, openLogin } = useAuth();
-  const [, navigate] = useLocation();
   const [bannerUrl, setBannerUrl] = useState<string | null>(null);
   const bannerRef = useRef<HTMLInputElement>(null);
   const [hoverBanner, setHoverBanner] = useState(false);
@@ -89,7 +87,6 @@ export default function Profile() {
     }
   }, [tab]);
 
-  // Redirect if not logged in
   if (!loading && !player) {
     return (
       <div style={{ minHeight: "100vh", background: "#000" }}>
@@ -120,23 +117,30 @@ export default function Profile() {
     );
   }
 
-  // Build real data from player
+  // Resolve guild display name — guildName is injected by API, fall back to showing "—" for raw IDs
+  const guildDisplay = player!.guildName || (
+    player!.guild
+      ? (player!.guild.startsWith('guild_') ? '—' : player!.guild)
+      : 'None'
+  );
+
+  // Build real data from player — clamp pct at 100 for all stat bars
   const statBars = [
-    { label: "HP", value: String(player!.hp), max: String(player!.maxHp), pct: player!.maxHp > 0 ? Math.round((player!.hp / player!.maxHp) * 100) : 0 },
-    { label: "MP", value: String(player!.mp), max: String(player!.maxMp), pct: player!.maxMp > 0 ? Math.round((player!.mp / player!.maxMp) * 100) : 0 },
-    { label: "STR", value: String(player!.str), max: "999", pct: Math.min(100, Math.round((player!.str / 999) * 100)) },
-    { label: "DEF", value: String(player!.def), max: "999", pct: Math.min(100, Math.round((player!.def / 999) * 100)) },
-    { label: "AGI", value: String(player!.agi), max: "999", pct: Math.min(100, Math.round((player!.agi / 999) * 100)) },
+    { label: "HP",  value: String(player!.hp),  max: String(player!.maxHp), pct: player!.maxHp > 0 ? Math.min(100, Math.round((player!.hp  / player!.maxHp) * 100)) : 0 },
+    { label: "MP",  value: String(player!.mp),  max: String(player!.maxMp), pct: player!.maxMp > 0 ? Math.min(100, Math.round((player!.mp  / player!.maxMp) * 100)) : 0 },
+    { label: "STR", value: String(player!.str), max: "999",                 pct: Math.min(100, Math.round((player!.str / 999) * 100)) },
+    { label: "DEF", value: String(player!.def), max: "999",                 pct: Math.min(100, Math.round((player!.def / 999) * 100)) },
+    { label: "AGI", value: String(player!.agi), max: "999",                 pct: Math.min(100, Math.round((player!.agi / 999) * 100)) },
   ];
 
   const quickStats = [
-    { label: "Level", value: String(player!.level) },
-    { label: "Solars", value: player!.Solars.toLocaleString() },
-    { label: "Gems", value: String(player!.gems) },
-    { label: "Kills", value: player!.kills.toLocaleString() },
-    { label: "Guild", value: player!.guild || "None" },
-    { label: "Class", value: player!.class || "—" },
-    { label: "Rank", value: player!.rank || "Peasant" },
+    { label: "Level",    value: String(player!.level) },
+    { label: "Solars",   value: player!.Solars.toLocaleString() },
+    { label: "Gems",     value: String(player!.gems) },
+    { label: "Kills",    value: player!.kills.toLocaleString() },
+    { label: "Guild",    value: guildDisplay },
+    { label: "Class",    value: player!.class || "—" },
+    { label: "Rank",     value: player!.rank || "Peasant" },
     { label: "Prestige", value: player!.prestige > 0 ? String(player!.prestige) : "—" },
   ];
 
@@ -165,7 +169,7 @@ export default function Profile() {
             {bannerUrl && <img src={bannerUrl} alt="banner" style={{ width: "100%", height: "100%", objectFit: "cover" }} />}
             {!bannerUrl && <>
               <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 30% 50%, rgba(255,255,255,0.03) 0%, transparent 60%)" }} />
-              <div style={{ position: "absolute", bottom: 24, left: 140, fontSize: "0.72rem", color: "rgba(255,255,255,0.12)", fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase" }}>{player!.name} · {player!.class || "—"} · {player!.guild || "No Guild"}</div>
+              <div style={{ position: "absolute", bottom: 24, left: 140, fontSize: "0.72rem", color: "rgba(255,255,255,0.12)", fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase" }}>{player!.name} · {player!.class || "—"} · {guildDisplay}</div>
             </>}
             <div style={{ position: "absolute", inset: 0, background: hoverBanner ? "rgba(0,0,0,0.45)" : "rgba(0,0,0,0)", transition: "background 0.2s", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
               {hoverBanner && <><UploadIcon size={16} color="rgba(255,255,255,0.9)" /><span style={{ fontSize: "0.8rem", fontWeight: 600, color: "rgba(255,255,255,0.9)", fontFamily: "Outfit, sans-serif" }}>{bannerUrl ? "Change Banner" : "Upload Banner"}</span></>}
@@ -194,7 +198,7 @@ export default function Profile() {
             <span style={{ background: "rgba(255,255,255,0.04)", border: "0.5px solid rgba(255,255,255,0.1)", borderRadius: 999, padding: "3px 11px", fontSize: "0.72rem", fontWeight: 600, color: "rgba(255,255,255,0.5)" }}>Prestige {player!.prestige}</span>
           )}
         </div>
-        <div style={{ paddingLeft: 26, fontSize: "0.82rem", color: "rgba(255,255,255,0.38)", marginBottom: 28 }}>{player!.class || "—"} · {player!.guild || "No Guild"} · {player!.rank || "Peasant"}</div>
+        <div style={{ paddingLeft: 26, fontSize: "0.82rem", color: "rgba(255,255,255,0.38)", marginBottom: 28 }}>{player!.class || "—"} · {guildDisplay} · {player!.rank || "Peasant"}</div>
 
         {/* ── Quick stats strip ── */}
         <div className="animate-fade-in-up delay-1" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))", gap: 1, background: "rgba(255,255,255,0.05)", border: "0.5px solid rgba(255,255,255,0.08)", borderRadius: 14, overflow: "hidden", marginBottom: 24 }}>
@@ -266,7 +270,6 @@ export default function Profile() {
         {/* ── Tab: Season Pass ── */}
         {tab === "Season Pass" && (
           <div className="animate-fade-in">
-            {/* Progress header */}
             <div className="section-card" style={{ padding: "28px 28px", marginBottom: 14 }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6, flexWrap: "wrap", gap: 10 }}>
                 <div>
@@ -282,11 +285,8 @@ export default function Profile() {
                   <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.35)", marginTop: 2 }}>/ {seasonMax} levels</div>
                 </div>
               </div>
-              {/* Big progress bar */}
-              <div style={{ height: 10, background: "rgba(255,255,255,0.07)", borderRadius: 999, marginTop: 18, overflow: "visible", position: "relative" }}>
-                <div style={{ height: "100%", width: `${spWidth}%`, background: "#fff", borderRadius: 999, transition: "width 1.2s cubic-bezier(0.22,1,0.36,1)", boxShadow: "0 0 10px rgba(255,255,255,0.5)", position: "relative" }}>
-                  <div style={{ position: "absolute", right: -5, top: -5, width: 20, height: 20, borderRadius: "50%", background: "#fff", boxShadow: "0 0 12px rgba(255,255,255,0.8), 0 0 4px rgba(255,255,255,1)" }} className="pulse-glow-strong" />
-                </div>
+              <div style={{ height: 10, background: "rgba(255,255,255,0.07)", borderRadius: 999, marginTop: 18, overflow: "hidden", position: "relative" }}>
+                <div style={{ height: "100%", width: `${spWidth}%`, background: "#fff", borderRadius: 999, transition: "width 1.2s cubic-bezier(0.22,1,0.36,1)", boxShadow: "0 0 10px rgba(255,255,255,0.5)" }} />
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", marginTop: 10 }}>
                 <span style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.28)" }}>Lv. 1</span>
@@ -294,9 +294,7 @@ export default function Profile() {
               </div>
             </div>
 
-            {/* Reward tiers */}
             <div className="section-card" style={{ overflow: "hidden", marginBottom: 28 }}>
-              {/* Header */}
               <div style={{ display: "grid", gridTemplateColumns: "60px 1fr 1fr", gap: 16, padding: "12px 24px", borderBottom: "0.5px solid rgba(255,255,255,0.06)", background: "rgba(255,255,255,0.02)" }}>
                 <span style={{ fontSize: "0.67rem", fontWeight: 600, color: "rgba(255,255,255,0.28)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Level</span>
                 <span style={{ fontSize: "0.67rem", fontWeight: 600, color: "rgba(255,255,255,0.28)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Free</span>
@@ -313,7 +311,6 @@ export default function Profile() {
                     padding: "14px 24px",
                     borderBottom: i < seasonRewards.length - 1 ? "0.5px solid rgba(255,255,255,0.04)" : "none",
                     background: unlocked ? "rgba(255,255,255,0.015)" : "transparent",
-                    transition: "background 0.15s",
                   }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                       {unlocked && <CheckIcon size={11} color="rgba(255,255,255,0.7)" />}
@@ -338,14 +335,14 @@ export default function Profile() {
               <div className="section-card" style={{ padding: "14px 20px", display: "flex", alignItems: "center", gap: 12 }}>
                 <CheckIcon size={16} color="rgba(255,255,255,0.7)" />
                 <div>
-                  <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "#fff" }}>2 / 6</div>
+                  <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "#fff" }}>0 / 6</div>
                   <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.35)", marginTop: 1 }}>Completed</div>
                 </div>
               </div>
               <div className="section-card" style={{ padding: "14px 20px", flex: 1, minWidth: 200 }}>
                 <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.35)", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.07em" }}>Overall Progress</div>
                 <div style={{ height: 5, background: "rgba(255,255,255,0.06)", borderRadius: 999 }}>
-                  <div style={{ height: "100%", width: "33%", background: "#fff", borderRadius: 999, boxShadow: "0 0 6px rgba(255,255,255,0.4)" }} />
+                  <div style={{ height: "100%", width: "0%", background: "#fff", borderRadius: 999, boxShadow: "0 0 6px rgba(255,255,255,0.4)" }} />
                 </div>
               </div>
             </div>
@@ -355,7 +352,7 @@ export default function Profile() {
                   onMouseEnter={e => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.16)")}
                   onMouseLeave={e => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.09)")}>
                   <div style={{ display: "flex", alignItems: "center", gap: 13, marginBottom: 10 }}>
-                    <div style={{ width: 40, height: 40, borderRadius: 11, background: a.done ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.03)", border: `0.5px solid ${a.done ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.07)"}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, boxShadow: a.done ? "0 0 12px rgba(255,255,255,0.08)" : "none" }}>
+                    <div style={{ width: 40, height: 40, borderRadius: 11, background: a.done ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.03)", border: `0.5px solid ${a.done ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.07)"}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                       <a.Icon size={18} color={a.done ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.28)"} />
                     </div>
                     <div style={{ flex: 1 }}>
@@ -365,7 +362,6 @@ export default function Profile() {
                       </div>
                       <div style={{ fontSize: "0.73rem", color: "rgba(255,255,255,0.3)", marginTop: 2 }}>{a.desc}</div>
                     </div>
-                    <span style={{ fontSize: "0.75rem", fontWeight: 700, color: a.done ? "#fff" : "rgba(255,255,255,0.35)" }}>{a.pct}%</span>
                   </div>
                   <AchievBar pct={a.pct} done={a.done} />
                 </div>
@@ -376,9 +372,6 @@ export default function Profile() {
 
       </div>
       <Footer />
-      <style>{`
-        @media (max-width: 640px) { .profile-grid { grid-template-columns: 1fr !important; } }
-      `}</style>
     </div>
   );
 }

@@ -27,14 +27,14 @@ function Router() {
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+      <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+        <AuthProvider>
           <div style={{ position: "relative", zIndex: 1 }}>
             <Router />
           </div>
           <AuthModal />
-        </WouterRouter>
-      </AuthProvider>
+        </AuthProvider>
+      </WouterRouter>
     </QueryClientProvider>
   );
 }

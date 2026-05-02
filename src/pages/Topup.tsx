@@ -4,24 +4,36 @@ import Footer from "@/components/Footer";
 import { CoinIcon, CrownIcon, CheckIcon, GemIcon, BoltIcon } from "@/components/Icons";
 import { useAuth } from "@/context/AuthContext";
 
-const goldPackages = [
-  { amount: "1,000", bonus: null, price: "$0.99", Icon: CoinIcon, popular: false, tag: null },
-  { amount: "5,000", bonus: "+500 Bonus Gold", price: "$3.99", Icon: CoinIcon, popular: false, tag: "10% Bonus" },
-  { amount: "15,000", bonus: "+2,000 Bonus Gold", price: "$9.99", Icon: GemIcon, popular: true, tag: "Best Value" },
-  { amount: "50,000", bonus: "+10,000 Bonus Gold", price: "$24.99", Icon: GemIcon, popular: false, tag: "20% Bonus" },
+// ── Real packages from bot config (config.js → topup section) ──
+const gemPackages = [
+  { id: "spark",   name: "Spark",   emoji: "✨", gems: 50,   naira: 150  },
+  { id: "flare",   name: "Flare",   emoji: "💫", gems: 100,  naira: 300  },
+  { id: "blaze",   name: "Blaze",   emoji: "🔥", gems: 250,  naira: 650  },
+  { id: "nova",    name: "Nova",    emoji: "🌟", gems: 500,  naira: 1000 },
+  { id: "cosmic",  name: "Cosmic",  emoji: "🌌", gems: 1300, naira: 2500 },
 ];
 
-const premiumTiers = [
-  { name: "Basic", price: "$2.99", period: "/mo", highlight: false, color: "rgba(255,255,255,0.7)", perks: ["200 Gold/day", "Custom profile badge", "2× XP on weekends", "Access to Basic quests"] },
-  { name: "Pro",   price: "$6.99", period: "/mo", highlight: true, color: "#fff", perks: ["Everything in Basic", "600 Gold/day", "3 exclusive cards/mo", "Pro PvP bracket access", "Daily dungeon raid ticket"] },
-  { name: "Elite", price: "$12.99", period: "/mo", highlight: false, color: "rgba(255,255,255,0.7)", perks: ["Everything in Pro", "1,500 Gold/day", "5 exclusive cards/mo", "Priority support", "Exclusive cosmetic frames", "Early feature access"] },
+const goldPackages = [
+  { id: "copper",    name: "Copper",    Solars: 100000,  naira: 500   },
+  { id: "iron",      name: "Iron",      Solars: 220000,  naira: 1000  },
+  { id: "steel",     name: "Steel",     Solars: 380000,  naira: 1500  },
+  { id: "crown",     name: "Crown",     Solars: 600000,  naira: 2000  },
+  { id: "throne",    name: "Throne",    Solars: 900000,  naira: 3000  },
+  { id: "legendary", name: "Legendary", Solars: 2000000, naira: 5000  },
 ];
+
+// Account details from bot config
+const ACCOUNT = {
+  name:   "Flora",
+  number: "5197434428",
+  bank:   "Moniepoint",
+};
 
 const faq = [
-  { q: "When will Gold appear in my account?", a: "Gold is credited instantly after successful payment confirmation via your Discord tag." },
-  { q: "Can I use Gold across multiple servers?", a: "Yes — your Gold balance is linked to your Astral X Realm account, not to a specific server." },
-  { q: "Is Premium a subscription?", a: "Yes, Premium renews monthly. You can cancel anytime with no extra fees." },
-  { q: "What payment methods are accepted?", a: "We accept all major credit/debit cards, PayPal, and Discord Nitro gift cards." },
+  { q: "When will my Solars or Gems appear in-game?", a: "All top-ups are processed manually. After payment, send proof to the owner on WhatsApp. Credits are added within minutes." },
+  { q: "Which account do I pay to?", a: `Pay to ${ACCOUNT.name} · ${ACCOUNT.bank} · ${ACCOUNT.number}. Send proof of payment to receive your credits.` },
+  { q: "Can I use Solars across multiple platforms?", a: "Yes — your balance is tied to your Astral X Realm player account, not to a specific group or server." },
+  { q: "Are gem packages one-time or recurring?", a: "All packages are one-time purchases. You receive the exact gems or Solars listed." },
 ];
 
 function SectionLabel({ children }: { children: string }) {
@@ -31,7 +43,8 @@ function SectionLabel({ children }: { children: string }) {
 }
 
 export default function Topup() {
-  const [selected, setSelected] = useState<number | null>(2);
+  const [selectedGold, setSelectedGold] = useState<number | null>(1);
+  const [selectedGem, setSelectedGem] = useState<number | null>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const { openSignup } = useAuth();
 
@@ -44,117 +57,126 @@ export default function Topup() {
           {/* Header */}
           <div className="animate-fade-in-up" style={{ marginBottom: 44 }}>
             <SectionLabel>Top Up</SectionLabel>
-            <h1 style={{ fontSize: "clamp(1.8rem, 4vw, 2.6rem)", fontWeight: 800, color: "#fff", letterSpacing: "-0.04em", marginBottom: 10 }}>Add Gold or Premium</h1>
-            <p style={{ fontSize: "0.88rem", color: "rgba(255,255,255,0.38)", maxWidth: 480, lineHeight: 1.7 }}>Fuel your adventure. All purchases are linked to your Discord account and credited instantly.</p>
+            <h1 style={{ fontSize: "clamp(1.8rem, 4vw, 2.6rem)", fontWeight: 800, color: "#fff", letterSpacing: "-0.04em", marginBottom: 10 }}>Add Solars or Gems</h1>
+            <p style={{ fontSize: "0.88rem", color: "rgba(255,255,255,0.38)", maxWidth: 520, lineHeight: 1.7 }}>
+              Fuel your adventure. Pay to <strong style={{ color: "rgba(255,255,255,0.65)" }}>{ACCOUNT.name}</strong> · {ACCOUNT.bank} · <strong style={{ color: "rgba(255,255,255,0.65)" }}>{ACCOUNT.number}</strong>, then send proof to receive your credits.
+            </p>
           </div>
 
-          {/* ── Gold Packages ── */}
+          {/* ── Solar Packages ── */}
           <div className="animate-fade-in-up delay-1" style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
             <CoinIcon size={15} color="rgba(255,255,255,0.45)" />
-            <h2 style={{ fontSize: "0.72rem", fontWeight: 600, color: "rgba(255,255,255,0.45)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Gold Packages</h2>
+            <h2 style={{ fontSize: "0.72rem", fontWeight: 600, color: "rgba(255,255,255,0.45)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Solar Packages</h2>
           </div>
 
-          <div className="animate-fade-in-up delay-2" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 12, marginBottom: 56 }}>
-            {goldPackages.map((pkg, i) => (
-              <div key={i} onClick={() => setSelected(i)} style={{
-                background: selected === i ? "rgba(255,255,255,0.05)" : "rgba(10,10,10,0.85)",
-                border: selected === i ? "0.5px solid rgba(255,255,255,0.5)" : "0.5px solid rgba(255,255,255,0.08)",
-                borderRadius: 18, padding: "22px 20px", cursor: "pointer",
-                transition: "border-color 0.2s, box-shadow 0.2s, transform 0.2s",
-                boxShadow: selected === i ? "0 0 40px rgba(255,255,255,0.05)" : "none",
-                transform: selected === i ? "translateY(-3px)" : "translateY(0)",
-                position: "relative", backdropFilter: "blur(10px)",
-              }}>
-                {pkg.popular && <span style={{ position: "absolute", top: -10, left: "50%", transform: "translateX(-50%)", background: "#fff", color: "#000", borderRadius: 999, padding: "3px 12px", fontSize: "0.66rem", fontWeight: 700, whiteSpace: "nowrap" }}>Most Popular</span>}
-                {pkg.tag && !pkg.popular && <span style={{ position: "absolute", top: 14, right: 14, background: "rgba(255,255,255,0.07)", border: "0.5px solid rgba(255,255,255,0.14)", borderRadius: 999, padding: "2px 9px", fontSize: "0.64rem", fontWeight: 700, color: "rgba(255,255,255,0.6)" }}>{pkg.tag}</span>}
-
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 18 }}>
-                  <div style={{ width: 42, height: 42, borderRadius: 11, background: "rgba(255,255,255,0.05)", border: "0.5px solid rgba(255,255,255,0.09)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <pkg.Icon size={19} color="rgba(255,255,255,0.75)" />
+          <div className="animate-fade-in-up delay-2" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 12, marginBottom: 52 }}>
+            {goldPackages.map((pkg, i) => {
+              const isSel = selectedGold === i;
+              const isPopular = pkg.id === "iron";
+              return (
+                <div key={pkg.id} onClick={() => setSelectedGold(i)} style={{
+                  background: isSel ? "rgba(255,255,255,0.05)" : "rgba(10,10,10,0.85)",
+                  border: isSel ? "0.5px solid rgba(255,255,255,0.5)" : "0.5px solid rgba(255,255,255,0.08)",
+                  borderRadius: 18, padding: "22px 20px", cursor: "pointer",
+                  transition: "border-color 0.2s, box-shadow 0.2s, transform 0.2s",
+                  boxShadow: isSel ? "0 0 40px rgba(255,255,255,0.05)" : "none",
+                  transform: isSel ? "translateY(-3px)" : "translateY(0)",
+                  position: "relative", backdropFilter: "blur(10px)",
+                }}>
+                  {isPopular && <span style={{ position: "absolute", top: -10, left: "50%", transform: "translateX(-50%)", background: "#fff", color: "#000", borderRadius: 999, padding: "3px 12px", fontSize: "0.66rem", fontWeight: 700, whiteSpace: "nowrap" }}>Most Popular</span>}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 18 }}>
+                    <div style={{ width: 40, height: 40, borderRadius: 10, background: "rgba(255,255,255,0.05)", border: "0.5px solid rgba(255,255,255,0.09)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.1rem" }}>☀️</div>
+                    {isSel && (
+                      <div style={{ width: 22, height: 22, borderRadius: "50%", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <CheckIcon size={11} color="#000" />
+                      </div>
+                    )}
                   </div>
-                  {selected === i && (
-                    <div style={{ width: 22, height: 22, borderRadius: "50%", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 0 10px rgba(255,255,255,0.4)" }}>
-                      <CheckIcon size={11} color="#000" />
-                    </div>
-                  )}
+                  <div style={{ marginBottom: 4 }}>
+                    <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "rgba(255,255,255,0.5)", marginBottom: 2 }}>{pkg.name}</div>
+                    <div style={{ fontSize: "1.2rem", fontWeight: 800, color: "#fff", letterSpacing: "-0.02em" }}>{pkg.Solars.toLocaleString()} ☀️</div>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 14 }}>
+                    <span style={{ fontSize: "1.1rem", fontWeight: 800, color: "#fff" }}>₦{pkg.naira.toLocaleString()}</span>
+                    <button onClick={e => { e.stopPropagation(); setSelectedGold(i); }} style={{
+                      background: isSel ? "#fff" : "transparent",
+                      color: isSel ? "#000" : "rgba(255,255,255,0.55)",
+                      border: "0.5px solid rgba(255,255,255,0.2)", borderRadius: 999,
+                      padding: "6px 16px", fontSize: "0.76rem", fontWeight: 700,
+                      cursor: "pointer", fontFamily: "Outfit, sans-serif", transition: "all 0.2s",
+                    }}>{isSel ? "Selected" : "Select"}</button>
+                  </div>
                 </div>
-
-                <div style={{ marginBottom: 18 }}>
-                  <div style={{ fontSize: "1.3rem", fontWeight: 800, color: "#fff", letterSpacing: "-0.02em" }}>{pkg.amount} Gold</div>
-                  {pkg.bonus && <div style={{ fontSize: "0.73rem", color: "rgba(255,255,255,0.42)", marginTop: 3 }}>{pkg.bonus}</div>}
-                </div>
-
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                  <span style={{ fontSize: "1.15rem", fontWeight: 800, color: "#fff" }}>{pkg.price}</span>
-                  <button onClick={e => { e.stopPropagation(); setSelected(i); }} style={{
-                    background: selected === i ? "#fff" : "transparent",
-                    color: selected === i ? "#000" : "rgba(255,255,255,0.55)",
-                    border: "0.5px solid rgba(255,255,255,0.2)", borderRadius: 999,
-                    padding: "6px 18px", fontSize: "0.78rem", fontWeight: 700,
-                    cursor: "pointer", fontFamily: "Outfit, sans-serif", transition: "all 0.2s",
-                  }}>{selected === i ? "Selected" : "Select"}</button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
-          {/* ── Premium Plans ── */}
+          {/* ── Gem Packages ── */}
           <div className="animate-fade-in-up delay-1" style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
-            <CrownIcon size={15} color="rgba(255,255,255,0.45)" />
-            <h2 style={{ fontSize: "0.72rem", fontWeight: 600, color: "rgba(255,255,255,0.45)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Premium Plans</h2>
+            <GemIcon size={15} color="rgba(255,255,255,0.45)" />
+            <h2 style={{ fontSize: "0.72rem", fontWeight: 600, color: "rgba(255,255,255,0.45)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Gem Packages</h2>
           </div>
 
-          <div className="animate-fade-in-up delay-2" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: 14, marginBottom: 56 }}>
-            {premiumTiers.map(tier => (
-              <div key={tier.name} style={{
-                background: "rgba(10,10,10,0.85)", border: tier.highlight ? "0.5px solid rgba(255,255,255,0.45)" : "0.5px solid rgba(255,255,255,0.08)",
-                borderRadius: 20, padding: "26px 22px", display: "flex", flexDirection: "column", gap: 18,
-                position: "relative", backdropFilter: "blur(10px)",
-                boxShadow: tier.highlight ? "0 0 50px rgba(255,255,255,0.04)" : "none",
-                transition: "border-color 0.2s, transform 0.2s",
-              }}
-                onMouseEnter={e => (e.currentTarget.style.transform = "translateY(-3px)")}
-                onMouseLeave={e => (e.currentTarget.style.transform = "translateY(0)")}>
-                {tier.highlight && <span style={{ position: "absolute", top: -10, left: "50%", transform: "translateX(-50%)", background: "#fff", color: "#000", borderRadius: 999, padding: "3px 14px", fontSize: "0.67rem", fontWeight: 700, whiteSpace: "nowrap" }}>Most Popular</span>}
-                <div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                    <CrownIcon size={14} color={tier.color} />
-                    <span style={{ fontSize: "1rem", fontWeight: 700, color: tier.color }}>{tier.name}</span>
+          <div className="animate-fade-in-up delay-2" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(175px, 1fr))", gap: 12, marginBottom: 52 }}>
+            {gemPackages.map((pkg, i) => {
+              const isSel = selectedGem === i;
+              const isPopular = pkg.id === "nova";
+              return (
+                <div key={pkg.id} onClick={() => setSelectedGem(i)} style={{
+                  background: isSel ? "rgba(255,255,255,0.05)" : "rgba(10,10,10,0.85)",
+                  border: isSel ? "0.5px solid rgba(255,255,255,0.5)" : "0.5px solid rgba(255,255,255,0.08)",
+                  borderRadius: 18, padding: "20px 18px", cursor: "pointer",
+                  transition: "border-color 0.2s, box-shadow 0.2s, transform 0.2s",
+                  boxShadow: isSel ? "0 0 40px rgba(255,255,255,0.05)" : "none",
+                  transform: isSel ? "translateY(-3px)" : "translateY(0)",
+                  position: "relative", backdropFilter: "blur(10px)",
+                }}>
+                  {isPopular && <span style={{ position: "absolute", top: -10, left: "50%", transform: "translateX(-50%)", background: "#fff", color: "#000", borderRadius: 999, padding: "3px 12px", fontSize: "0.66rem", fontWeight: 700, whiteSpace: "nowrap" }}>Best Value</span>}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+                    <div style={{ fontSize: "1.6rem" }}>{pkg.emoji}</div>
+                    {isSel && (
+                      <div style={{ width: 20, height: 20, borderRadius: "50%", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <CheckIcon size={10} color="#000" />
+                      </div>
+                    )}
                   </div>
-                  <div style={{ fontSize: "1.6rem", fontWeight: 800, color: "#fff", letterSpacing: "-0.03em", lineHeight: 1 }}>
-                    {tier.price}<span style={{ fontSize: "0.78rem", fontWeight: 400, color: "rgba(255,255,255,0.35)" }}>{tier.period}</span>
+                  <div style={{ fontSize: "0.78rem", fontWeight: 600, color: "rgba(255,255,255,0.5)", marginBottom: 2 }}>{pkg.name}</div>
+                  <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "#fff" }}>{pkg.gems} 💎 Gems</div>
+                  <div style={{ marginTop: 12, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <span style={{ fontSize: "1rem", fontWeight: 800, color: "#fff" }}>₦{pkg.naira.toLocaleString()}</span>
+                    <button onClick={e => { e.stopPropagation(); setSelectedGem(i); }} style={{
+                      background: isSel ? "#fff" : "transparent",
+                      color: isSel ? "#000" : "rgba(255,255,255,0.55)",
+                      border: "0.5px solid rgba(255,255,255,0.2)", borderRadius: 999,
+                      padding: "5px 14px", fontSize: "0.74rem", fontWeight: 700,
+                      cursor: "pointer", fontFamily: "Outfit, sans-serif", transition: "all 0.2s",
+                    }}>{isSel ? "✓" : "Select"}</button>
                   </div>
                 </div>
-                <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: 9 }}>
-                  {tier.perks.map(p => (
-                    <li key={p} style={{ fontSize: "0.81rem", color: "rgba(255,255,255,0.5)", display: "flex", gap: 8, alignItems: "flex-start", lineHeight: 1.45 }}>
-                      <span style={{ flexShrink: 0, marginTop: 2 }}><CheckIcon size={11} color="rgba(255,255,255,0.7)" /></span>{p}
-                    </li>
-                  ))}
-                </ul>
-                <button style={{ background: tier.highlight ? "#fff" : "transparent", color: tier.highlight ? "#000" : "#fff", border: "0.5px solid rgba(255,255,255,0.22)", borderRadius: 12, padding: "11px", fontSize: "0.85rem", fontWeight: 700, cursor: "pointer", fontFamily: "Outfit, sans-serif" }}>
-                  Get {tier.name}
-                </button>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* ── Checkout CTA ── */}
-          <div className="animate-fade-in-up delay-2" style={{ background: "rgba(10,10,10,0.85)", border: "0.5px solid rgba(255,255,255,0.12)", borderRadius: 20, padding: "32px 32px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 24, marginBottom: 56, backdropFilter: "blur(12px)" }}>
+          <div className="animate-fade-in-up delay-2" style={{ background: "rgba(10,10,10,0.85)", border: "0.5px solid rgba(255,255,255,0.12)", borderRadius: 20, padding: "28px 32px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 24, marginBottom: 52, backdropFilter: "blur(12px)" }}>
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
                 <BoltIcon size={16} color="rgba(255,255,255,0.8)" />
-                <h2 style={{ fontSize: "1.05rem", fontWeight: 700, color: "#fff" }}>Ready to Proceed?</h2>
+                <h2 style={{ fontSize: "1.05rem", fontWeight: 700, color: "#fff" }}>How to Top Up</h2>
               </div>
-              <p style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.38)", lineHeight: 1.6, maxWidth: 380 }}>
-                {selected !== null ? `You selected ${goldPackages[selected].amount} Gold for ${goldPackages[selected].price}. Sign in or create an account to complete your purchase.` : "Select a Gold package above, then sign in to complete your purchase."}
+              <p style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.38)", lineHeight: 1.7, maxWidth: 420 }}>
+                {selectedGold !== null
+                  ? `Selected: ${goldPackages[selectedGold].Solars.toLocaleString()} Solars for ₦${goldPackages[selectedGold].naira.toLocaleString()}.`
+                  : selectedGem !== null
+                    ? `Selected: ${gemPackages[selectedGem].gems} Gems for ₦${gemPackages[selectedGem].naira.toLocaleString()}.`
+                    : "Pick a package above, then pay to the account below and send proof."
+                }
+                {" "}Pay to <strong style={{ color: "rgba(255,255,255,0.65)" }}>{ACCOUNT.name} · {ACCOUNT.bank} · {ACCOUNT.number}</strong>. Credits are added after proof is confirmed.
               </p>
             </div>
-            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-              <button onClick={openSignup} style={{ background: "#fff", color: "#000", border: "none", borderRadius: 12, padding: "12px 28px", fontSize: "0.88rem", fontWeight: 700, cursor: "pointer", fontFamily: "Outfit, sans-serif" }}>
-                Sign in to Purchase
-              </button>
-            </div>
+            <button onClick={openSignup} style={{ background: "#fff", color: "#000", border: "none", borderRadius: 12, padding: "12px 28px", fontSize: "0.88rem", fontWeight: 700, cursor: "pointer", fontFamily: "Outfit, sans-serif", whiteSpace: "nowrap" }}>
+              Create Account First
+            </button>
           </div>
 
           {/* ── FAQ ── */}

@@ -1,7 +1,7 @@
 // src/lib/api.ts
 // All calls from the website to the bot's API server
 
-const API = import.meta.env.VITE_API_URL || 'http://93.177.64.145:4932'
+const API = '' // Vercel proxies /api/* to the VPS
 
 // ─── TYPES ────────────────────────────────────────────────────────────────────
 export interface Player {

@@ -4,9 +4,19 @@ import astralIcon from "/astral_icon.png";
 import { HomeIcon, UserIcon, ShopIcon, TopupIcon, LeaderboardIcon } from "@/components/Icons";
 import { useAuth } from "@/context/AuthContext";
 
+function CardsIcon({ size = 14, color = "currentColor" }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="5" width="14" height="16" rx="2" />
+      <path d="M6 2h12a2 2 0 0 1 2 2v14" />
+    </svg>
+  );
+}
+
 const links = [
   { label: "Home", to: "/", Icon: HomeIcon },
   { label: "Profile", to: "/profile", Icon: UserIcon },
+  { label: "Cards", to: "/cards", Icon: CardsIcon },
   { label: "Leaderboard", to: "/leaderboard", Icon: LeaderboardIcon },
   { label: "Shop", to: "/shop", Icon: ShopIcon },
   { label: "Topup", to: "/topup", Icon: TopupIcon },

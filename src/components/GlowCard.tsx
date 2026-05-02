@@ -7,6 +7,7 @@ interface GlowCardProps {
   rarity: "Common" | "Rare" | "Legendary";
   icon: React.ReactNode;
   element: string;
+  imageUrl?: string;
 }
 
 const rarityGlow: Record<string, string> = {
@@ -15,7 +16,7 @@ const rarityGlow: Record<string, string> = {
   Legendary: "rgba(255,255,255,0.6)",
 };
 
-export default function GlowCard({ name, subtitle, power, rarity, icon, element }: GlowCardProps) {
+export default function GlowCard({ name, subtitle, power, rarity, icon, element, imageUrl }: GlowCardProps) {
   const [active, setActive] = useState(false);
   const [hovered, setHovered] = useState(false);
 
@@ -87,17 +88,31 @@ export default function GlowCard({ name, subtitle, power, rarity, icon, element 
         </div>
       </div>
 
-      {/* Icon */}
+      {/* Icon / Image */}
       <div style={{
         position: "absolute",
-        top: "2.5rem",
+        top: "0.8rem",
         left: 0, right: 0,
         margin: "auto",
         width: "fit-content",
         filter: active ? `drop-shadow(0 -1.2rem 2px rgba(0,0,0,0.3)) brightness(1.6)` : `drop-shadow(0 -1.2rem 1px transparent)`,
         transition: "filter 0.4s ease-in-out",
       }}>
-        {icon}
+        {imageUrl ? (
+          <img
+            src={imageUrl}
+            alt={name}
+            style={{
+              width: 110,
+              height: 110,
+              objectFit: "cover",
+              borderRadius: 14,
+              opacity: 0.92,
+              filter: "contrast(1.1) saturate(0.75)",
+              display: "block",
+            }}
+          />
+        ) : icon}
       </div>
 
       {/* Content */}

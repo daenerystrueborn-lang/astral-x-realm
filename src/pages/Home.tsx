@@ -42,7 +42,15 @@ function SnowCanvas() {
   return <canvas ref={ref} style={{ position: "fixed", inset: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 0 }} />;
 }
 
-/* ── Featured Cards — real images from Unsplash ── */
+/* ── Featured Cards — AI-generated images from Pollinations ── */
+function cardImg(name: string, element: string) {
+  const prompt = `${name}, ${element} dark fantasy legendary monster card art, epic, glowing, dramatic lighting, digital painting, no text, black background`;
+  let h = 0;
+  for (let i = 0; i < name.length; i++) h = (Math.imul(31, h) + name.charCodeAt(i)) | 0;
+  const seed = Math.abs(h) % 9999;
+  return `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=300&height=300&nologo=true&model=flux&seed=${seed}`;
+}
+
 const featuredCards = [
   {
     name: "Phantom Wyrm",
@@ -50,13 +58,8 @@ const featuredCards = [
     power: 580,
     rarity: "Legendary" as const,
     element: "Void",
-    icon: (
-      <img
-        src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=200&q=80&fit=crop"
-        alt="Phantom Wyrm"
-        style={{ width: 100, height: 100, objectFit: "cover", borderRadius: 12, opacity: 0.9, filter: "contrast(1.1) saturate(0.7)" }}
-      />
-    ),
+    imageUrl: cardImg("Phantom Wyrm", "Void"),
+    icon: null as React.ReactNode,
   },
   {
     name: "Solar Phoenix",
@@ -64,13 +67,8 @@ const featuredCards = [
     power: 650,
     rarity: "Legendary" as const,
     element: "Fire",
-    icon: (
-      <img
-        src="https://images.unsplash.com/photo-1504192010706-dd7f569ee2be?w=200&q=80&fit=crop"
-        alt="Solar Phoenix"
-        style={{ width: 100, height: 100, objectFit: "cover", borderRadius: 12, opacity: 0.9, filter: "contrast(1.15) saturate(0.6)" }}
-      />
-    ),
+    imageUrl: cardImg("Solar Phoenix", "Fire"),
+    icon: null as React.ReactNode,
   },
   {
     name: "Abyssal Kraken",
@@ -78,13 +76,8 @@ const featuredCards = [
     power: 610,
     rarity: "Legendary" as const,
     element: "Dark",
-    icon: (
-      <img
-        src="https://images.unsplash.com/photo-1542396601-dca920ea2807?w=200&q=80&fit=crop"
-        alt="Abyssal Kraken"
-        style={{ width: 100, height: 100, objectFit: "cover", borderRadius: 12, opacity: 0.9, filter: "contrast(1.1) saturate(0.5)" }}
-      />
-    ),
+    imageUrl: cardImg("Abyssal Kraken", "Dark"),
+    icon: null as React.ReactNode,
   },
   {
     name: "Ancient Dragon",
@@ -92,13 +85,8 @@ const featuredCards = [
     power: 695,
     rarity: "Legendary" as const,
     element: "Dragon",
-    icon: (
-      <img
-        src="https://images.unsplash.com/photo-1607347516831-2b0e79bc5cf9?w=200&q=80&fit=crop"
-        alt="Ancient Dragon"
-        style={{ width: 100, height: 100, objectFit: "cover", borderRadius: 12, opacity: 0.9, filter: "contrast(1.1) saturate(0.6)" }}
-      />
-    ),
+    imageUrl: cardImg("Ancient Dragon", "Dragon"),
+    icon: null as React.ReactNode,
   },
 ];
 
@@ -344,7 +332,7 @@ export default function Home() {
               </div>
             </div>
             <div className="animate-fade-in-up delay-2" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(210px, 1fr))", gap: 16 }}>
-              {featuredCards.map(c => <GlowCard key={c.name} {...c} />)}
+              {featuredCards.map(c => <GlowCard key={c.name} name={c.name} subtitle={c.subtitle} power={c.power} rarity={c.rarity} element={c.element} icon={null} imageUrl={c.imageUrl} />)}
             </div>
           </section>
 

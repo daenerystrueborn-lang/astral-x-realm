@@ -3,7 +3,6 @@ import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import astralIcon from "/astral_icon.png";
 import { useAuth } from "@/context/AuthContext"
-import { uploadAvatar, uploadBanner } from "@/lib/api";
 import {
   UploadIcon, WeaponIcon, ShieldIcon, HelmetIcon, BootIcon,
   RingIcon, AmuletIcon, DragonIcon, CastleIcon, StarBadgeIcon, ArenaIcon, CrownIcon, SwordIcon, CheckIcon
@@ -74,7 +73,7 @@ const tabs = ["Overview", "Season Pass", "Achievements"] as const;
 type Tab = typeof tabs[number];
 
 export default function Profile() {
-  const { player, loading, openLogin, setPlayer, refreshPlayer } = useAuth();
+  const { player, loading, openLogin } = useAuth();
   const bannerRef = useRef<HTMLInputElement>(null);
   const [hoverBanner, setHoverBanner] = useState(false);
   const [tab, setTab] = useState<Tab>("Overview");
@@ -83,11 +82,21 @@ export default function Profile() {
   const [hoverAvatar, setHoverAvatar] = useState(false);
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [bannerUploading, setBannerUploading] = useState(false);
-  const [localAvatarUrl, setLocalAvatarUrl] = useState<string | null>(null);
-  const [localBannerUrl, setLocalBannerUrl] = useState<string | null>(null);
 
-  const avatarUrl = localAvatarUrl || player?.avatarUrl || null;
-  const bannerUrl = localBannerUrl || player?.bannerUrl || null;
+  const avatarKey = player ? `axr_avatar_${player.name}` : null;
+  const bannerKey = player ? `axr_banner_${player.name}` : null;
+
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(() =>
+    avatarKey ? localStorage.getItem(avatarKey) : null
+  );
+  const [bannerUrl, setBannerUrl] = useState<string | null>(() =>
+    bannerKey ? localStorage.getItem(bannerKey) : null
+  );
+
+  useEffect(() => {
+    if (avatarKey) setAvatarUrl(localStorage.getItem(avatarKey));
+    if (bannerKey) setBannerUrl(localStorage.getItem(bannerKey));
+  }, [avatarKey, bannerKey]);
 
   useEffect(() => {
     if (tab === "Season Pass") {
@@ -96,16 +105,23 @@ export default function Profile() {
     }
   }, [tab]);
 
+  function toBase64(file: File): Promise<string> {
+    return new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload = () => res(r.result as string);
+      r.onerror = rej;
+      r.readAsDataURL(file);
+    });
+  }
+
   async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
-    if (!f) return;
+    if (!f || !avatarKey) return;
     setAvatarUploading(true);
     try {
-      const updated = await uploadAvatar(f);
-      setPlayer(updated);
-      setLocalAvatarUrl(updated.avatarUrl || URL.createObjectURL(f));
-    } catch {
-      setLocalAvatarUrl(URL.createObjectURL(f));
+      const b64 = await toBase64(f);
+      localStorage.setItem(avatarKey, b64);
+      setAvatarUrl(b64);
     } finally {
       setAvatarUploading(false);
     }
@@ -113,14 +129,12 @@ export default function Profile() {
 
   async function handleBannerChange(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
-    if (!f) return;
+    if (!f || !bannerKey) return;
     setBannerUploading(true);
     try {
-      const updated = await uploadBanner(f);
-      setPlayer(updated);
-      setLocalBannerUrl(updated.bannerUrl || URL.createObjectURL(f));
-    } catch {
-      setLocalBannerUrl(URL.createObjectURL(f));
+      const b64 = await toBase64(f);
+      localStorage.setItem(bannerKey, b64);
+      setBannerUrl(b64);
     } finally {
       setBannerUploading(false);
     }

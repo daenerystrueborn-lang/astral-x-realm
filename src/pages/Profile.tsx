@@ -3,6 +3,7 @@ import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import astralIcon from "/astral_icon.png";
 import { useAuth } from "@/context/AuthContext"
+import { uploadAvatar } from "@/lib/api";
 import {
   UploadIcon, WeaponIcon, ShieldIcon, HelmetIcon, BootIcon,
   RingIcon, AmuletIcon, DragonIcon, CastleIcon, StarBadgeIcon, ArenaIcon, CrownIcon, SwordIcon, CheckIcon
@@ -73,7 +74,8 @@ const tabs = ["Overview", "Season Pass", "Achievements"] as const;
 type Tab = typeof tabs[number];
 
 export default function Profile() {
-  const { player, loading, openLogin } = useAuth();
+  const { player, loading, openLogin, setPlayer } = useAuth();
+  const bannerKey = player ? `banner_${player.name}` : null;
   const [bannerUrl, setBannerUrl] = useState<string | null>(null);
   const bannerRef = useRef<HTMLInputElement>(null);
   const [hoverBanner, setHoverBanner] = useState(false);
@@ -82,6 +84,16 @@ export default function Profile() {
   const avatarRef = useRef<HTMLInputElement>(null);
   const [hoverAvatar, setHoverAvatar] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+
+  // Load avatar from player data, banner from localStorage
+  useEffect(() => {
+    if (player?.avatarUrl) setAvatarUrl(player.avatarUrl);
+    if (bannerKey) {
+      const saved = localStorage.getItem(bannerKey);
+      if (saved) setBannerUrl(saved);
+    }
+  }, [player?.name]);
 
   useEffect(() => {
     if (tab === "Season Pass") {
@@ -89,6 +101,34 @@ export default function Profile() {
       return () => clearTimeout(t);
     }
   }, [tab]);
+
+  async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    setAvatarUploading(true);
+    try {
+      const updated = await uploadAvatar(f);
+      setPlayer(updated);
+      setAvatarUrl(updated.avatarUrl || URL.createObjectURL(f));
+    } catch {
+      // fallback: show locally even if upload fails
+      setAvatarUrl(URL.createObjectURL(f));
+    } finally {
+      setAvatarUploading(false);
+    }
+  }
+
+  function handleBannerChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0];
+    if (!f || !bannerKey) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      setBannerUrl(dataUrl);
+      try { localStorage.setItem(bannerKey, dataUrl); } catch { /* storage full */ }
+    };
+    reader.readAsDataURL(f);
+  }
 
   if (!loading && !player) {
     return (
@@ -178,7 +218,7 @@ export default function Profile() {
               {hoverBanner && <><UploadIcon size={16} color="rgba(255,255,255,0.9)" /><span style={{ fontSize: "0.8rem", fontWeight: 600, color: "rgba(255,255,255,0.9)", fontFamily: "Outfit, sans-serif" }}>{bannerUrl ? "Change Banner" : "Upload Banner"}</span></>}
             </div>
           </div>
-          <input ref={bannerRef} type="file" accept="image/*" onChange={e => { const f = e.target.files?.[0]; if (f) setBannerUrl(URL.createObjectURL(f)); }} style={{ display: "none" }} />
+          <input ref={bannerRef} type="file" accept="image/*" onChange={handleBannerChange} style={{ display: "none" }} />
 
           {/* Avatar */}
           <div style={{ position: "absolute", bottom: -44, left: 22 }}>
@@ -194,11 +234,14 @@ export default function Profile() {
                 style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
               />
               {/* Hover overlay */}
-              <div style={{ position: "absolute", inset: 0, background: hoverAvatar ? "rgba(0,0,0,0.55)" : "rgba(0,0,0,0)", transition: "background 0.2s", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "50%" }}>
-                {hoverAvatar && <UploadIcon size={16} color="#fff" />}
+              <div style={{ position: "absolute", inset: 0, background: (hoverAvatar || avatarUploading) ? "rgba(0,0,0,0.55)" : "rgba(0,0,0,0)", transition: "background 0.2s", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "50%" }}>
+                {avatarUploading
+                  ? <div style={{ width: 18, height: 18, border: "2px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", borderRadius: "50%", animation: "spin 0.7s linear infinite" }} />
+                  : hoverAvatar && <UploadIcon size={16} color="#fff" />
+                }
               </div>
             </div>
-            <input ref={avatarRef} type="file" accept="image/*" onChange={e => { const f = e.target.files?.[0]; if (f) setAvatarUrl(URL.createObjectURL(f)); }} style={{ display: "none" }} />
+            <input ref={avatarRef} type="file" accept="image/*" onChange={handleAvatarChange} style={{ display: "none" }} />
 
           </div>
         </section>

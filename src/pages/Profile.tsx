@@ -1,9 +1,8 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import astralIcon from "/astral_icon.png";
 import { useAuth } from "@/context/AuthContext"
-import { uploadAvatar } from "@/lib/api";
 import {
   UploadIcon, WeaponIcon, ShieldIcon, HelmetIcon, BootIcon,
   RingIcon, AmuletIcon, DragonIcon, CastleIcon, StarBadgeIcon, ArenaIcon, CrownIcon, SwordIcon, CheckIcon
@@ -74,7 +73,7 @@ const tabs = ["Overview", "Season Pass", "Achievements"] as const;
 type Tab = typeof tabs[number];
 
 export default function Profile() {
-  const { player, loading, openLogin, setPlayer } = useAuth();
+  const { player, loading, openLogin } = useAuth();
   const [bannerUrl, setBannerUrl] = useState<string | null>(null);
   const bannerRef = useRef<HTMLInputElement>(null);
   const [hoverBanner, setHoverBanner] = useState(false);
@@ -82,25 +81,7 @@ export default function Profile() {
   const [spWidth, setSpWidth] = useState(0);
   const avatarRef = useRef<HTMLInputElement>(null);
   const [hoverAvatar, setHoverAvatar] = useState(false);
-  const [avatarUploading, setAvatarUploading] = useState(false);
-  const [avatarError, setAvatarError] = useState<string | null>(null);
-
-  const handleAvatarChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setAvatarUploading(true);
-    setAvatarError(null);
-    try {
-      const updated = await uploadAvatar(file);
-      setPlayer(updated);
-    } catch (err) {
-      setAvatarError(err instanceof Error ? err.message : "Upload failed.");
-      setTimeout(() => setAvatarError(null), 3000);
-    } finally {
-      setAvatarUploading(false);
-      e.target.value = "";
-    }
-  }, [setPlayer]);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (tab === "Season Pass") {
@@ -208,24 +189,17 @@ export default function Profile() {
               className="pulse-glow-strong"
               style={{ width: 92, height: 92, borderRadius: "50%", overflow: "hidden", boxShadow: "0 0 0 3px #000, 0 0 0 5px rgba(255,255,255,0.28), 0 0 26px rgba(255,255,255,0.1)", cursor: "pointer", position: "relative" }}>
               <img
-                src={player!.avatarUrl || astralIcon}
+                src={avatarUrl || astralIcon}
                 alt="avatar"
                 style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
               />
               {/* Hover overlay */}
-              <div style={{ position: "absolute", inset: 0, background: (hoverAvatar || avatarUploading) ? "rgba(0,0,0,0.55)" : "rgba(0,0,0,0)", transition: "background 0.2s", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "50%" }}>
-                {avatarUploading
-                  ? <div style={{ width: 18, height: 18, border: "2px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", borderRadius: "50%", animation: "spin 0.7s linear infinite" }} />
-                  : hoverAvatar && <UploadIcon size={16} color="#fff" />
-                }
+              <div style={{ position: "absolute", inset: 0, background: hoverAvatar ? "rgba(0,0,0,0.55)" : "rgba(0,0,0,0)", transition: "background 0.2s", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "50%" }}>
+                {hoverAvatar && <UploadIcon size={16} color="#fff" />}
               </div>
             </div>
-            <input ref={avatarRef} type="file" accept="image/*" onChange={handleAvatarChange} style={{ display: "none" }} />
-            {avatarError && (
-              <div style={{ position: "absolute", top: 100, left: 0, whiteSpace: "nowrap", background: "rgba(255,60,60,0.18)", border: "0.5px solid rgba(255,100,100,0.3)", borderRadius: 999, padding: "4px 10px", fontSize: "0.7rem", color: "#ff8080", fontFamily: "Outfit, sans-serif" }}>
-                {avatarError}
-              </div>
-            )}
+            <input ref={avatarRef} type="file" accept="image/*" onChange={e => { const f = e.target.files?.[0]; if (f) setAvatarUrl(URL.createObjectURL(f)); }} style={{ display: "none" }} />
+
           </div>
         </section>
 

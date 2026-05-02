@@ -91,7 +91,7 @@ export default function Profile() {
   useEffect(() => {
     if (player?.avatarUrl) setAvatarUrl(player.avatarUrl);
     if (player?.bannerUrl) setBannerUrl(player.bannerUrl);
-  }, [player?.name]);
+  }, [player?.avatarUrl, player?.bannerUrl]);
 
   useEffect(() => {
     if (tab === "Season Pass") {

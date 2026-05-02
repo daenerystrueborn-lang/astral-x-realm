@@ -43,7 +43,7 @@ export default function Nav() {
       }}>
         {/* Left: logo + links */}
         <div style={{ display: "flex", alignItems: "center", gap: 4, minWidth: 0 }}>
-          <img src={astralIcon} alt="logo" style={{ width: 28, height: 28, borderRadius: "50%", objectFit: "cover", flexShrink: 0, marginRight: 4 }} />
+          <img src={astralIcon} alt="logo" style={{ width: 28, height: 28, borderRadius: "50%", objectFit: "cover", flexShrink: 0, marginRight: 12 }} />
           <ul style={{ display: "flex", alignItems: "center", gap: 1, listStyle: "none", margin: 0 }} className="nav-links-desktop">
             {links.map(l => {
               const active = location === l.to;
@@ -74,7 +74,7 @@ export default function Nav() {
         </div>
 
         {/* Right: auth area + hamburger */}
-        <div style={{ display: "flex", alignItems: "center", gap: 5, flexShrink: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
           {player ? (
             <>
               <Link href="/profile" style={{ display: "flex", alignItems: "center", gap: 7, background: "rgba(255,255,255,0.07)", border: "0.5px solid rgba(255,255,255,0.13)", borderRadius: 999, padding: "5px 13px 5px 8px", textDecoration: "none", cursor: "pointer" }}>

@@ -93,7 +93,7 @@ export default function Profile() {
   if (!loading && !player) {
     return (
       <div style={{ minHeight: "100vh", background: "#000" }}>
-        <Nav />
+        <div style={{ position: "relative", zIndex: 10 }}><Nav /></div>
         <div style={{ maxWidth: 600, margin: "0 auto", padding: "80px 20px", textAlign: "center" }}>
           <div style={{ fontSize: "2.5rem", marginBottom: 16 }}>🔐</div>
           <h2 style={{ fontSize: "1.3rem", fontWeight: 700, color: "#fff", marginBottom: 8 }}>Login Required</h2>
@@ -112,7 +112,7 @@ export default function Profile() {
   if (loading) {
     return (
       <div style={{ minHeight: "100vh", background: "#000" }}>
-        <Nav />
+        <div style={{ position: "relative", zIndex: 10 }}><Nav /></div>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "60vh" }}>
           <p style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.85rem" }}>Loading...</p>
         </div>
@@ -159,7 +159,7 @@ export default function Profile() {
 
   return (
     <div style={{ minHeight: "100vh", background: "#000" }}>
-      <Nav />
+      <div style={{ position: "relative", zIndex: 10 }}><Nav /></div>
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 20px" }}>
 
         {/* ── Banner + Avatar ── */}

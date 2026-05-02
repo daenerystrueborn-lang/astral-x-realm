@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
-import GlowCard from "@/components/GlowCard";
 import { SwordIcon, ShieldIcon, DiceIcon, ChestIcon, UsersIcon, MapIcon, GemIcon, CrownIcon, TrophyIcon, BoltIcon } from "@/components/Icons";
 import { useAuth } from "@/context/AuthContext";
 import astralIcon from "/astral_icon.png";
@@ -42,53 +41,6 @@ function SnowCanvas() {
   return <canvas ref={ref} style={{ position: "fixed", inset: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 0 }} />;
 }
 
-/* ── Featured Cards — AI-generated images from Pollinations ── */
-function cardImg(name: string, element: string) {
-  const prompt = `${name}, ${element} dark fantasy legendary monster card art, epic, glowing, dramatic lighting, digital painting, no text, black background`;
-  let h = 0;
-  for (let i = 0; i < name.length; i++) h = (Math.imul(31, h) + name.charCodeAt(i)) | 0;
-  const seed = Math.abs(h) % 9999;
-  return `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=300&height=300&nologo=true&model=flux&seed=${seed}`;
-}
-
-const featuredCards = [
-  {
-    name: "Phantom Wyrm",
-    subtitle: "Void · Legendary",
-    power: 580,
-    rarity: "Legendary" as const,
-    element: "Void",
-    imageUrl: cardImg("Phantom Wyrm", "Void"),
-    icon: null as React.ReactNode,
-  },
-  {
-    name: "Solar Phoenix",
-    subtitle: "Fire · Legendary",
-    power: 650,
-    rarity: "Legendary" as const,
-    element: "Fire",
-    imageUrl: cardImg("Solar Phoenix", "Fire"),
-    icon: null as React.ReactNode,
-  },
-  {
-    name: "Abyssal Kraken",
-    subtitle: "Dark · Legendary",
-    power: 610,
-    rarity: "Legendary" as const,
-    element: "Dark",
-    imageUrl: cardImg("Abyssal Kraken", "Dark"),
-    icon: null as React.ReactNode,
-  },
-  {
-    name: "Ancient Dragon",
-    subtitle: "Dragon · Legendary",
-    power: 695,
-    rarity: "Legendary" as const,
-    element: "Dragon",
-    imageUrl: cardImg("Ancient Dragon", "Dragon"),
-    icon: null as React.ReactNode,
-  },
-];
 
 const features = [
   { Icon: SwordIcon, title: "Dungeon Raids", desc: "Explore multi-floor dungeons with your party. Unlock elite loot and boss drops." },
@@ -325,19 +277,6 @@ export default function Home() {
             </div>
           </section>
 
-          {/* ── Featured Legendary Cards ── */}
-          <section style={{ marginBottom: 60 }}>
-            <div className="animate-fade-in-up delay-1" style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 24, flexWrap: "wrap", gap: 12 }}>
-              <div>
-                <div style={{ display: "inline-block", background: "rgba(255,255,255,0.05)", border: "0.5px solid rgba(255,255,255,0.1)", borderRadius: 999, padding: "4px 14px", fontSize: "0.7rem", fontWeight: 600, color: "rgba(255,255,255,0.45)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 10 }}>Legendary Drops</div>
-                <h2 style={{ fontSize: "clamp(1.4rem, 3vw, 1.8rem)", fontWeight: 800, color: "#fff", letterSpacing: "-0.03em" }}>Featured Cards</h2>
-                <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.38)", marginTop: 5 }}>Toggle the switch on each card to activate its glow</p>
-              </div>
-            </div>
-            <div className="animate-fade-in-up delay-2" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(210px, 1fr))", gap: 16 }}>
-              {featuredCards.map(c => <GlowCard key={c.name} name={c.name} subtitle={c.subtitle} power={c.power} rarity={c.rarity} element={c.element} icon={null} imageUrl={c.imageUrl} />)}
-            </div>
-          </section>
 
           {/* ── Astral Cubes ── */}
           <section style={{ marginBottom: 60 }}>

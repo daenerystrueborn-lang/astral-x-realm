@@ -16,7 +16,6 @@ function CardsIcon({ size = 14, color = "currentColor" }) {
 const links = [
   { label: "Home", to: "/", Icon: HomeIcon },
   { label: "Profile", to: "/profile", Icon: UserIcon },
-  { label: "Cards", to: "/cards", Icon: CardsIcon },
   { label: "Leaderboard", to: "/leaderboard", Icon: LeaderboardIcon },
   { label: "Shop", to: "/shop", Icon: ShopIcon },
   { label: "Topup", to: "/topup", Icon: TopupIcon },

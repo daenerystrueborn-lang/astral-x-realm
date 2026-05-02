@@ -5,7 +5,7 @@ import GlowCard from "@/components/GlowCard";
 import { SwordIcon, ShieldIcon, DiceIcon, ChestIcon, UsersIcon, MapIcon, GemIcon, CrownIcon, TrophyIcon, BoltIcon } from "@/components/Icons";
 import { useAuth } from "@/context/AuthContext";
 import astralIcon from "/astral_icon.png";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { getLeaderboard, type LeaderboardEntry } from "@/lib/api";
 
 /* ── Snow Canvas (home-only) ── */
@@ -97,6 +97,8 @@ const features = [
   { Icon: DiceIcon, title: "Casino & Events", desc: "Spin the wheel, play blackjack, earn bonus gold from limited-time events." },
   { Icon: TrophyIcon, title: "Ranked Season", desc: "Compete in seasonal PvP ladders. Earn exclusive rewards and prestige titles." },
   { Icon: BoltIcon, title: "Daily Quests", desc: "3 fresh quests every day. Chain streaks for bonus XP and rare item rewards." },
+  { Icon: GemIcon, title: "Player Market", desc: "List items for sale, browse stalls, and trade directly with other players for profit." },
+  { Icon: MapIcon, title: "Forge & Craft", desc: "Smelt materials, craft powerful gear, and upgrade your weapons at the forge." },
 ];
 
 const steps = [
@@ -181,7 +183,8 @@ const fallbackGuilds: GuildRow[] = [
 ];
 
 export default function Home() {
-  const { openSignup } = useAuth();
+  const { openSignup, player } = useAuth();
+  const [, navigate] = useLocation();
   const [guilds, setGuilds] = useState<GuildRow[]>(fallbackGuilds);
 
   useEffect(() => {
@@ -221,10 +224,10 @@ export default function Home() {
             </p>
 
             <div className="animate-fade-in-up delay-4" style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", marginBottom: 20 }}>
-              <button onClick={openSignup} style={{ background: "#fff", color: "#000", border: "none", borderRadius: 999, padding: "14px 38px", fontSize: "0.9rem", fontWeight: 700, cursor: "pointer", fontFamily: "Outfit, sans-serif", boxShadow: "0 0 40px rgba(255,255,255,0.12)", transition: "transform 0.2s, box-shadow 0.2s" }}
+              <button onClick={() => player ? navigate('/profile') : openSignup()} style={{ background: "#fff", color: "#000", border: "none", borderRadius: 999, padding: "14px 38px", fontSize: "0.9rem", fontWeight: 700, cursor: "pointer", fontFamily: "Outfit, sans-serif", boxShadow: "0 0 40px rgba(255,255,255,0.12)", transition: "transform 0.2s, box-shadow 0.2s" }}
                 onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.03)"; e.currentTarget.style.boxShadow = "0 0 60px rgba(255,255,255,0.2)"; }}
                 onMouseLeave={e => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.boxShadow = "0 0 40px rgba(255,255,255,0.12)"; }}>
-                Get Started Free
+                {player ? "Go to Profile" : "Get Started Free"}
               </button>
               <Link href="/leaderboard" style={{ background: "transparent", color: "rgba(255,255,255,0.8)", border: "0.5px solid rgba(255,255,255,0.2)", borderRadius: 999, padding: "14px 38px", fontSize: "0.9rem", fontWeight: 500, cursor: "pointer", fontFamily: "Outfit, sans-serif", textDecoration: "none", display: "inline-block", transition: "border-color 0.2s" }}>
                 View Leaderboard
@@ -234,7 +237,7 @@ export default function Home() {
             {/* ── Discord + WhatsApp buttons ── */}
             <div className="animate-fade-in-up delay-4" style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
               <a
-                href="https://discord.gg/astralxrealm"
+                href="https://discord.gg/s9fNUgHVT"
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
@@ -253,7 +256,7 @@ export default function Home() {
                 Join Discord
               </a>
               <a
-                href="https://chat.whatsapp.com/astralxrealm"
+                href="https://chat.whatsapp.com/HngJ76A2bzkCfK3rV74Ebk"
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
@@ -437,10 +440,10 @@ export default function Home() {
             <div style={{ position: "absolute", top: -60, left: "50%", transform: "translateX(-50%)", width: 400, height: 300, background: "radial-gradient(ellipse at center, rgba(255,255,255,0.05) 0%, transparent 70%)", pointerEvents: "none" }} />
             <h2 style={{ fontSize: "clamp(1.6rem, 4vw, 2.6rem)", fontWeight: 800, color: "#fff", marginBottom: 14, letterSpacing: "-0.04em", position: "relative" }}>Ready to Enter the Realm?</h2>
             <p style={{ fontSize: "0.92rem", color: "rgba(255,255,255,0.4)", marginBottom: 32, maxWidth: 420, margin: "0 auto 32px", lineHeight: 1.7 }}>Join 10,000+ players already battling across Discord and WhatsApp. Free to start — always.</p>
-            <button onClick={openSignup} style={{ background: "#fff", color: "#000", border: "none", borderRadius: 999, padding: "14px 44px", fontSize: "0.92rem", fontWeight: 700, cursor: "pointer", fontFamily: "Outfit, sans-serif", boxShadow: "0 0 40px rgba(255,255,255,0.1)", transition: "transform 0.2s" }}
+            <button onClick={() => player ? navigate('/profile') : openSignup()} style={{ background: "#fff", color: "#000", border: "none", borderRadius: 999, padding: "14px 44px", fontSize: "0.92rem", fontWeight: 700, cursor: "pointer", fontFamily: "Outfit, sans-serif", boxShadow: "0 0 40px rgba(255,255,255,0.1)", transition: "transform 0.2s" }}
               onMouseEnter={e => (e.currentTarget.style.transform = "scale(1.04)")}
               onMouseLeave={e => (e.currentTarget.style.transform = "scale(1)")}>
-              Create Account
+              {player ? "Go to Profile" : "Create Account"}
             </button>
           </section>
 

@@ -69,7 +69,7 @@ export default function Topup() {
             <h2 style={{ fontSize: "0.72rem", fontWeight: 600, color: "rgba(255,255,255,0.45)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Solar Packages</h2>
           </div>
 
-          <div className="animate-fade-in-up delay-2" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 12, marginBottom: 52 }}>
+          <div className="animate-fade-in-up delay-2" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 52 }}>
             {goldPackages.map((pkg, i) => {
               const isSel = selectedGold === i;
               const isPopular = pkg.id === "iron";
@@ -117,7 +117,7 @@ export default function Topup() {
             <h2 style={{ fontSize: "0.72rem", fontWeight: 600, color: "rgba(255,255,255,0.45)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Gem Packages</h2>
           </div>
 
-          <div className="animate-fade-in-up delay-2" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(175px, 1fr))", gap: 12, marginBottom: 52 }}>
+          <div className="animate-fade-in-up delay-2" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 52 }}>
             {gemPackages.map((pkg, i) => {
               const isSel = selectedGem === i;
               const isPopular = pkg.id === "nova";

@@ -75,23 +75,19 @@ type Tab = typeof tabs[number];
 
 export default function Profile() {
   const { player, loading, openLogin, setPlayer, refreshPlayer } = useAuth();
-  const [bannerUrl, setBannerUrl] = useState<string | null>(null);
   const bannerRef = useRef<HTMLInputElement>(null);
   const [hoverBanner, setHoverBanner] = useState(false);
   const [tab, setTab] = useState<Tab>("Overview");
   const [spWidth, setSpWidth] = useState(0);
   const avatarRef = useRef<HTMLInputElement>(null);
   const [hoverAvatar, setHoverAvatar] = useState(false);
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [avatarUploading, setAvatarUploading] = useState(false);
-
   const [bannerUploading, setBannerUploading] = useState(false);
+  const [localAvatarUrl, setLocalAvatarUrl] = useState<string | null>(null);
+  const [localBannerUrl, setLocalBannerUrl] = useState<string | null>(null);
 
-  // Load avatar and banner from player data
-  useEffect(() => {
-    if (player?.avatarUrl) setAvatarUrl(player.avatarUrl);
-    if (player?.bannerUrl) setBannerUrl(player.bannerUrl);
-  }, [player?.avatarUrl, player?.bannerUrl]);
+  const avatarUrl = localAvatarUrl || player?.avatarUrl || null;
+  const bannerUrl = localBannerUrl || player?.bannerUrl || null;
 
   useEffect(() => {
     if (tab === "Season Pass") {
@@ -107,10 +103,9 @@ export default function Profile() {
     try {
       const updated = await uploadAvatar(f);
       setPlayer(updated);
-      setAvatarUrl(updated.avatarUrl || URL.createObjectURL(f));
+      setLocalAvatarUrl(updated.avatarUrl || URL.createObjectURL(f));
     } catch {
-      // fallback: show locally even if upload fails
-      setAvatarUrl(URL.createObjectURL(f));
+      setLocalAvatarUrl(URL.createObjectURL(f));
     } finally {
       setAvatarUploading(false);
     }
@@ -123,9 +118,9 @@ export default function Profile() {
     try {
       const updated = await uploadBanner(f);
       setPlayer(updated);
-      setBannerUrl(updated.bannerUrl || URL.createObjectURL(f));
+      setLocalBannerUrl(updated.bannerUrl || URL.createObjectURL(f));
     } catch {
-      setBannerUrl(URL.createObjectURL(f));
+      setLocalBannerUrl(URL.createObjectURL(f));
     } finally {
       setBannerUploading(false);
     }

@@ -122,3 +122,5 @@
     -webkit-text-fill-color: #fff !important;
   }
 }
+
+@keyframes spin { to { transform: rotate(360deg); } }

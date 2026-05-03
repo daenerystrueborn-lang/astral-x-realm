@@ -193,11 +193,22 @@ export default function Leaderboard() {
 
           {/* ── Top 3 Podium with art overlays ── */}
           {!loading && players.length >= 3 && (
-            <div className="animate-fade-in-up delay-2 podium-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 20 }}>
-              {([players[1], players[0], players[2]] as LeaderboardEntry[]).map((p, idx) => (
-                <PodiumCard key={p.rank} p={p} isCenter={idx === 1} artSrc={podiumArt[idx]} />
-              ))}
-            </div>
+            <>
+              {/* Desktop: #2 | #1 | #3 */}
+              <div className="animate-fade-in-up delay-2 podium-desktop" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 20 }}>
+                {([players[1], players[0], players[2]] as LeaderboardEntry[]).map((p, idx) => (
+                  <PodiumCard key={p.rank} p={p} isCenter={idx === 1} artSrc={podiumArt[idx]} />
+                ))}
+              </div>
+              {/* Mobile: #1 on top full-width, then #2 + #3 side-by-side */}
+              <div className="animate-fade-in-up delay-2 podium-mobile" style={{ marginBottom: 20 }}>
+                <PodiumCard p={players[0]} isCenter={true} artSrc={podiumArt[1]} />
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 8 }}>
+                  <PodiumCard p={players[1]} isCenter={false} artSrc={podiumArt[0]} />
+                  <PodiumCard p={players[2]} isCenter={false} artSrc={podiumArt[2]} />
+                </div>
+              </div>
+            </>
           )}
 
           {/* ── Tab switcher: Players / Guilds ── */}
@@ -325,9 +336,11 @@ export default function Leaderboard() {
       <style>{`
         .lb-row { display: grid; grid-template-columns: 36px 1fr 48px 72px 110px; gap: 10px; align-items: center; }
         .guild-row { display: grid; grid-template-columns: 36px 1fr 120px 72px 100px; gap: 10px; align-items: center; }
+        .podium-mobile { display: none; }
+        .podium-desktop { display: grid; }
         @media (max-width: 640px) {
-          .podium-grid { grid-template-columns: 1fr !important; gap: 8px !important; }
-          .podium-grid > div { margin-top: 0 !important; }
+          .podium-desktop { display: none !important; }
+          .podium-mobile { display: block !important; }
           .lb-row { grid-template-columns: 32px 1fr 56px; gap: 8px; }
           .lb-col-lvl, .lb-col-guild { display: none !important; }
           .guild-row { grid-template-columns: 32px 1fr 64px; gap: 8px; }

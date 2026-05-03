@@ -82,7 +82,7 @@ export default function Topup() {
             <h2 style={{ fontSize: "0.72rem", fontWeight: 600, color: "rgba(255,255,255,0.45)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Solar Packages</h2>
           </div>
 
-          <div className="animate-fade-in-up delay-2" className="topup-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 52 }}>
+          <div className="animate-fade-in-up delay-2 topup-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 52 }}>
             {goldPackages.map((pkg) => {
               const isPopular = pkg.id === "iron";
               const waText = `!topup solar ${pkg.id}`;
@@ -114,7 +114,7 @@ export default function Topup() {
             <h2 style={{ fontSize: "0.72rem", fontWeight: 600, color: "rgba(255,255,255,0.45)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Gem Packages</h2>
           </div>
 
-          <div className="animate-fade-in-up delay-2" className="topup-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 52 }}>
+          <div className="animate-fade-in-up delay-2 topup-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 52 }}>
             {gemPackages.map((pkg) => {
               const isPopular = pkg.id === "nova";
               const waText = `!topup gems ${pkg.id}`;
@@ -146,7 +146,7 @@ export default function Topup() {
             <h2 style={{ fontSize: "0.72rem", fontWeight: 600, color: "rgba(255,255,255,0.45)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Premium Passes</h2>
           </div>
 
-          <div className="animate-fade-in-up delay-2" className="topup-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 52 }}>
+          <div className="animate-fade-in-up delay-2 topup-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 52 }}>
             {premiumPackages.map((pkg) => {
               const isPopular = pkg.id === "monthly";
               const waText = `!premium ${pkg.id}`;
@@ -229,9 +229,11 @@ export default function Topup() {
         .topup-grid { display: grid; grid-template-columns: repeat(3, 1fr); }
         @media (max-width: 720px) {
           .topup-grid { grid-template-columns: repeat(2, 1fr) !important; }
+          .topup-grid > *:last-child:nth-child(odd) { grid-column: 1 / -1; max-width: 50%; margin: 0 auto; width: 100%; }
         }
         @media (max-width: 420px) {
           .topup-grid { grid-template-columns: 1fr !important; }
+          .topup-grid > *:last-child:nth-child(odd) { grid-column: unset; max-width: unset; }
         }
       `}</style>
       <Footer />

@@ -230,7 +230,7 @@ export default function Home() {
           </section>
 
           {/* ── Stats bar ── */}
-          <div className="animate-fade-in-up delay-3" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 1, background: "rgba(255,255,255,0.06)", border: "0.5px solid rgba(255,255,255,0.08)", borderRadius: 16, overflow: "hidden", marginBottom: 60 }}>
+          <div className="animate-fade-in-up delay-3" className="stats-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 1, background: "rgba(255,255,255,0.06)", border: "0.5px solid rgba(255,255,255,0.08)", borderRadius: 16, overflow: "hidden", marginBottom: 60 }}>
             {stats.map((s, i) => (
               <div key={s.label} style={{ padding: "22px 20px", textAlign: "center", borderRight: i < stats.length - 1 ? "0.5px solid rgba(255,255,255,0.06)" : "none", background: "rgba(10,10,10,0.5)" }}>
                 <div style={{ fontSize: "1.8rem", fontWeight: 800, color: "#fff", letterSpacing: "-0.03em", lineHeight: 1.1 }}>{s.value}</div>
@@ -517,6 +517,12 @@ export default function Home() {
         </div>
         <Footer />
       </div>
+      <style>{`
+        @media (max-width: 640px) {
+          .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
+          .stats-grid > div { border-right: none !important; border-bottom: 0.5px solid rgba(255,255,255,0.06); }
+        }
+      `}</style>
     </div>
   );
 }

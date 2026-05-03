@@ -239,6 +239,143 @@ export default function Home() {
             ))}
           </div>
 
+          {/* ── Our Active Bots ── */}
+          <style>{`
+            .bot-card { overflow: visible; width: 190px; height: 254px; cursor: pointer; }
+            .bot-card-inner {
+              width: 100%; height: 100%;
+              transform-style: preserve-3d;
+              transition: transform 600ms cubic-bezier(0.4,0.2,0.2,1);
+              box-shadow: 0px 0px 10px 1px #000000ee;
+              border-radius: 5px;
+            }
+            .bot-card:hover .bot-card-inner { transform: rotateY(180deg); }
+            .bot-face {
+              background-color: #151515;
+              position: absolute; width: 100%; height: 100%;
+              backface-visibility: hidden; -webkit-backface-visibility: hidden;
+              border-radius: 5px; overflow: hidden;
+            }
+            .bot-back {
+              display: flex; justify-content: center; align-items: center;
+            }
+            .bot-back::before {
+              position: absolute; content: ' '; display: block;
+              width: 160px; height: 160%;
+              background: linear-gradient(90deg, transparent, #ff9966, #ff9966, #ff9966, transparent);
+              animation: bot_spin 5000ms infinite linear;
+            }
+            .bot-back-inner {
+              position: absolute; width: 99%; height: 99%;
+              background-color: #151515; border-radius: 5px;
+              overflow: hidden;
+            }
+            .bot-back-inner img {
+              width: 100%; height: 100%; object-fit: cover; object-position: top center;
+              opacity: 0.92;
+            }
+            .bot-front { transform: rotateY(180deg); color: white; }
+            .bot-front-content {
+              position: absolute; width: 100%; height: 100%; padding: 10px;
+              display: flex; flex-direction: column; justify-content: space-between;
+            }
+            .bot-badge {
+              background-color: #00000055; padding: 2px 10px; border-radius: 10px;
+              backdrop-filter: blur(2px); width: fit-content; font-size: 10px;
+            }
+            .bot-desc-box {
+              box-shadow: 0px 0px 10px 5px #00000088;
+              width: 100%; padding: 10px;
+              background-color: #00000099; backdrop-filter: blur(5px);
+              border-radius: 5px;
+            }
+            .bot-circles { position: absolute; width: 100%; height: 100%; }
+            .bot-circle {
+              width: 90px; height: 90px; border-radius: 50%;
+              background-color: #ffbb66; position: absolute;
+              filter: blur(15px); animation: bot_float 2600ms infinite linear;
+            }
+            .bot-circle.r { background-color: #ff2233; left: 160px; top: -80px; width: 30px; height: 30px; animation-delay: -1800ms; }
+            .bot-circle.b { background-color: #ff8866; left: 50px; top: 0px; width: 150px; height: 150px; animation-delay: -800ms; }
+            @keyframes bot_float { 0%,100% { transform: translateY(0px); } 50% { transform: translateY(10px); } }
+            @keyframes bot_spin { from { transform: rotateZ(0deg); } to { transform: rotateZ(360deg); } }
+          `}</style>
+          <section style={{ marginBottom: 60 }}>
+            <div className="animate-fade-in-up delay-1" style={{ marginBottom: 20 }}>
+              <div style={{ fontSize: "0.68rem", fontWeight: 600, color: "rgba(255,255,255,0.3)", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 20 }}>OUR ACTIVE BOTS</div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 20 }}>
+                {([
+                  {
+                    name: "Gon", status: "Online", online: true,
+                    img: "/bot_gon.jpg",
+                    desc: "Active bot for quests, raids, and guild commands.",
+                    uptime: "99.8%", ping: "42ms", servers: "1,240", commands: "28",
+                    accentA: "#ffbb66", accentB: "#ff8866", accentC: "#ff2233",
+                  },
+                  {
+                    name: "Zesnitsu", status: "Online", online: true,
+                    img: "/bot_zesnitsu.jpg",
+                    desc: "Handles battles, rewards, and player support.",
+                    uptime: "98.5%", ping: "38ms", servers: "1,240", commands: "35",
+                    accentA: "#ffe566", accentB: "#ffaa22", accentC: "#ff6633",
+                  },
+                  {
+                    name: "Rimiru", status: "Offline", online: false,
+                    img: "/bot_rimiru.jpg",
+                    desc: "Maintenance bot for future events and updates.",
+                    uptime: "—", ping: "—", servers: "—", commands: "12",
+                    accentA: "#8899ff", accentB: "#5566cc", accentC: "#334499",
+                  },
+                ] as const).map(bot => (
+                  <div key={bot.name} className="bot-card">
+                    <div className="bot-card-inner">
+                      {/* BACK — full bot image */}
+                      <div className="bot-face bot-back">
+                        <div className="bot-back-inner">
+                          <img src={bot.img} alt={bot.name} />
+                          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "10px 12px", background: "linear-gradient(transparent, #000000cc)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                            <span style={{ fontWeight: 700, fontSize: 13, color: "#fff" }}>{bot.name}</span>
+                            <span style={{ fontSize: 9, fontWeight: 600, color: bot.online ? "#4ade80" : "#888", background: "rgba(0,0,0,0.5)", padding: "2px 7px", borderRadius: 99 }}>● {bot.status}</span>
+                          </div>
+                        </div>
+                      </div>
+                      {/* FRONT — details */}
+                      <div className="bot-face bot-front">
+                        <div className="bot-circles">
+                          <div className="bot-circle" style={{ backgroundColor: bot.accentA }} />
+                          <div className="bot-circle r" style={{ backgroundColor: bot.accentC }} />
+                          <div className="bot-circle b" style={{ backgroundColor: bot.accentB }} />
+                        </div>
+                        <div className="bot-front-content">
+                          <span className="bot-badge" style={{ color: bot.online ? "#4ade80" : "#aaa" }}>● {bot.status}</span>
+                          <div className="bot-desc-box">
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
+                              <span style={{ fontSize: 13, fontWeight: 800, color: "#fff" }}>{bot.name}</span>
+                            </div>
+                            <p style={{ fontSize: 9, color: "rgba(255,255,255,0.65)", margin: "0 0 8px", lineHeight: 1.5 }}>{bot.desc}</p>
+                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px 8px" }}>
+                              {[
+                                { label: "Uptime", val: bot.uptime },
+                                { label: "Ping", val: bot.ping },
+                                { label: "Servers", val: bot.servers },
+                                { label: "Commands", val: bot.commands },
+                              ].map(s => (
+                                <div key={s.label}>
+                                  <div style={{ fontSize: 7, color: "rgba(255,255,255,0.35)", textTransform: "uppercase", letterSpacing: "0.06em" }}>{s.label}</div>
+                                  <div style={{ fontSize: 11, fontWeight: 700, color: "#fff" }}>{s.val}</div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
           {/* ── Premium Banner ── */}
           <div className="animate-fade-in-up delay-2" style={{ background: "rgba(10,10,10,0.85)", border: "0.5px solid rgba(255,255,255,0.14)", borderRadius: 18, padding: "20px 28px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 14, marginBottom: 60, backdropFilter: "blur(12px)", boxShadow: "0 0 40px rgba(255,255,255,0.03)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 16 }}>

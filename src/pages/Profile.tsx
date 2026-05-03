@@ -3,10 +3,13 @@ import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import astralIcon from "/astral_icon.png";
 import { useAuth } from "@/context/AuthContext"
+import { getPlayerActivity, type ActivityEntry } from "@/lib/api";
 import {
   UploadIcon, WeaponIcon, ShieldIcon, HelmetIcon, BootIcon,
   RingIcon, AmuletIcon, DragonIcon, CastleIcon, StarBadgeIcon, ArenaIcon, CrownIcon, SwordIcon, CheckIcon
 } from "@/components/Icons";
+
+function cap(s?: string) { if (!s) return "—"; return s.charAt(0).toUpperCase() + s.slice(1); }
 
 /* ── Animated stat bar ── */
 function StatBar({ label, value, max, pct }: { label: string; value: string; max: string; pct: number }) {
@@ -30,11 +33,6 @@ function StatBar({ label, value, max, pct }: { label: string; value: string; max
     </div>
   );
 }
-
-/* ── Keep season pass + achievements as static (not in API) ── */
-const activity = [
-  { text: "Cleared a dungeon floor", time: "recently", type: "dungeon" },
-];
 
 const achievements = [
   { name: "Dragon Slayer", desc: "Defeat 100 dragons", Icon: DragonIcon, done: false, pct: 0 },
@@ -82,6 +80,8 @@ export default function Profile() {
   const [hoverAvatar, setHoverAvatar] = useState(false);
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [bannerUploading, setBannerUploading] = useState(false);
+  const [activityLog, setActivityLog] = useState<ActivityEntry[]>([]);
+  const [activityLoading, setActivityLoading] = useState(false);
 
   const avatarKey = player ? `axr_avatar_${player.name}` : null;
   const bannerKey = player ? `axr_banner_${player.name}` : null;
@@ -97,6 +97,28 @@ export default function Profile() {
     if (avatarKey) setAvatarUrl(localStorage.getItem(avatarKey));
     if (bannerKey) setBannerUrl(localStorage.getItem(bannerKey));
   }, [avatarKey, bannerKey]);
+
+  // Fetch real activity from API, fall back to player.activityLog, then nothing
+  useEffect(() => {
+    if (!player) return;
+    setActivityLoading(true);
+    getPlayerActivity()
+      .then(data => {
+        if (data && data.length > 0) {
+          setActivityLog(data);
+        } else if (player.activityLog && player.activityLog.length > 0) {
+          setActivityLog(player.activityLog);
+        } else {
+          setActivityLog([]);
+        }
+      })
+      .catch(() => {
+        if (player.activityLog && player.activityLog.length > 0) {
+          setActivityLog(player.activityLog);
+        }
+      })
+      .finally(() => setActivityLoading(false));
+  }, [player]);
 
   useEffect(() => {
     if (tab === "Season Pass") {
@@ -191,20 +213,21 @@ export default function Profile() {
     { label: "Solars",   value: player!.Solars.toLocaleString() },
     { label: "Gems",     value: String(player!.gems) },
     { label: "Kills",    value: player!.kills.toLocaleString() },
-    { label: "Guild",    value: guildDisplay },
-    { label: "Class",    value: player!.class || "—" },
-    { label: "Rank",     value: player!.rank || "Peasant" },
+    { label: "Guild",    value: cap(guildDisplay) },
+    { label: "Class",    value: cap(player!.class) },
+    { label: "Rank",     value: cap(player!.rank) || "Peasant" },
     { label: "Prestige", value: player!.prestige > 0 ? String(player!.prestige) : "—" },
   ];
 
   const eq = player!.equipped || {};
+  const capEq = (s?: string) => s ? s.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : "Empty";
   const equipment = [
-    { slot: "Weapon", name: eq.weapon || "Empty", Icon: WeaponIcon, filled: !!eq.weapon },
-    { slot: "Armor",  name: eq.armor  || "Empty", Icon: ShieldIcon, filled: !!eq.armor },
-    { slot: "Helmet", name: eq.helmet || "Empty", Icon: HelmetIcon, filled: !!eq.helmet },
-    { slot: "Boots",  name: eq.boots  || "Empty", Icon: BootIcon,   filled: !!eq.boots },
-    { slot: "Ring",   name: eq.ring   || "Empty", Icon: RingIcon,   filled: !!eq.ring },
-    { slot: "Amulet", name: eq.amulet || "Empty", Icon: AmuletIcon, filled: !!eq.amulet },
+    { slot: "Weapon", name: capEq(eq.weapon), Icon: WeaponIcon, filled: !!eq.weapon },
+    { slot: "Armor",  name: capEq(eq.armor),  Icon: ShieldIcon, filled: !!eq.armor },
+    { slot: "Helmet", name: capEq(eq.helmet), Icon: HelmetIcon, filled: !!eq.helmet },
+    { slot: "Boots",  name: capEq(eq.boots),  Icon: BootIcon,   filled: !!eq.boots },
+    { slot: "Ring",   name: capEq(eq.ring),   Icon: RingIcon,   filled: !!eq.ring },
+    { slot: "Amulet", name: capEq(eq.amulet), Icon: AmuletIcon, filled: !!eq.amulet },
   ];
 
   return (
@@ -261,7 +284,7 @@ export default function Profile() {
 
         {/* ── Name row ── */}
         <div className="animate-fade-in-up" style={{ paddingLeft: 26, marginTop: 54, display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 6 }}>
-          <h1 style={{ fontSize: "1.4rem", fontWeight: 800, color: "#fff", letterSpacing: "-0.02em" }}>{player!.name}</h1>
+          <h1 style={{ fontSize: "1.4rem", fontWeight: 800, color: "#fff", letterSpacing: "-0.02em" }}>{cap(player!.name)}</h1>
           <span style={{ background: "rgba(255,255,255,0.09)", border: "0.5px solid rgba(255,255,255,0.18)", borderRadius: 999, padding: "3px 11px", fontSize: "0.72rem", fontWeight: 700, color: "#fff" }}>Lv. {player!.level}</span>
           {player!.isKami && (
             <span style={{ background: "rgba(255,255,255,0.06)", border: "0.5px solid rgba(255,255,255,0.2)", borderRadius: 999, padding: "3px 11px", fontSize: "0.72rem", fontWeight: 700, color: "rgba(255,255,255,0.85)", display: "flex", alignItems: "center", gap: 5 }}>
@@ -272,7 +295,7 @@ export default function Profile() {
             <span style={{ background: "rgba(255,255,255,0.04)", border: "0.5px solid rgba(255,255,255,0.1)", borderRadius: 999, padding: "3px 11px", fontSize: "0.72rem", fontWeight: 600, color: "rgba(255,255,255,0.5)" }}>Prestige {player!.prestige}</span>
           )}
         </div>
-        <div style={{ paddingLeft: 26, fontSize: "0.82rem", color: "rgba(255,255,255,0.38)", marginBottom: 28 }}>{player!.class || "—"} · {guildDisplay} · {player!.rank || "Peasant"}</div>
+        <div style={{ paddingLeft: 26, fontSize: "0.82rem", color: "rgba(255,255,255,0.38)", marginBottom: 28 }}>{cap(player!.class)} · {cap(guildDisplay)} · {cap(player!.rank) || "Peasant"}</div>
 
         {/* ── Quick stats strip ── */}
         <div className="animate-fade-in-up delay-1" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))", gap: 1, background: "rgba(255,255,255,0.05)", border: "0.5px solid rgba(255,255,255,0.08)", borderRadius: 14, overflow: "hidden", marginBottom: 24 }}>
@@ -311,8 +334,12 @@ export default function Profile() {
               <div className="section-card" style={{ padding: "22px 24px" }}>
                 <h2 style={{ fontSize: "0.72rem", fontWeight: 600, color: "rgba(255,255,255,0.35)", marginBottom: 16, textTransform: "uppercase", letterSpacing: "0.09em" }}>Recent Activity</h2>
                 <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-                  {activity.map((a, i) => (
-                    <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, padding: "10px 0", borderBottom: i < activity.length - 1 ? "0.5px solid rgba(255,255,255,0.04)" : "none" }}>
+                  {activityLoading ? (
+                    <span style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.25)" }}>Loading...</span>
+                  ) : activityLog.length === 0 ? (
+                    <span style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.22)", fontStyle: "italic" }}>No recent activity yet.</span>
+                  ) : activityLog.map((a, i) => (
+                    <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, padding: "10px 0", borderBottom: i < activityLog.length - 1 ? "0.5px solid rgba(255,255,255,0.04)" : "none" }}>
                       <span style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.7)", lineHeight: 1.45 }}>{a.text}</span>
                       <span style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.27)", whiteSpace: "nowrap", flexShrink: 0, marginTop: 2 }}>{a.time}</span>
                     </div>

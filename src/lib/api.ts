@@ -31,6 +31,21 @@ export interface Player {
   skills: string[]
   titles: string[]
   killCounts: Record<string, number>
+  activityLog?: ActivityEntry[]
+}
+
+export interface ActivityEntry {
+  text: string
+  time: string
+  type: string
+}
+
+export interface GuildRank {
+  name: string
+  rank: number
+  members: number
+  kills: number
+  leader?: string
 }
 
 export interface LeaderboardEntry extends Player {
@@ -204,4 +219,39 @@ export async function uploadBanner(file: File): Promise<Player> {
     body: JSON.stringify({ imageBase64: base64, mimeType: file.type }),
   })
   return handleResponse<Player>(res)
+}
+
+// ─── GUILD RANKS ──────────────────────────────────────────────────────────────
+export async function getGuildRanks(): Promise<GuildRank[]> {
+  try {
+    const res = await fetch(`${API}/api/leaderboard`)
+    const players = await handleResponse<LeaderboardEntry[]>(res)
+    const map = new Map<string, { kills: number; members: number; name: string; leader: string }>()
+    for (const p of players) {
+      const gName = p.guildName || p.guild
+      if (!gName || gName.startsWith('guild_')) continue
+      const entry = map.get(gName) || { kills: 0, members: 0, name: gName, leader: '' }
+      entry.kills += p.kills || 0
+      entry.members += 1
+      if (!entry.leader) entry.leader = p.name
+      map.set(gName, entry)
+    }
+    return Array.from(map.values())
+      .sort((a, b) => b.kills - a.kills)
+      .map((g, i) => ({ name: g.name, rank: i + 1, members: g.members, kills: g.kills, leader: g.leader }))
+  } catch {
+    return []
+  }
+}
+
+// ─── ACTIVITY ─────────────────────────────────────────────────────────────────
+export async function getPlayerActivity(): Promise<ActivityEntry[]> {
+  if (!getToken()) return []
+  try {
+    const res = await fetch(`${API}/api/profile/activity`, { headers: authHeaders() })
+    if (!res.ok) return []
+    return handleResponse<ActivityEntry[]>(res)
+  } catch {
+    return []
+  }
 }

@@ -233,7 +233,7 @@ export default function Topup() {
         @media (max-width: 420px) {
           .topup-grid { grid-template-columns: 1fr !important; }
         }
-      \`}</style>
+      `}</style>
       <Footer />
     </div>
   );

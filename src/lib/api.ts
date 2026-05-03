@@ -154,6 +154,26 @@ export async function buyItem(itemId: string): Promise<Player> {
   return handleResponse<Player>(res)
 }
 
+// ─── BOT STATS ────────────────────────────────────────────────────────────────
+export interface BotStat {
+  name: string
+  online: boolean
+  uptime: string
+  ping: number | null
+  servers: number | null
+  commands: number | null
+}
+
+export async function getBotStats(): Promise<BotStat[]> {
+  try {
+    const res = await fetch(`${API}/api/bots`)
+    if (!res.ok) return []
+    return handleResponse<BotStat[]>(res)
+  } catch {
+    return []
+  }
+}
+
 // ─── AVATAR ───────────────────────────────────────────────────────────────────
 export async function uploadAvatar(file: File): Promise<Player> {
   const base64 = await new Promise<string>((resolve, reject) => {

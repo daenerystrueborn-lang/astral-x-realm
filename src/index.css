@@ -124,3 +124,13 @@
 }
 
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Mobile fixes ── */
+@media (max-width: 480px) {
+  /* Bot cards horizontal scroll — hide scrollbar visually */
+  .bot-cards-scroll::-webkit-scrollbar { display: none; }
+  .bot-cards-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+}
+
+/* Nav dropdown always on top */
+.hamburger-wrap { position: relative; z-index: 300; }

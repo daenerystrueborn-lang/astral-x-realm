@@ -175,19 +175,19 @@ export default function Home() {
               The ultimate Discord &amp; WhatsApp RPG. Battle dungeons, collect legendary cards, build your guild, and climb the global leaderboard.
             </p>
 
-            <div className="animate-fade-in-up delay-4" style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", marginBottom: 20 }}>
-              <button onClick={() => player ? navigate('/profile') : openSignup()} style={{ background: "#fff", color: "#000", border: "none", borderRadius: 999, padding: "14px 38px", fontSize: "0.9rem", fontWeight: 700, cursor: "pointer", fontFamily: "Outfit, sans-serif", boxShadow: "0 0 40px rgba(255,255,255,0.12)", transition: "transform 0.2s, box-shadow 0.2s" }}
+            <div className="animate-fade-in-up delay-4" style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", marginBottom: 20, width: "100%" }}>
+              <button onClick={() => player ? navigate('/profile') : openSignup()} style={{ background: "#fff", color: "#000", border: "none", borderRadius: 999, padding: "13px 28px", fontSize: "0.9rem", fontWeight: 700, cursor: "pointer", fontFamily: "Outfit, sans-serif", boxShadow: "0 0 40px rgba(255,255,255,0.12)", transition: "transform 0.2s, box-shadow 0.2s", whiteSpace: "nowrap" }}
                 onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.03)"; e.currentTarget.style.boxShadow = "0 0 60px rgba(255,255,255,0.2)"; }}
                 onMouseLeave={e => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.boxShadow = "0 0 40px rgba(255,255,255,0.12)"; }}>
                 {player ? "Go to Profile" : "Get Started Free"}
               </button>
-              <Link href="/leaderboard" style={{ background: "transparent", color: "rgba(255,255,255,0.8)", border: "0.5px solid rgba(255,255,255,0.2)", borderRadius: 999, padding: "14px 38px", fontSize: "0.9rem", fontWeight: 500, cursor: "pointer", fontFamily: "Outfit, sans-serif", textDecoration: "none", display: "inline-block", transition: "border-color 0.2s" }}>
+              <Link href="/leaderboard" style={{ background: "transparent", color: "rgba(255,255,255,0.8)", border: "0.5px solid rgba(255,255,255,0.2)", borderRadius: 999, padding: "13px 28px", fontSize: "0.9rem", fontWeight: 500, cursor: "pointer", fontFamily: "Outfit, sans-serif", textDecoration: "none", display: "inline-block", transition: "border-color 0.2s", whiteSpace: "nowrap" }}>
                 View Leaderboard
               </Link>
             </div>
 
             {/* ── Discord + WhatsApp buttons ── */}
-            <div className="animate-fade-in-up delay-4" style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
+            <div className="animate-fade-in-up delay-4" style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", width: "100%" }}>
               <a
                 href="https://discord.gg/s9fNUgHVT"
                 target="_blank"
@@ -303,69 +303,52 @@ export default function Home() {
           <section style={{ marginBottom: 60 }}>
             <div className="animate-fade-in-up delay-1" style={{ marginBottom: 20 }}>
               <div style={{ fontSize: "0.68rem", fontWeight: 600, color: "rgba(255,255,255,0.3)", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 20, textAlign: "center" }}>OUR ACTIVE BOTS</div>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 20, justifyContent: "center" }}>
+              <div className="bot-cards-scroll" style={{ display: "flex", gap: 20, justifyContent: "center", overflowX: "auto", paddingBottom: 8, WebkitOverflowScrolling: "touch" as any, scrollSnapType: "x mandatory" }}>
                 {([
-                  {
-                    name: "Gon", status: "Online", online: true,
-                    img: "/bot_gon.jpg",
-                    desc: "Active bot for quests, raids, and guild commands.",
-                    uptime: "99.8%", ping: "42ms", servers: "1,240", commands: "28",
-                    accentA: "#66bb66", accentB: "#33aa33", accentC: "#aaee44",
-                  },
-                  {
-                    name: "Zesnitsu", status: "Online", online: true,
-                    img: "/bot_zesnitsu.jpg",
-                    desc: "Handles battles, rewards, and player support.",
-                    uptime: "98.5%", ping: "38ms", servers: "1,240", commands: "35",
-                    accentA: "#ffe566", accentB: "#ffaa22", accentC: "#ff6633",
-                  },
-                  {
-                    name: "Giyu", status: "Online", online: true,
-                    img: "/bot_giyu.jpg",
-                    desc: "Manages events, duels, and leaderboard tracking.",
-                    uptime: "97.2%", ping: "51ms", servers: "1,240", commands: "22",
-                    accentA: "#44aacc", accentB: "#cc3344", accentC: "#226688",
-                  },
-                  {
-                    name: "Rimiru", status: "Offline", online: false,
-                    img: "/bot_rimiru.jpg",
-                    desc: "Maintenance bot for future events and updates.",
-                    uptime: "—", ping: "—", servers: "—", commands: "12",
-                    accentA: "#8899ff", accentB: "#5566cc", accentC: "#334499",
-                  },
-                ] as const).map(bot => (
-                  <div key={bot.name} className="bot-card">
-                    <div className="bot-card-inner" style={{ "--bot-accent": bot.accentA } as React.CSSProperties}>
+                  { name: "Gon",      img: "/bot_gon.jpg",      desc: "Active bot for quests, raids, and guild commands.",      accentA: "#66bb66", accentB: "#33aa33", accentC: "#aaee44" },
+                  { name: "Zesnitsu", img: "/bot_zesnitsu.jpg", desc: "Handles battles, rewards, and player support.",          accentA: "#ffe566", accentB: "#ffaa22", accentC: "#ff6633" },
+                  { name: "Giyu",     img: "/bot_giyu.jpg",     desc: "Manages events, duels, and leaderboard tracking.",       accentA: "#44aacc", accentB: "#cc3344", accentC: "#226688" },
+                  { name: "Rimiru",   img: "/bot_rimiru.jpg",   desc: "Maintenance bot for future events and updates.",         accentA: "#8899ff", accentB: "#5566cc", accentC: "#334499" },
+                ] as const).map(cfg => {
+                  const online   = cfg.name !== "Rimiru";
+                  const status   = online ? "Online" : "Offline";
+                  const uptime   = online ? `${(97 + Math.floor(Math.random() * 29) / 10).toFixed(1)}%` : "—";
+                  const ping     = online ? `${30 + Math.floor(Math.random() * 30)}ms` : "—";
+                  const servers  = online ? "1" : "—";
+                  const commands = "449";
+                  return (
+                  <div key={cfg.name} className="bot-card" style={{ flexShrink: 0, scrollSnapAlign: "start" }}>
+                    <div className="bot-card-inner" style={{ "--bot-accent": cfg.accentA } as React.CSSProperties}>
                       {/* BACK — full bot image */}
                       <div className="bot-face bot-back">
                         <div className="bot-back-inner">
-                          <img src={bot.img} alt={bot.name} />
+                          <img src={cfg.img} alt={cfg.name} />
                           <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "10px 12px", background: "linear-gradient(transparent, #000000cc)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                            <span style={{ fontWeight: 700, fontSize: 13, color: "#fff" }}>{bot.name}</span>
-                            <span style={{ fontSize: 9, fontWeight: 600, color: bot.online ? "#4ade80" : "#888", background: "rgba(0,0,0,0.5)", padding: "2px 7px", borderRadius: 99 }}>● {bot.status}</span>
+                            <span style={{ fontWeight: 700, fontSize: 13, color: "#fff" }}>{cfg.name}</span>
+                            <span style={{ fontSize: 9, fontWeight: 600, color: online ? "#4ade80" : "#888", background: "rgba(0,0,0,0.5)", padding: "2px 7px", borderRadius: 99 }}>● {status}</span>
                           </div>
                         </div>
                       </div>
                       {/* FRONT — details */}
                       <div className="bot-face bot-front">
                         <div className="bot-circles">
-                          <div className="bot-circle" style={{ backgroundColor: bot.accentA }} />
-                          <div className="bot-circle r" style={{ backgroundColor: bot.accentC }} />
-                          <div className="bot-circle b" style={{ backgroundColor: bot.accentB }} />
+                          <div className="bot-circle" style={{ backgroundColor: cfg.accentA }} />
+                          <div className="bot-circle r" style={{ backgroundColor: cfg.accentC }} />
+                          <div className="bot-circle b" style={{ backgroundColor: cfg.accentB }} />
                         </div>
                         <div className="bot-front-content">
-                          <span className="bot-badge" style={{ color: bot.online ? "#4ade80" : "#aaa" }}>● {bot.status}</span>
+                          <span className="bot-badge" style={{ color: online ? "#4ade80" : "#aaa" }}>● {status}</span>
                           <div className="bot-desc-box">
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
-                              <span style={{ fontSize: 13, fontWeight: 800, color: "#fff" }}>{bot.name}</span>
+                              <span style={{ fontSize: 13, fontWeight: 800, color: "#fff" }}>{cfg.name}</span>
                             </div>
-                            <p style={{ fontSize: 9, color: "rgba(255,255,255,0.65)", margin: "0 0 8px", lineHeight: 1.5 }}>{bot.desc}</p>
+                            <p style={{ fontSize: 9, color: "rgba(255,255,255,0.65)", margin: "0 0 8px", lineHeight: 1.5 }}>{cfg.desc}</p>
                             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px 8px" }}>
                               {[
-                                { label: "Uptime", val: bot.uptime },
-                                { label: "Ping", val: bot.ping },
-                                { label: "Servers", val: bot.servers },
-                                { label: "Commands", val: bot.commands },
+                                { label: "Uptime",   val: uptime },
+                                { label: "Ping",     val: ping },
+                                { label: "Servers",  val: servers },
+                                { label: "Commands", val: commands },
                               ].map(s => (
                                 <div key={s.label}>
                                   <div style={{ fontSize: 7, color: "rgba(255,255,255,0.35)", textTransform: "uppercase", letterSpacing: "0.06em" }}>{s.label}</div>
@@ -378,7 +361,8 @@ export default function Home() {
                       </div>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </section>

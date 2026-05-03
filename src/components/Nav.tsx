@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import astralIcon from "/astral_icon.png";
 import { HomeIcon, UserIcon, ShopIcon, TopupIcon, LeaderboardIcon } from "@/components/Icons";
@@ -25,9 +25,18 @@ export default function Nav() {
   const [location] = useLocation();
   const [open, setOpen] = useState(false);
   const { openSignup, openLogin, player, logout } = useAuth();
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const [dropPos, setDropPos] = useState({ top: 0, right: 0 });
+
+  useEffect(() => {
+    if (open && btnRef.current) {
+      const r = btnRef.current.getBoundingClientRect();
+      setDropPos({ top: r.bottom + 8, right: window.innerWidth - r.right });
+    }
+  }, [open]);
 
   return (
-    <div style={{ width: "100%", maxWidth: 1200, margin: "0 auto", padding: "20px 20px 0" }} className="animate-fade-in">
+    <div style={{ width: "100%", maxWidth: 1200, margin: "0 auto", padding: "20px 20px 0", position: "relative", zIndex: 200 }} className="animate-fade-in">
       <nav style={{
         background: "rgba(0,0,0,0.88)",
         border: "0.5px solid rgba(255,255,255,0.11)",
@@ -40,6 +49,9 @@ export default function Nav() {
         gap: 6,
         backdropFilter: "blur(18px)",
         WebkitBackdropFilter: "blur(18px)",
+        overflow: "visible",
+        position: "relative",
+        zIndex: 200,
       }}>
         {/* Left: logo + links */}
         <div style={{ display: "flex", alignItems: "center", gap: 4, minWidth: 0 }}>
@@ -100,7 +112,7 @@ export default function Nav() {
 
           {/* Hamburger (mobile only) */}
           <div style={{ position: "relative" }} className="hamburger-wrap">
-            <button onClick={e => { e.stopPropagation(); setOpen(o => !o); }} style={{ background: "transparent", border: "0.5px solid rgba(255,255,255,0.16)", borderRadius: 999, width: 34, height: 34, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3.5, cursor: "pointer", flexShrink: 0 }}>
+            <button ref={btnRef} onClick={e => { e.stopPropagation(); setOpen(o => !o); }} style={{ background: "transparent", border: "0.5px solid rgba(255,255,255,0.16)", borderRadius: 999, width: 34, height: 34, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3.5, cursor: "pointer", flexShrink: 0 }}>
               <svg width="15" height="10" viewBox="0 0 15 10" fill="none">
                 <line x1="0" y1="1" x2="15" y2="1" stroke="white" strokeWidth="1.4" strokeLinecap="round" />
                 <line x1="2" y1="5" x2="13" y2="5" stroke="white" strokeWidth="1.4" strokeLinecap="round" />
@@ -109,12 +121,12 @@ export default function Nav() {
             </button>
             {open && (
               <>
-                <div style={{ position: "fixed", inset: 0, zIndex: 99 }} onClick={() => setOpen(false)} />
+                <div style={{ position: "fixed", inset: 0, zIndex: 9998 }} onClick={() => setOpen(false)} />
                 <ul style={{
-                  position: "absolute", top: "calc(100% + 8px)", right: 0,
+                  position: "fixed", top: dropPos.top, right: dropPos.right,
                   background: "rgba(8,8,8,0.97)", backdropFilter: "blur(20px)",
                   border: "0.5px solid rgba(255,255,255,0.1)", borderRadius: 16,
-                  width: 190, padding: 6, zIndex: 100, listStyle: "none",
+                  width: 190, padding: 6, zIndex: 9999, listStyle: "none",
                   animation: "slideDown 0.2s ease both",
                   boxShadow: "0 16px 48px rgba(0,0,0,0.6)",
                 }}>

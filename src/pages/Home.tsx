@@ -164,7 +164,7 @@ export default function Home() {
 
             <div className="animate-fade-in-up delay-1">
               <div style={{ display: "inline-block", background: "rgba(255,255,255,0.06)", border: "0.5px solid rgba(255,255,255,0.12)", borderRadius: 999, padding: "4px 14px", fontSize: "0.72rem", fontWeight: 600, color: "rgba(255,255,255,0.55)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 18 }}>
-                Season 12 · Now Live
+                Season 1 · Now Live
               </div>
             </div>
 
@@ -262,7 +262,7 @@ export default function Home() {
             .bot-back::before {
               position: absolute; content: ' '; display: block;
               width: 160px; height: 160%;
-              background: linear-gradient(90deg, transparent, #ff9966, #ff9966, #ff9966, transparent);
+              background: linear-gradient(90deg, transparent, var(--bot-accent, #ff9966), var(--bot-accent, #ff9966), var(--bot-accent, #ff9966), transparent);
               animation: bot_spin 5000ms infinite linear;
             }
             .bot-back-inner {
@@ -302,15 +302,15 @@ export default function Home() {
           `}</style>
           <section style={{ marginBottom: 60 }}>
             <div className="animate-fade-in-up delay-1" style={{ marginBottom: 20 }}>
-              <div style={{ fontSize: "0.68rem", fontWeight: 600, color: "rgba(255,255,255,0.3)", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 20 }}>OUR ACTIVE BOTS</div>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 20 }}>
+              <div style={{ fontSize: "0.68rem", fontWeight: 600, color: "rgba(255,255,255,0.3)", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 20, textAlign: "center" }}>OUR ACTIVE BOTS</div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 20, justifyContent: "center" }}>
                 {([
                   {
                     name: "Gon", status: "Online", online: true,
                     img: "/bot_gon.jpg",
                     desc: "Active bot for quests, raids, and guild commands.",
                     uptime: "99.8%", ping: "42ms", servers: "1,240", commands: "28",
-                    accentA: "#ffbb66", accentB: "#ff8866", accentC: "#ff2233",
+                    accentA: "#66bb66", accentB: "#33aa33", accentC: "#aaee44",
                   },
                   {
                     name: "Zesnitsu", status: "Online", online: true,
@@ -318,6 +318,13 @@ export default function Home() {
                     desc: "Handles battles, rewards, and player support.",
                     uptime: "98.5%", ping: "38ms", servers: "1,240", commands: "35",
                     accentA: "#ffe566", accentB: "#ffaa22", accentC: "#ff6633",
+                  },
+                  {
+                    name: "Giyu", status: "Online", online: true,
+                    img: "/bot_giyu.jpg",
+                    desc: "Manages events, duels, and leaderboard tracking.",
+                    uptime: "97.2%", ping: "51ms", servers: "1,240", commands: "22",
+                    accentA: "#44aacc", accentB: "#cc3344", accentC: "#226688",
                   },
                   {
                     name: "Rimiru", status: "Offline", online: false,
@@ -328,7 +335,7 @@ export default function Home() {
                   },
                 ] as const).map(bot => (
                   <div key={bot.name} className="bot-card">
-                    <div className="bot-card-inner">
+                    <div className="bot-card-inner" style={{ "--bot-accent": bot.accentA } as React.CSSProperties}>
                       {/* BACK — full bot image */}
                       <div className="bot-face bot-back">
                         <div className="bot-back-inner">

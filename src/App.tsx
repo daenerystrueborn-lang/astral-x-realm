@@ -7,7 +7,6 @@ import Profile from "@/pages/Profile";
 import Leaderboard from "@/pages/Leaderboard";
 import Shop from "@/pages/Shop";
 import Topup from "@/pages/Topup";
-import Cards from "@/pages/Cards";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
@@ -20,7 +19,6 @@ function Router() {
       <Route path="/leaderboard" component={Leaderboard} />
       <Route path="/shop" component={Shop} />
       <Route path="/topup" component={Topup} />
-      <Route path="/cards" component={Cards} />
       <Route component={NotFound} />
     </Switch>
   );

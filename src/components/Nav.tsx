@@ -1,16 +1,15 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import astralIcon from "/astral_icon.png";
-import { HomeIcon, UserIcon, ShopIcon, TopupIcon, LeaderboardIcon, CardsIcon } from "@/components/Icons";
+import { HomeIcon, UserIcon, ShopIcon, TopupIcon, LeaderboardIcon } from "@/components/Icons";
 import { useAuth } from "@/context/AuthContext";
 
 const links = [
   { label: "Home", to: "/", Icon: HomeIcon },
   { label: "Profile", to: "/profile", Icon: UserIcon },
   { label: "Leaderboard", to: "/leaderboard", Icon: LeaderboardIcon },
-  { label: "Cards", to: "/cards", Icon: CardsIcon },
   { label: "Shop", to: "/shop", Icon: ShopIcon },
-  { label: "Topup", to: "/topup", Icon: TopupIcon },
+  { label: "Pricing", to: "/topup", Icon: TopupIcon },
 ];
 
 export default function Nav() {

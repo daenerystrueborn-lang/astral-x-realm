@@ -77,6 +77,7 @@ export default function RealmFeed() {
         zIndex: 5,
         borderBottom: "0.5px solid rgba(255,255,255,0.08)",
         background: "linear-gradient(90deg, rgba(124,92,255,0.06) 0%, rgba(34,211,238,0.04) 50%, rgba(124,92,255,0.06) 100%)",
+        overflow: "hidden",
       }}
     >
       <div
@@ -88,6 +89,7 @@ export default function RealmFeed() {
           margin: "0 auto",
           padding: "10px 24px",
           overflow: "hidden",
+          height: 38,
         }}
       >
         <span
@@ -98,11 +100,20 @@ export default function RealmFeed() {
             letterSpacing: "0.14em",
             textTransform: "uppercase",
             color: "rgba(165,180,252,0.95)",
+            whiteSpace: "nowrap",
           }}
         >
           Live realm
         </span>
-        <div style={{ overflow: "hidden", flex: 1, maskImage: "linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent)" }}>
+        <div style={{
+          overflow: "hidden",
+          flex: 1,
+          height: "100%",
+          display: "flex",
+          alignItems: "center",
+          maskImage: "linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent)",
+          WebkitMaskImage: "linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent)",
+        }}>
           <div className="realm-feed-track">
             {duplicated.map((text, i) => (
               <span key={`${i}-${text.slice(0, 24)}`} style={{ flexShrink: 0, paddingRight: 36, fontSize: "0.76rem", color: "rgba(255,255,255,0.45)", whiteSpace: "nowrap" }}>
@@ -116,15 +127,14 @@ export default function RealmFeed() {
       <style>{`
         .realm-feed-track {
           display: flex;
+          flex-direction: row;
+          flex-wrap: nowrap;
           width: max-content;
           animation: realmMarquee 80s linear infinite;
         }
         @keyframes realmMarquee {
           from { transform: translateX(0); }
           to { transform: translateX(-50%); }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .realm-feed-track { animation: none; flex-wrap: wrap; width: auto; gap: 8px 24px; }
         }
       `}</style>
     </div>

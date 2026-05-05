@@ -206,9 +206,6 @@ export default function Home() {
               <Link href="/leaderboard" style={{ background: "transparent", color: "rgba(255,255,255,0.8)", border: "0.5px solid rgba(255,255,255,0.2)", borderRadius: 999, padding: "13px 28px", fontSize: "0.9rem", fontWeight: 500, cursor: "pointer", fontFamily: "Outfit, sans-serif", textDecoration: "none", display: "inline-block", transition: "border-color 0.2s", whiteSpace: "nowrap" }}>
                 View Leaderboard
               </Link>
-              <Link href="/cards" style={{ background: "transparent", color: "rgba(196,181,253,0.95)", border: "0.5px solid rgba(124,92,255,0.45)", borderRadius: 999, padding: "13px 28px", fontSize: "0.9rem", fontWeight: 600, cursor: "pointer", fontFamily: "Outfit, sans-serif", textDecoration: "none", display: "inline-block", transition: "border-color 0.2s, box-shadow 0.2s", whiteSpace: "nowrap", boxShadow: "0 0 24px rgba(124,92,255,0.12)" }}>
-                Card gallery
-              </Link>
             </div>
 
             {/* ── Discord + WhatsApp buttons ── */}

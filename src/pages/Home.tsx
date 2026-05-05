@@ -1,11 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
-import { SwordIcon, ShieldIcon, DiceIcon, ChestIcon, UsersIcon, MapIcon, GemIcon, CrownIcon, TrophyIcon, BoltIcon } from "@/components/Icons";
+import RealmFeed from "@/components/RealmFeed";
+import HomeCommandCenter from "@/components/HomeCommandCenter";
+import SeasonPatchStrip from "@/components/SeasonPatchStrip";
+import HomeStatsBar from "@/components/HomeStatsBar";
+import BotFleetCard from "@/components/BotFleetCard";
+import { SwordIcon, ShieldIcon, DiceIcon, ChestIcon, MapIcon, GemIcon, CrownIcon, TrophyIcon, BoltIcon } from "@/components/Icons";
 import { useAuth } from "@/context/AuthContext";
 import astralIcon from "/astral_icon.png";
 import { Link, useLocation } from "wouter";
-import { getLeaderboard, type LeaderboardEntry } from "@/lib/api";
+import { getLeaderboard, getBotStats, type LeaderboardEntry, type BotStat } from "@/lib/api";
 
 /* ── Snow Canvas (home-only) ── */
 function SnowCanvas() {
@@ -57,13 +62,6 @@ const steps = [
   { num: "01", title: "Add the Bot", desc: "Invite Astral X Realm to your Discord server or WhatsApp group in one click." },
   { num: "02", title: "Create Your Hero", desc: "Choose your class, name your character, and set up your profile." },
   { num: "03", title: "Battle & Collect", desc: "Fight monsters, collect loot, and rise through the ranks." },
-];
-
-const stats = [
-  { value: "10K+", label: "Active Players", Icon: UsersIcon },
-  { value: "250K+", label: "Dungeons Cleared", Icon: MapIcon },
-  { value: "1,200+", label: "Unique Items", Icon: GemIcon },
-  { value: "840+", label: "Active Guilds", Icon: UsersIcon },
 ];
 
 /* ── Astral Cubes / Spin System ── */
@@ -134,24 +132,48 @@ const fallbackGuilds: GuildRow[] = [
   { name: "Void Pact",      rank: 4, members: 39, kills: 1990 },
 ];
 
+function pickBotStat(stats: BotStat[], fragment: string) {
+  const f = fragment.toLowerCase();
+  return stats.find(b => b.name.toLowerCase().includes(f));
+}
+
+function capHero(s?: string) {
+  if (!s) return "—";
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
 export default function Home() {
   const { openSignup, player } = useAuth();
   const [, navigate] = useLocation();
   const [guilds, setGuilds] = useState<GuildRow[]>(fallbackGuilds);
+  const [featured, setFeatured] = useState<LeaderboardEntry | null>(null);
+  const [botStats, setBotStats] = useState<BotStat[]>([]);
 
   useEffect(() => {
-    getLeaderboard().then(players => {
-      const derived = deriveTopGuilds(players);
-      if (derived.length > 0) setGuilds(derived);
-    }).catch(() => {});
+    getLeaderboard()
+      .then(players => {
+        const derived = deriveTopGuilds(players);
+        if (derived.length > 0) setGuilds(derived);
+        const top = players[0];
+        if (top) setFeatured(top);
+      })
+      .catch(() => {});
+    getBotStats().then(setBotStats).catch(() => setBotStats([]));
   }, []);
 
   return (
-    <div style={{ minHeight: "100vh", background: "#000", position: "relative" }}>
+    <div style={{ minHeight: "100vh", background: "transparent", position: "relative" }}>
       <SnowCanvas />
       <div style={{ position: "relative", zIndex: 1 }}>
         <Nav />
+        <RealmFeed />
         <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px" }}>
+
+          {player && (
+            <div style={{ paddingTop: 20 }}>
+              <HomeCommandCenter player={player} navigate={navigate} />
+            </div>
+          )}
 
           {/* ── Hero ── */}
           <section style={{ textAlign: "center", padding: "80px 0 60px", display: "flex", flexDirection: "column", alignItems: "center", gap: 0 }}>
@@ -163,12 +185,12 @@ export default function Home() {
             </div>
 
             <div className="animate-fade-in-up delay-1">
-              <div style={{ display: "inline-block", background: "rgba(255,255,255,0.06)", border: "0.5px solid rgba(255,255,255,0.12)", borderRadius: 999, padding: "4px 14px", fontSize: "0.72rem", fontWeight: 600, color: "rgba(255,255,255,0.55)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 18 }}>
+              <div style={{ display: "inline-block", background: "linear-gradient(135deg, rgba(124,92,255,0.12), rgba(34,211,238,0.08))", border: "0.5px solid rgba(124,92,255,0.35)", borderRadius: 999, padding: "4px 14px", fontSize: "0.72rem", fontWeight: 600, color: "rgba(196,181,253,0.95)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 18 }}>
                 Season 1 · Now Live
               </div>
             </div>
 
-            <h1 className="animate-fade-in-up delay-2" style={{ fontSize: "clamp(3rem, 8vw, 5.5rem)", fontWeight: 800, color: "#fff", lineHeight: 1.02, marginBottom: 20, letterSpacing: "-0.04em" }}>
+            <h1 className="animate-fade-in-up delay-2 axr-gradient-text" style={{ fontSize: "clamp(3rem, 8vw, 5.5rem)", fontWeight: 800, lineHeight: 1.02, marginBottom: 20, letterSpacing: "-0.04em" }}>
               Astral X Realm
             </h1>
             <p className="animate-fade-in-up delay-3" style={{ fontSize: "clamp(0.95rem, 2vw, 1.12rem)", color: "rgba(255,255,255,0.42)", maxWidth: 500, margin: "0 auto 36px", lineHeight: 1.75, fontWeight: 400 }}>
@@ -183,6 +205,9 @@ export default function Home() {
               </button>
               <Link href="/leaderboard" style={{ background: "transparent", color: "rgba(255,255,255,0.8)", border: "0.5px solid rgba(255,255,255,0.2)", borderRadius: 999, padding: "13px 28px", fontSize: "0.9rem", fontWeight: 500, cursor: "pointer", fontFamily: "Outfit, sans-serif", textDecoration: "none", display: "inline-block", transition: "border-color 0.2s", whiteSpace: "nowrap" }}>
                 View Leaderboard
+              </Link>
+              <Link href="/cards" style={{ background: "transparent", color: "rgba(196,181,253,0.95)", border: "0.5px solid rgba(124,92,255,0.45)", borderRadius: 999, padding: "13px 28px", fontSize: "0.9rem", fontWeight: 600, cursor: "pointer", fontFamily: "Outfit, sans-serif", textDecoration: "none", display: "inline-block", transition: "border-color 0.2s, box-shadow 0.2s", whiteSpace: "nowrap", boxShadow: "0 0 24px rgba(124,92,255,0.12)" }}>
+                Card gallery
               </Link>
             </div>
 
@@ -229,138 +254,73 @@ export default function Home() {
             </div>
           </section>
 
-          {/* ── Stats bar ── */}
-          <div className="animate-fade-in-up delay-3" className="stats-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 1, background: "rgba(255,255,255,0.06)", border: "0.5px solid rgba(255,255,255,0.08)", borderRadius: 16, overflow: "hidden", marginBottom: 60 }}>
-            {stats.map((s, i) => (
-              <div key={s.label} style={{ padding: "22px 20px", textAlign: "center", borderRight: i < stats.length - 1 ? "0.5px solid rgba(255,255,255,0.06)" : "none", background: "rgba(10,10,10,0.5)" }}>
-                <div style={{ fontSize: "1.8rem", fontWeight: 800, color: "#fff", letterSpacing: "-0.03em", lineHeight: 1.1 }}>{s.value}</div>
-                <div style={{ fontSize: "0.73rem", color: "rgba(255,255,255,0.38)", marginTop: 4, fontWeight: 500 }}>{s.label}</div>
-              </div>
-            ))}
-          </div>
+          <HomeStatsBar />
 
-          {/* ── Our Active Bots ── */}
-          <style>{`
-            .bot-card { overflow: visible; width: 190px; height: 254px; cursor: pointer; }
-            .bot-card-inner {
-              width: 100%; height: 100%;
-              transform-style: preserve-3d;
-              transition: transform 600ms cubic-bezier(0.4,0.2,0.2,1);
-              box-shadow: 0px 0px 10px 1px #000000ee;
-              border-radius: 5px;
-            }
-            .bot-card:hover .bot-card-inner { transform: rotateY(180deg); }
-            .bot-face {
-              background-color: #151515;
-              position: absolute; width: 100%; height: 100%;
-              backface-visibility: hidden; -webkit-backface-visibility: hidden;
-              border-radius: 5px; overflow: hidden;
-            }
-            .bot-back {
-              display: flex; justify-content: center; align-items: center;
-            }
-            .bot-back::before {
-              position: absolute; content: ' '; display: block;
-              width: 160px; height: 160%;
-              background: linear-gradient(90deg, transparent, var(--bot-accent, #ff9966), var(--bot-accent, #ff9966), var(--bot-accent, #ff9966), transparent);
-              animation: bot_spin 5000ms infinite linear;
-            }
-            .bot-back-inner {
-              position: absolute; width: 99%; height: 99%;
-              background-color: #151515; border-radius: 5px;
-              overflow: hidden;
-            }
-            .bot-back-inner img {
-              width: 100%; height: 100%; object-fit: cover; object-position: top center;
-              opacity: 0.92;
-            }
-            .bot-front { transform: rotateY(180deg); color: white; }
-            .bot-front-content {
-              position: absolute; width: 100%; height: 100%; padding: 10px;
-              display: flex; flex-direction: column; justify-content: space-between;
-            }
-            .bot-badge {
-              background-color: #00000055; padding: 2px 10px; border-radius: 10px;
-              backdrop-filter: blur(2px); width: fit-content; font-size: 10px;
-            }
-            .bot-desc-box {
-              box-shadow: 0px 0px 10px 5px #00000088;
-              width: 100%; padding: 10px;
-              background-color: #00000099; backdrop-filter: blur(5px);
-              border-radius: 5px;
-            }
-            .bot-circles { position: absolute; width: 100%; height: 100%; }
-            .bot-circle {
-              width: 90px; height: 90px; border-radius: 50%;
-              background-color: #ffbb66; position: absolute;
-              filter: blur(15px); animation: bot_float 2600ms infinite linear;
-            }
-            .bot-circle.r { background-color: #ff2233; left: 160px; top: -80px; width: 30px; height: 30px; animation-delay: -1800ms; }
-            .bot-circle.b { background-color: #ff8866; left: 50px; top: 0px; width: 150px; height: 150px; animation-delay: -800ms; }
-            @keyframes bot_float { 0%,100% { transform: translateY(0px); } 50% { transform: translateY(10px); } }
-            @keyframes bot_spin { from { transform: rotateZ(0deg); } to { transform: rotateZ(360deg); } }
-          `}</style>
+          {/* ── Featured champion ── */}
+          {featured && (
+            <section className="animate-fade-in-up delay-2 section-card axr-accent-glow" style={{ marginBottom: 48, padding: "22px 24px", display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 16, border: "0.5px solid rgba(34,211,238,0.2)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                <div style={{ width: 54, height: 54, borderRadius: 16, background: "linear-gradient(145deg, rgba(124,92,255,0.5), rgba(34,211,238,0.15))", border: "0.5px solid rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.15rem", fontWeight: 800 }}>
+                  {capHero(featured.name).charAt(0)}
+                </div>
+                <div>
+                  <div style={{ fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.12em", color: "rgba(34,211,238,0.75)", textTransform: "uppercase", marginBottom: 4 }}>
+                    Featured champion · live ladder
+                  </div>
+                  <div style={{ fontSize: "1.05rem", fontWeight: 800 }}>{capHero(featured.name)}</div>
+                  <div style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.4)", marginTop: 4 }}>
+                    Rank #{featured.rank} · Lv.{featured.level}
+                    {(() => {
+                      const g = featured.guildName || (featured.guild && !featured.guild.startsWith("guild_") ? featured.guild : "");
+                      return g ? ` · ${g}` : "";
+                    })()}
+                  </div>
+                </div>
+              </div>
+              <div style={{ textAlign: "right", minWidth: 120 }}>
+                <div style={{ fontSize: "0.65rem", textTransform: "uppercase", letterSpacing: "0.08em", color: "rgba(255,255,255,0.28)" }}>Eliminations logged</div>
+                <div style={{ fontSize: "1.35rem", fontWeight: 800, fontVariantNumeric: "tabular-nums", background: "linear-gradient(90deg,#fff,#a5f3fc)", WebkitBackgroundClip: "text", backgroundClip: "text", WebkitTextFillColor: "transparent" }}>{(featured.kills || 0).toLocaleString()}</div>
+              </div>
+              <Link href="/leaderboard" style={{ alignSelf: "center", borderRadius: 999, padding: "8px 18px", fontWeight: 700, fontSize: "0.78rem", textDecoration: "none", border: "0.5px solid rgba(255,255,255,0.2)", color: "#fff", fontFamily: "Outfit, sans-serif", whiteSpace: "nowrap" }}>
+                See standings
+              </Link>
+            </section>
+          )}
+
+          {/* ── Our Active Bots (3D flip — click • global styles index.css .axr-bot-card*) ── */}
           <section style={{ marginBottom: 60 }}>
             <div className="animate-fade-in-up delay-1" style={{ marginBottom: 20 }}>
-              <div style={{ fontSize: "0.68rem", fontWeight: 600, color: "rgba(255,255,255,0.3)", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 20, textAlign: "center" }}>OUR ACTIVE BOTS</div>
-              <div className="bot-cards-scroll" style={{ display: "flex", gap: 20, justifyContent: "center", overflowX: "auto", paddingBottom: 8, WebkitOverflowScrolling: "touch" as any, scrollSnapType: "x mandatory" }}>
+              <div style={{ fontSize: "0.68rem", fontWeight: 600, color: "rgba(196,181,253,0.45)", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 20, textAlign: "center" }}>Fleet status · merges with /api/bots when online</div>
+              <div className="bot-cards-scroll" style={{ display: "flex", gap: 20, justifyContent: "center", overflowX: "auto", paddingBottom: 12, WebkitOverflowScrolling: "touch" as never, scrollSnapType: "x mandatory", paddingTop: 4 }}>
                 {([
-                  { name: "Gon",      img: "/bot_gon.jpg",      desc: "Active bot for quests, raids, and guild commands.",      accentA: "#66bb66", accentB: "#33aa33", accentC: "#aaee44" },
-                  { name: "Zesnitsu", img: "/bot_zesnitsu.jpg", desc: "Handles battles, rewards, and player support.",          accentA: "#ffe566", accentB: "#ffaa22", accentC: "#ff6633" },
-                  { name: "Giyu",     img: "/bot_giyu.jpg",     desc: "Manages events, duels, and leaderboard tracking.",       accentA: "#44aacc", accentB: "#cc3344", accentC: "#226688" },
-                  { name: "Rimiru",   img: "/bot_rimiru.jpg",   desc: "Maintenance bot for future events and updates.",         accentA: "#8899ff", accentB: "#5566cc", accentC: "#334499" },
+                  { name: "Gon",      match: "gon",      img: "/bot_gon.jpg",      desc: "Quests, raids, guild management, and progression hooks.", accentA: "#66bb66", accentB: "#33aa33", accentC: "#aaee44" },
+                  { name: "Zesnitsu", match: "zes",      img: "/bot_zesnitsu.jpg", desc: "Combat rewards, support flows, economy touchpoints.",     accentA: "#ffe566", accentB: "#ffaa22", accentC: "#ff6633" },
+                  { name: "Giyu",     match: "giyu",     img: "/bot_giyu.jpg",     desc: "Events, duels, leaderboard sync with the portal API.", accentA: "#44aacc", accentB: "#cc3344", accentC: "#226688" },
+                  { name: "Rimiru",   match: "rimiru",   img: "/bot_rimiru.jpg",   desc: "Reserved for rotations, banners, and future live ops.", accentA: "#8899ff", accentB: "#5566cc", accentC: "#334499" },
                 ] as const).map(cfg => {
-                  const online   = cfg.name !== "Rimiru";
-                  const status   = online ? "Online" : "Offline";
-                  const uptime   = online ? `${(97 + Math.floor(Math.random() * 29) / 10).toFixed(1)}%` : "—";
-                  const ping     = online ? `${30 + Math.floor(Math.random() * 30)}ms` : "—";
-                  const servers  = online ? "1" : "—";
-                  const commands = "449";
+                  const api = pickBotStat(botStats, cfg.match);
+                  const online = cfg.name === "Rimiru" ? false : (api?.online ?? true);
+                  const status = online ? "Online" : "Offline";
+                  const uptime = cfg.name === "Rimiru" ? "—" : (api?.uptime ?? (online ? "99.9%" : "—"));
+                  const ping = api?.ping != null ? `${api.ping}ms` : "—";
+                  const servers = api?.servers != null ? String(api.servers) : "—";
+                  const commands = api?.commands != null ? String(api.commands) : "449";
                   return (
-                  <div key={cfg.name} className="bot-card" style={{ flexShrink: 0, scrollSnapAlign: "start" }}>
-                    <div className="bot-card-inner" style={{ "--bot-accent": cfg.accentA } as React.CSSProperties}>
-                      {/* BACK — full bot image */}
-                      <div className="bot-face bot-back">
-                        <div className="bot-back-inner">
-                          <img src={cfg.img} alt={cfg.name} />
-                          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "10px 12px", background: "linear-gradient(transparent, #000000cc)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                            <span style={{ fontWeight: 700, fontSize: 13, color: "#fff" }}>{cfg.name}</span>
-                            <span style={{ fontSize: 9, fontWeight: 600, color: online ? "#4ade80" : "#888", background: "rgba(0,0,0,0.5)", padding: "2px 7px", borderRadius: 99 }}>● {status}</span>
-                          </div>
-                        </div>
-                      </div>
-                      {/* FRONT — details */}
-                      <div className="bot-face bot-front">
-                        <div className="bot-circles">
-                          <div className="bot-circle" style={{ backgroundColor: cfg.accentA }} />
-                          <div className="bot-circle r" style={{ backgroundColor: cfg.accentC }} />
-                          <div className="bot-circle b" style={{ backgroundColor: cfg.accentB }} />
-                        </div>
-                        <div className="bot-front-content">
-                          <span className="bot-badge" style={{ color: online ? "#4ade80" : "#aaa" }}>● {status}</span>
-                          <div className="bot-desc-box">
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
-                              <span style={{ fontSize: 13, fontWeight: 800, color: "#fff" }}>{cfg.name}</span>
-                            </div>
-                            <p style={{ fontSize: 9, color: "rgba(255,255,255,0.65)", margin: "0 0 8px", lineHeight: 1.5 }}>{cfg.desc}</p>
-                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px 8px" }}>
-                              {[
-                                { label: "Uptime",   val: uptime },
-                                { label: "Ping",     val: ping },
-                                { label: "Servers",  val: servers },
-                                { label: "Commands", val: commands },
-                              ].map(s => (
-                                <div key={s.label}>
-                                  <div style={{ fontSize: 7, color: "rgba(255,255,255,0.35)", textTransform: "uppercase", letterSpacing: "0.06em" }}>{s.label}</div>
-                                  <div style={{ fontSize: 11, fontWeight: 700, color: "#fff" }}>{s.val}</div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                    <BotFleetCard
+                      key={cfg.name}
+                      name={cfg.name}
+                      img={cfg.img}
+                      desc={cfg.desc}
+                      accentA={cfg.accentA}
+                      accentB={cfg.accentB}
+                      accentC={cfg.accentC}
+                      online={online}
+                      status={status}
+                      uptime={uptime}
+                      ping={ping}
+                      servers={servers}
+                      commands={commands}
+                    />
                   );
                 })}
               </div>
@@ -382,6 +342,8 @@ export default function Home() {
               View Plans
             </Link>
           </div>
+
+          <SeasonPatchStrip />
 
           {/* ── How to Play ── */}
           <section style={{ marginBottom: 60 }}>
@@ -517,12 +479,6 @@ export default function Home() {
         </div>
         <Footer />
       </div>
-      <style>{`
-        @media (max-width: 640px) {
-          .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
-          .stats-grid > div { border-right: none !important; border-bottom: 0.5px solid rgba(255,255,255,0.06); }
-        }
-      `}</style>
     </div>
   );
 }

@@ -244,6 +244,30 @@ export async function getGuildRanks(): Promise<GuildRank[]> {
   }
 }
 
+// ─── REALM FEED (optional public endpoint; falls back client-side on Home) ───
+export async function getRealmFeed(): Promise<string[] | null> {
+  try {
+    const res = await fetch(`${API}/api/realm-feed`)
+    if (!res.ok) return null
+    const data = await res.json().catch(() => null)
+    if (!data) return null
+    if (Array.isArray(data)) {
+      return data.map((x: unknown) =>
+        typeof x === 'string' ? x : (x as { text?: string }).text || ''
+      ).filter(Boolean)
+    }
+    const items = (data as { items?: unknown[] }).items
+    if (Array.isArray(items)) {
+      return items.map(x =>
+        typeof x === 'string' ? x : (x as { text?: string }).text || ''
+      ).filter(Boolean)
+    }
+    return null
+  } catch {
+    return null
+  }
+}
+
 // ─── ACTIVITY ─────────────────────────────────────────────────────────────────
 export async function getPlayerActivity(): Promise<ActivityEntry[]> {
   if (!getToken()) return []

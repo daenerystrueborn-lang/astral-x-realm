@@ -1,15 +1,80 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
+import { Link } from "wouter";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import astralIcon from "/astral_icon.png";
 import { useAuth } from "@/context/AuthContext"
-import { getPlayerActivity, type ActivityEntry } from "@/lib/api";
+import { getPlayerActivity, type ActivityEntry, type Player } from "@/lib/api";
 import {
   UploadIcon, WeaponIcon, ShieldIcon, HelmetIcon, BootIcon,
-  RingIcon, AmuletIcon, DragonIcon, CastleIcon, StarBadgeIcon, ArenaIcon, CrownIcon, SwordIcon, CheckIcon
+  RingIcon, AmuletIcon, DragonIcon, CastleIcon, StarBadgeIcon, ArenaIcon, CrownIcon, SwordIcon, CheckIcon,
+  MapIcon, ShopIcon, LeaderboardIcon, CardsIcon, TopupIcon,
 } from "@/components/Icons";
 
 function cap(s?: string) { if (!s) return "—"; return s.charAt(0).toUpperCase() + s.slice(1); }
+
+/** Mirrors bot `calcKLD` (`plugins/rpg-profile.js`) — log-scaled 0–10 display */
+function combatKD(p: Player) {
+  const kc = p.killCounts || {};
+  const k = (p.kills || 0) + (kc.dungeonKills || 0) + (kc.pvpWins || 0);
+  const d = (kc.deaths || 0) + (kc.dungeonDeaths || 0) + (kc.pvpLosses || 0);
+  if (k === 0 && d === 0) return null;
+  const rawRatio = d === 0 ? k : k / d;
+  const scaled = Math.min(10, (Math.log(rawRatio + 1) / Math.log(1001)) * 10);
+  return { k, d, display: scaled.toFixed(2), rawLabel: d === 0 ? `${k} / 0` : `${k} / ${d}` };
+}
+
+function dragonKillsTotal(kc: Record<string, number>) {
+  let sum = 0;
+  for (const [key, val] of Object.entries(kc)) {
+    if (!Number.isFinite(val)) continue;
+    if (key === "dragonEggHatched") continue;
+    if (/dragon/i.test(key)) sum += val;
+  }
+  return sum;
+}
+
+const achievementsTemplate = [
+  { name: "Dragon Slayer", desc: "Defeat 100 dragons & dragon-type bosses", Icon: DragonIcon, goal: 100, kind: "dragon" as const },
+  { name: "Card Master", desc: "Collect 200 unique cards", Icon: StarBadgeIcon, goal: 200, kind: "cards" as const },
+  { name: "Arena Legend", desc: "Win 500 PvP duels", Icon: ArenaIcon, goal: 500, kind: "pvp" as const },
+  { name: "Guild Founder", desc: "Found or lead a guild", Icon: CastleIcon, goal: 1, kind: "guild" as const },
+  { name: "Dungeon Lord", desc: "Clear 200 dungeons", Icon: SwordIcon, goal: 200, kind: "dungeon" as const },
+  { name: "Gold Hoarder", desc: "Accumulate 100k Solars", Icon: CrownIcon, goal: 100_000, kind: "solars" as const },
+];
+
+type AchRow = (typeof achievementsTemplate)[number] & { done: boolean; pct: number };
+
+function deriveAchievements(player: Player): AchRow[] {
+  const kc = player.killCounts || {};
+  const dg = dragonKillsTotal(kc);
+  const pvpW = kc.pvpWins || 0;
+  const dungeons = kc.dungeonsCleared || 0;
+  const hasGuild = !!(player.guildName || (player.guild && !player.guild.startsWith("guild_")));
+  return achievementsTemplate.map(t => {
+    let cur = 0;
+    if (t.kind === "dragon") cur = dg;
+    else if (t.kind === "cards") cur = 0;
+    else if (t.kind === "pvp") cur = pvpW;
+    else if (t.kind === "guild") cur = hasGuild ? 1 : 0;
+    else if (t.kind === "dungeon") cur = dungeons;
+    else if (t.kind === "solars") cur = player.Solars || 0;
+    const pct = Math.min(100, Math.round((cur / t.goal) * 100));
+    const done = cur >= t.goal && t.goal > 0;
+    return { ...t, done, pct: t.kind === "cards" ? 0 : pct };
+  });
+}
+
+const BOT_QUICK_HELP: { cmd: string; hint: string }[] = [
+  { cmd: "!daily", hint: "Dailies" },
+  { cmd: "!dungeon", hint: "Dungeon" },
+  { cmd: "!forge", hint: "Forge" },
+  { cmd: "!shop", hint: "Shop" },
+  { cmd: "!cards", hint: "Cards" },
+  { cmd: "!pvp", hint: "PvP" },
+  { cmd: "!help combat", hint: "Help · combat" },
+  { cmd: "!me", hint: "Profile card" },
+];
 
 /* ── Animated stat bar ── */
 function StatBar({ label, value, max, pct }: { label: string; value: string; max: string; pct: number }) {
@@ -34,16 +99,6 @@ function StatBar({ label, value, max, pct }: { label: string; value: string; max
   );
 }
 
-const achievements = [
-  { name: "Dragon Slayer", desc: "Defeat 100 dragons", Icon: DragonIcon, done: false, pct: 0 },
-  { name: "Card Master", desc: "Collect 200 unique cards", Icon: StarBadgeIcon, done: false, pct: 0 },
-  { name: "Arena Legend", desc: "Win 500 PvP duels", Icon: ArenaIcon, done: false, pct: 0 },
-  { name: "Guild Founder", desc: "Found or lead a guild", Icon: CastleIcon, done: false, pct: 0 },
-  { name: "Dungeon Lord", desc: "Clear 200 dungeons", Icon: SwordIcon, done: false, pct: 0 },
-  { name: "Gold Hoarder", desc: "Accumulate 100k Solars", Icon: CrownIcon, done: false, pct: 0 },
-];
-
-const seasonLevel = 1;
 const seasonMax = 100;
 
 const seasonRewards = [
@@ -72,6 +127,29 @@ type Tab = typeof tabs[number];
 
 export default function Profile() {
   const { player, loading, openLogin } = useAuth();
+
+  const seasonProgLevel = useMemo(() => {
+    if (!player) return 1;
+    return Math.min(seasonMax, Math.max(1, player.level));
+  }, [player]);
+
+  const achievementsData = useMemo(() => {
+    if (!player) return null;
+    return deriveAchievements(player);
+  }, [player]);
+
+  const expPctTarget = useMemo(() => {
+    if (!player) return 0;
+    const expNeed = Math.max(1, player.level * 200);
+    return Math.min(100, Math.round((player.exp / expNeed) * 100));
+  }, [player]);
+
+  const [expFillPct, setExpFillPct] = useState(0);
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setExpFillPct(expPctTarget));
+    return () => cancelAnimationFrame(id);
+  }, [expPctTarget]);
+
   const bannerRef = useRef<HTMLInputElement>(null);
   const [hoverBanner, setHoverBanner] = useState(false);
   const [tab, setTab] = useState<Tab>("Overview");
@@ -122,10 +200,10 @@ export default function Profile() {
 
   useEffect(() => {
     if (tab === "Season Pass") {
-      const t = setTimeout(() => setSpWidth((seasonLevel / seasonMax) * 100), 200);
+      const t = setTimeout(() => setSpWidth((seasonProgLevel / seasonMax) * 100), 200);
       return () => clearTimeout(t);
     }
-  }, [tab]);
+  }, [tab, seasonProgLevel]);
 
   function toBase64(file: File): Promise<string> {
     return new Promise((res, rej) => {
@@ -183,10 +261,24 @@ export default function Profile() {
 
   if (loading) {
     return (
-      <div style={{ minHeight: "100vh", background: "#000" }}>
+      <div style={{ minHeight: "100vh", background: "#000", position: "relative" }}>
         <div style={{ position: "relative", zIndex: 10 }}><Nav /></div>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "60vh" }}>
-          <p style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.85rem" }}>Loading...</p>
+        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 20px" }}>
+          <div className="axr-shimmer" style={{ marginTop: 28, height: 200, borderRadius: 18, border: "0.5px solid rgba(255,255,255,0.06)" }} />
+          <div style={{ display: "flex", gap: 20, alignItems: "flex-end", marginTop: -40, paddingLeft: 12, marginBottom: 28 }}>
+            <div className="axr-shimmer" style={{ width: 92, height: 92, borderRadius: "50%", border: "4px solid #000", boxSizing: "border-box" }} />
+            <div style={{ flex: 1, paddingBottom: 8 }}>
+              <div className="axr-shimmer" style={{ width: "40%", maxWidth: 220, height: 18, borderRadius: 8, marginBottom: 10 }} />
+              <div className="axr-shimmer" style={{ width: "55%", maxWidth: 320, height: 12, borderRadius: 6 }} />
+            </div>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 12, marginBottom: 24 }}>
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="axr-shimmer section-card" style={{ height: 72, borderRadius: 14 }} />
+            ))}
+          </div>
+          <div className="axr-shimmer section-card" style={{ height: 180, marginBottom: 24, borderRadius: 14 }} />
+          <div className="axr-shimmer section-card" style={{ height: 120, marginBottom: 48, borderRadius: 14 }} />
         </div>
       </div>
     );
@@ -206,6 +298,8 @@ export default function Profile() {
     { label: "STR", value: String(player!.str), max: "999",                 pct: Math.min(100, Math.round((player!.str / 999) * 100)) },
     { label: "DEF", value: String(player!.def), max: "999",                 pct: Math.min(100, Math.round((player!.def / 999) * 100)) },
     { label: "AGI", value: String(player!.agi), max: "999",                 pct: Math.min(100, Math.round((player!.agi / 999) * 100)) },
+    { label: "INT", value: String(player!.int), max: "999",                 pct: Math.min(100, Math.round((player!.int / 999) * 100)) },
+    { label: "LCK", value: String(player!.lck), max: "999",                 pct: Math.min(100, Math.round((player!.lck / 999) * 100)) },
   ];
 
   const quickStats = [
@@ -213,6 +307,7 @@ export default function Profile() {
     { label: "Solars",   value: player!.Solars.toLocaleString() },
     { label: "Gems",     value: String(player!.gems) },
     { label: "Kills",    value: player!.kills.toLocaleString() },
+    { label: "Dungeon",  value: `F${player!.dungeonFloor}` },
     { label: "Guild",    value: cap(guildDisplay) },
     { label: "Class",    value: cap(player!.class) },
     { label: "Rank",     value: cap(player!.rank) || "Peasant" },
@@ -230,8 +325,16 @@ export default function Profile() {
     { slot: "Amulet", name: capEq(eq.amulet), Icon: AmuletIcon, filled: !!eq.amulet },
   ];
 
+  const kd = combatKD(player!);
+  const kc = player!.killCounts || {};
+  const expNeed = Math.max(1, player!.level * 200);
+  const achDone = achievementsData?.filter(a => a.done).length ?? 0;
+  const achPct = achievementsData?.length ? Math.round((achDone / achievementsData.length) * 100) : 0;
+  const pvpWins = kc.pvpWins || 0;
+  const pvpLoss = kc.pvpLosses || 0;
+
   return (
-    <div style={{ minHeight: "100vh", background: "#000" }}>
+    <div style={{ minHeight: "100vh", background: "transparent", position: "relative" }}>
       <div style={{ position: "relative", zIndex: 10 }}><Nav /></div>
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 20px" }}>
 
@@ -241,11 +344,15 @@ export default function Profile() {
             onClick={() => bannerRef.current?.click()}
             onMouseEnter={() => setHoverBanner(true)}
             onMouseLeave={() => setHoverBanner(false)}
-            style={{ width: "100%", height: 200, borderRadius: 18, background: bannerUrl ? "transparent" : "linear-gradient(135deg, #0d0d0d 0%, #181818 50%, #0a0a0a 100%)", border: "0.5px solid rgba(255,255,255,0.1)", position: "relative", overflow: "hidden", cursor: "pointer" }}>
+            style={{ width: "100%", height: 220, borderRadius: 18, background: bannerUrl ? "transparent" : "linear-gradient(135deg, #12101c 0%, #0f1526 42%, #0a0e18 100%)", border: "0.5px solid rgba(124,92,255,0.22)", position: "relative", overflow: "hidden", cursor: "pointer",
+              boxShadow: "0 20px 50px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)",
+            }}>
             {bannerUrl && <img src={bannerUrl} alt="banner" style={{ width: "100%", height: "100%", objectFit: "cover" }} />}
             {!bannerUrl && <>
-              <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 30% 50%, rgba(255,255,255,0.03) 0%, transparent 60%)" }} />
-              <div style={{ position: "absolute", bottom: 24, left: 140, fontSize: "0.72rem", color: "rgba(255,255,255,0.12)", fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase" }}>{player!.name} · {player!.class || "—"} · {guildDisplay}</div>
+              <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 85% 60% at 20% -10%, rgba(139,92,246,0.35), transparent 55%), radial-gradient(ellipse 60% 50% at 90% 100%, rgba(34,211,238,0.12), transparent 50%)" }} />
+              <div style={{ position: "absolute", bottom: 26, left: 132, fontSize: "0.74rem", color: "rgba(255,255,255,0.28)", fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", maxWidth: "75%" }}>
+                Floor {player!.dungeonFloor} · {cap(player!.race)}{player!.evolved ? ` · ${cap(player!.evolved)}` : ""} · {cap(guildDisplay)}
+              </div>
             </>}
             <div style={{ position: "absolute", inset: 0, background: (hoverBanner || bannerUploading) ? "rgba(0,0,0,0.45)" : "rgba(0,0,0,0)", transition: "background 0.2s", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
               {bannerUploading
@@ -295,20 +402,53 @@ export default function Profile() {
             <span style={{ background: "rgba(255,255,255,0.04)", border: "0.5px solid rgba(255,255,255,0.1)", borderRadius: 999, padding: "3px 11px", fontSize: "0.72rem", fontWeight: 600, color: "rgba(255,255,255,0.5)" }}>Prestige {player!.prestige}</span>
           )}
         </div>
-        <div style={{ paddingLeft: 26, fontSize: "0.82rem", color: "rgba(255,255,255,0.38)", marginBottom: 28 }}>{cap(player!.class)} · {cap(guildDisplay)} · {cap(player!.rank) || "Peasant"}</div>
+        <div style={{ paddingLeft: 26, fontSize: "0.82rem", color: "rgba(255,255,255,0.38)", marginBottom: 6 }}>{cap(player!.class)} · {cap(player!.race)} · {cap(player!.rank) || "Peasant"}</div>
+        <div style={{ paddingLeft: 26, fontSize: "0.76rem", color: "rgba(196,181,253,0.55)", marginBottom: 22 }}>{player!.exp.toLocaleString()} / {expNeed.toLocaleString()} XP to next level · same rule as bot (!profile)</div>
 
         {/* ── Quick stats strip ── */}
-        <div className="animate-fade-in-up delay-1" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))", gap: 1, background: "rgba(255,255,255,0.05)", border: "0.5px solid rgba(255,255,255,0.08)", borderRadius: 14, overflow: "hidden", marginBottom: 24 }}>
+        <div className="animate-fade-in-up delay-1" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(118px, 1fr))", gap: 1, background: "rgba(255,255,255,0.05)", border: "0.5px solid rgba(124,92,255,0.22)", borderRadius: 14, overflow: "hidden", marginBottom: 16 }}>
           {quickStats.map((s, i) => (
-            <div key={s.label} style={{ padding: "14px 16px", borderRight: i < quickStats.length - 1 ? "0.5px solid rgba(255,255,255,0.05)" : "none", background: "rgba(10,10,10,0.6)" }}>
+            <div key={s.label} style={{ padding: "14px 16px", borderRight: i < quickStats.length - 1 ? "0.5px solid rgba(255,255,255,0.05)" : "none", background: "rgba(10,10,10,0.72)" }}>
               <div style={{ fontSize: "0.67rem", color: "rgba(255,255,255,0.32)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 4 }}>{s.label}</div>
-              <div style={{ fontSize: "0.88rem", fontWeight: 700, color: "#fff" }}>{s.value}</div>
+              <div style={{ fontSize: "0.88rem", fontWeight: 700, color: "#fff", background: "linear-gradient(180deg,#fff,#c4b5fd)", WebkitBackgroundClip: "text", backgroundClip: "text", WebkitTextFillColor: "transparent" }}>{s.value}</div>
             </div>
           ))}
         </div>
 
+        {/* Experience + portal shortcuts (mirrors bot progression feel) */}
+        <div className="animate-fade-in-up delay-2 section-card axr-accent-glow" style={{ padding: "18px 20px", marginBottom: 20, border: "0.5px solid rgba(124,92,255,0.28)" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12, marginBottom: 12 }}>
+            <span style={{ fontSize: "0.7rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(255,255,255,0.35)" }}>Level progress</span>
+            <span style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.45)" }}>{expFillPct}% of Lv.{player!.level} bar · need {Math.max(0, expNeed - player!.exp).toLocaleString()} XP</span>
+          </div>
+          <div style={{ height: 8, borderRadius: 999, background: "rgba(255,255,255,0.07)", overflow: "hidden", marginBottom: 18 }}>
+            <div style={{ height: "100%", width: `${expFillPct}%`, borderRadius: 999, transition: "width 1s cubic-bezier(0.22,1,0.36,1)", background: "linear-gradient(90deg, rgba(167,139,250,0.95), rgba(34,211,238,0.85))", boxShadow: "0 0 16px rgba(124,92,255,0.35)" }} />
+          </div>
+          <div style={{ fontSize: "0.65rem", fontWeight: 700, color: "rgba(255,255,255,0.28)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>Portal</div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+            {[
+              { to: "/cards", Icon: CardsIcon, label: "Cards" },
+              { to: "/leaderboard", Icon: LeaderboardIcon, label: "Leaderboard" },
+              { to: "/shop", Icon: ShopIcon, label: "Shop" },
+              { to: "/topup", Icon: TopupIcon, label: "Top up" },
+            ].map(({ to, Icon: Ic, label }) => (
+              <Link key={to} href={to} style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "8px 14px", borderRadius: 999, textDecoration: "none", border: "0.5px solid rgba(255,255,255,0.12)", fontSize: "0.78rem", fontWeight: 700, color: "rgba(255,255,255,0.88)", background: "rgba(0,0,0,0.35)", fontFamily: "Outfit, sans-serif" }}>
+                <Ic size={13} color="rgba(167,139,250,0.9)" />{label}
+              </Link>
+            ))}
+          </div>
+          <div style={{ fontSize: "0.65rem", fontWeight: 700, color: "rgba(255,255,255,0.28)", textTransform: "uppercase", letterSpacing: "0.1em", margin: "18px 0 10px" }}>Bot commands · tap to copy</div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            {BOT_QUICK_HELP.map(row => (
+              <button key={row.cmd} type="button" onClick={() => { void navigator.clipboard?.writeText(row.cmd); }} style={{ cursor: "pointer", borderRadius: 999, padding: "6px 11px", fontSize: "0.72rem", fontWeight: 600, border: "0.5px solid rgba(34,211,238,0.35)", background: "rgba(8,22,26,0.8)", color: "rgba(125,237,246,0.95)", fontFamily: "ui-monospace, monospace" }} title={`Copy ${row.cmd}`}>
+                {row.hint}<span style={{ opacity: 0.45, marginLeft: 5 }}>{row.cmd}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* ── Tab Navigation ── */}
-        <div className="animate-fade-in-up delay-2" style={{ display: "flex", gap: 4, marginBottom: 22, background: "rgba(255,255,255,0.04)", borderRadius: 12, padding: 4, width: "fit-content" }}>
+        <div className="animate-fade-in-up delay-3" style={{ display: "flex", gap: 4, marginBottom: 22, background: "rgba(255,255,255,0.04)", borderRadius: 12, padding: 4, width: "fit-content" }}>
           {tabs.map(t => (
             <button key={t} onClick={() => setTab(t)} style={{
               background: tab === t ? "#fff" : "transparent",
@@ -324,47 +464,114 @@ export default function Profile() {
         {/* ── Tab: Overview ── */}
         {tab === "Overview" && (
           <div className="animate-fade-in">
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }} className="profile-grid">
-              {/* Stat bars */}
+            <div className="profile-overview-stack" style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) minmax(0,1fr)", gap: 14, marginBottom: 14 }}>
               <div className="section-card" style={{ padding: "22px 24px" }}>
                 <h2 style={{ fontSize: "0.72rem", fontWeight: 600, color: "rgba(255,255,255,0.35)", marginBottom: 20, textTransform: "uppercase", letterSpacing: "0.09em" }}>Combat Stats</h2>
                 {statBars.map(s => <StatBar key={s.label} {...s} />)}
               </div>
-              {/* Activity */}
               <div className="section-card" style={{ padding: "22px 24px" }}>
-                <h2 style={{ fontSize: "0.72rem", fontWeight: 600, color: "rgba(255,255,255,0.35)", marginBottom: 16, textTransform: "uppercase", letterSpacing: "0.09em" }}>Recent Activity</h2>
-                <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-                  {activityLoading ? (
-                    <span style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.25)" }}>Loading...</span>
-                  ) : activityLog.length === 0 ? (
-                    <span style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.22)", fontStyle: "italic" }}>No recent activity yet.</span>
-                  ) : activityLog.map((a, i) => (
-                    <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, padding: "10px 0", borderBottom: i < activityLog.length - 1 ? "0.5px solid rgba(255,255,255,0.04)" : "none" }}>
-                      <span style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.7)", lineHeight: 1.45 }}>{a.text}</span>
-                      <span style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.27)", whiteSpace: "nowrap", flexShrink: 0, marginTop: 2 }}>{a.time}</span>
-                    </div>
-                  ))}
+                <h2 style={{ fontSize: "0.72rem", fontWeight: 600, color: "rgba(255,255,255,0.35)", marginBottom: 16, textTransform: "uppercase", letterSpacing: "0.09em" }}>Combat Record</h2>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 14 }}>
+                  <div style={{ background: "rgba(0,0,0,0.35)", border: "0.5px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "12px 14px" }}>
+                    <div style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: "0.08em" }}>K index</div>
+                    <div style={{ fontSize: "1.25rem", fontWeight: 800, marginTop: 4 }}>{kd ? kd.display : "—"}</div>
+                    <div style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.32)", marginTop: 4 }}>{kd ? kd.rawLabel : "Fight to build ratio"} · bot formula</div>
+                  </div>
+                  <div style={{ background: "rgba(0,0,0,0.35)", border: "0.5px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "12px 14px" }}>
+                    <div style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: "0.08em" }}>PvP duel</div>
+                    <div style={{ fontSize: "1.1rem", fontWeight: 800, marginTop: 4 }}>{pvpWins}W — {pvpLoss}L</div>
+                    <div style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.32)", marginTop: 4 }}>From killCounts</div>
+                  </div>
+                  <div style={{ background: "rgba(0,0,0,0.35)", border: "0.5px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "12px 14px" }}>
+                    <div style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: "0.08em", display: "flex", alignItems: "center", gap: 6 }}><MapIcon size={11} color="rgba(255,255,255,0.35)" />Dungeons cleared</div>
+                    <div style={{ fontSize: "1.1rem", fontWeight: 800, marginTop: 4 }}>{(kc.dungeonsCleared || 0).toLocaleString()}</div>
+                  </div>
+                  <div style={{ background: "rgba(0,0,0,0.35)", border: "0.5px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "12px 14px" }}>
+                    <div style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Boss kills</div>
+                    <div style={{ fontSize: "1.1rem", fontWeight: 800, marginTop: 4 }}>{(kc.boss_kills || 0).toLocaleString()}</div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Equipment */}
+            <div className="section-card" style={{ padding: "22px 24px", marginBottom: 14 }}>
+              <h2 style={{ fontSize: "0.72rem", fontWeight: 600, color: "rgba(255,255,255,0.35)", marginBottom: 16, textTransform: "uppercase", letterSpacing: "0.09em" }}>Recent Activity</h2>
+              <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+                {activityLoading ? (
+                  <div aria-busy>
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <div key={i} className="axr-shimmer" style={{ padding: "12px 0", borderBottom: i < 4 ? "0.5px solid rgba(255,255,255,0.05)" : "none" }}>
+                        <div style={{ height: 12, borderRadius: 6, background: "rgba(255,255,255,0.06)", width: `${68 + i * 5}%` }} />
+                      </div>
+                    ))}
+                  </div>
+                ) : activityLog.length === 0 ? (
+                  <span style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.22)", fontStyle: "italic" }}>No recent activity sync yet — grind in Discord / WhatsApp to populate <code style={{ opacity: 0.5 }}>!profile</code>.</span>
+                ) : activityLog.map((a, i) => (
+                  <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, padding: "10px 0", borderBottom: i < activityLog.length - 1 ? "0.5px solid rgba(255,255,255,0.04)" : "none" }}>
+                    <span style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.7)", lineHeight: 1.45 }}>{a.text}</span>
+                    <span style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.27)", whiteSpace: "nowrap", flexShrink: 0, marginTop: 2 }}>{a.time}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {(((player!.skills?.length ?? 0) > 0) || ((player!.titles?.length ?? 0) > 0) || !!player!.equippedTitle) && (
+              <>
+                {(player!.skills?.length ?? 0) > 0 && (
+                  <div className="section-card" style={{ padding: "22px 24px", marginBottom: 14 }}>
+                    <h2 style={{ fontSize: "0.72rem", fontWeight: 600, color: "rgba(255,255,255,0.35)", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.09em" }}>Skills</h2>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                      {player!.skills!.slice(0, 48).map(sk => (
+                        <span key={sk} style={{ fontSize: "0.72rem", padding: "5px 10px", borderRadius: 999, border: "0.5px solid rgba(34,211,238,0.25)", background: "rgba(8,20,26,0.65)", fontWeight: 600, color: "rgba(200,246,252,0.92)" }}>
+                          {sk.replace(/_/g, " ")}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {(!!player!.equippedTitle || (player!.titles?.length ?? 0) > 0) && (
+                  <div className="section-card" style={{ padding: "22px 24px", marginBottom: 14 }}>
+                    <h2 style={{ fontSize: "0.72rem", fontWeight: 600, color: "rgba(255,255,255,0.35)", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.09em" }}>Titles</h2>
+                    {player!.equippedTitle && (
+                      <div style={{ marginBottom: 12, fontSize: "0.84rem", fontWeight: 700, color: "#fff" }}>
+                        Equipped: <span style={{ color: "rgba(196,181,253,0.95)" }}>{cap(player!.equippedTitle.replace(/_/g, " "))}</span>
+                      </div>
+                    )}
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                      {(player!.titles || []).slice(0, 32).map(t => (
+                        <span key={t} style={{ fontSize: "0.71rem", padding: "5px 11px", borderRadius: 10, border: "0.5px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.72)" }}>
+                          {t.replace(/_/g, " ")}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+
             <div className="section-card" style={{ padding: "22px 24px", marginBottom: 14 }}>
               <h2 style={{ fontSize: "0.72rem", fontWeight: 600, color: "rgba(255,255,255,0.35)", marginBottom: 16, textTransform: "uppercase", letterSpacing: "0.09em" }}>Equipment</h2>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(165px, 1fr))", gap: 10 }}>
-                {equipment.map(eq => (
-                  <div key={eq.slot} style={{ background: eq.filled ? "rgba(255,255,255,0.03)" : "rgba(255,255,255,0.01)", border: `0.5px solid ${eq.filled ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.05)"}`, borderRadius: 12, padding: "14px 16px", transition: "border-color 0.2s" }}
-                    onMouseEnter={e => eq.filled && ((e.currentTarget as HTMLDivElement).style.borderColor = "rgba(255,255,255,0.2)")}
-                    onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.borderColor = eq.filled ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.05)"}>
-                    <div style={{ fontSize: "0.66rem", color: "rgba(255,255,255,0.28)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 9 }}>{eq.slot}</div>
+                {equipment.map(slotRow => (
+                  <div key={slotRow.slot} style={{ background: slotRow.filled ? "rgba(255,255,255,0.03)" : "rgba(255,255,255,0.01)", border: `0.5px solid ${slotRow.filled ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.05)"}`, borderRadius: 12, padding: "14px 16px", transition: "border-color 0.2s" }}
+                    onMouseEnter={e => slotRow.filled && ((e.currentTarget as HTMLDivElement).style.borderColor = "rgba(255,255,255,0.2)")}
+                    onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.borderColor = slotRow.filled ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.05)"}>
+                    <div style={{ fontSize: "0.66rem", color: "rgba(255,255,255,0.28)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 9 }}>{slotRow.slot}</div>
                     <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
-                      <eq.Icon size={15} color={eq.filled ? "rgba(255,255,255,0.7)" : "rgba(255,255,255,0.18)"} />
-                      <span style={{ fontSize: "0.82rem", fontWeight: eq.filled ? 600 : 400, color: eq.filled ? "#fff" : "rgba(255,255,255,0.2)", fontStyle: eq.filled ? "normal" : "italic" }}>{eq.name}</span>
+                      <slotRow.Icon size={15} color={slotRow.filled ? "rgba(255,255,255,0.7)" : "rgba(255,255,255,0.18)"} />
+                      <span style={{ fontSize: "0.82rem", fontWeight: slotRow.filled ? 600 : 400, color: slotRow.filled ? "#fff" : "rgba(255,255,255,0.2)", fontStyle: slotRow.filled ? "normal" : "italic" }}>{slotRow.name}</span>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
+
+            <style>{`
+              @media (max-width: 900px) {
+                .profile-overview-stack { grid-template-columns: 1fr !important; }
+              }
+            `}</style>
           </div>
         )}
 
@@ -379,10 +586,10 @@ export default function Profile() {
                     <h2 style={{ fontSize: "1rem", fontWeight: 800, color: "#fff" }}>Season 12 Pass</h2>
                     <span style={{ background: "rgba(255,255,255,0.08)", border: "0.5px solid rgba(255,255,255,0.18)", borderRadius: 999, padding: "2px 10px", fontSize: "0.68rem", fontWeight: 700, color: "#fff" }}>ELITE</span>
                   </div>
-                  <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.38)" }}>Season ends in 23 days · Level {seasonLevel} of {seasonMax}</p>
+                  <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.38)" }}>Preview track synced to your portal level · pass level {seasonProgLevel} / {seasonMax}</p>
                 </div>
                 <div style={{ textAlign: "right" }}>
-                  <div style={{ fontSize: "2rem", fontWeight: 800, color: "#fff", lineHeight: 1 }}>{seasonLevel}</div>
+                  <div style={{ fontSize: "2rem", fontWeight: 800, color: "#fff", lineHeight: 1 }}>{seasonProgLevel}</div>
                   <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.35)", marginTop: 2 }}>/ {seasonMax} levels</div>
                 </div>
               </div>
@@ -405,7 +612,7 @@ export default function Profile() {
                 </div>
               </div>
               {seasonRewards.map((r, i) => {
-                const unlocked = seasonLevel >= r.lv;
+                const unlocked = seasonProgLevel >= r.lv;
                 return (
                   <div key={r.lv} style={{
                     display: "grid", gridTemplateColumns: "60px 1fr 1fr", gap: 16,
@@ -436,19 +643,19 @@ export default function Profile() {
               <div className="section-card" style={{ padding: "14px 20px", display: "flex", alignItems: "center", gap: 12 }}>
                 <CheckIcon size={16} color="rgba(255,255,255,0.7)" />
                 <div>
-                  <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "#fff" }}>0 / 6</div>
+                  <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "#fff" }}>{achDone} / {achievementsData?.length ?? 6}</div>
                   <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.35)", marginTop: 1 }}>Completed</div>
                 </div>
               </div>
               <div className="section-card" style={{ padding: "14px 20px", flex: 1, minWidth: 200 }}>
                 <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.35)", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.07em" }}>Overall Progress</div>
                 <div style={{ height: 5, background: "rgba(255,255,255,0.06)", borderRadius: 999 }}>
-                  <div style={{ height: "100%", width: "0%", background: "#fff", borderRadius: 999, boxShadow: "0 0 6px rgba(255,255,255,0.4)" }} />
+                  <div style={{ height: "100%", width: `${achPct}%`, background: "#fff", borderRadius: 999, boxShadow: "0 0 6px rgba(255,255,255,0.4)", transition: "width 1s cubic-bezier(0.22,1,0.36,1)" }} />
                 </div>
               </div>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 12, marginBottom: 32 }}>
-              {achievements.map(a => (
+              {(achievementsData ?? achievementsTemplate.map(t => ({ ...t, done: false, pct: 0 }))).map(a => (
                 <div key={a.name} className="section-card" style={{ padding: "18px 20px", transition: "border-color 0.2s" }}
                   onMouseEnter={e => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.16)")}
                   onMouseLeave={e => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.09)")}>

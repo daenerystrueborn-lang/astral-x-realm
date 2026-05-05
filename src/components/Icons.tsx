@@ -145,6 +145,15 @@ export function LeaderboardIcon({ size = 16, color = "currentColor" }: { size?: 
   );
 }
 
+export function CardsIcon({ size = 16, color = "currentColor" }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="5" width="14" height="16" rx="2" />
+      <path d="M6 2h12a2 2 0 0 1 2 2v14" />
+    </svg>
+  );
+}
+
 export function WeaponIcon({ size = 18, color = "currentColor" }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">

@@ -7,6 +7,7 @@ import Profile from "@/pages/Profile";
 import Leaderboard from "@/pages/Leaderboard";
 import Shop from "@/pages/Shop";
 import Topup from "@/pages/Topup";
+import Cards from "@/pages/Cards";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
@@ -19,6 +20,7 @@ function Router() {
       <Route path="/leaderboard" component={Leaderboard} />
       <Route path="/shop" component={Shop} />
       <Route path="/topup" component={Topup} />
+      <Route path="/cards" component={Cards} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -29,10 +31,14 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
         <AuthProvider>
-          <div style={{ position: "relative", zIndex: 1 }}>
-            <Router />
+          <div className="site-root">
+            <div className="site-ambient" aria-hidden />
+            <div className="site-grain" aria-hidden />
+            <div style={{ position: "relative", zIndex: 1 }}>
+              <Router />
+            </div>
+            <AuthModal />
           </div>
-          <AuthModal />
         </AuthProvider>
       </WouterRouter>
     </QueryClientProvider>

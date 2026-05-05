@@ -243,7 +243,28 @@ export default function Leaderboard() {
                 <span className="lb-col-guild" style={{ fontSize: "0.68rem", fontWeight: 600, color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: "0.08em", textAlign: "right" }}>Guild</span>
               </div>
               {loading ? (
-                <div style={{ padding: "32px", textAlign: "center", color: "rgba(255,255,255,0.3)", fontSize: "0.85rem" }}>Loading players...</div>
+                <div aria-busy aria-label="Loading players">
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="lb-row lb-data-row axr-shimmer"
+                      style={{
+                        padding: "13px 18px",
+                        borderBottom: i < 7 ? "0.5px solid rgba(255,255,255,0.04)" : "none",
+                        opacity: 0.95,
+                      }}
+                    >
+                      <div style={{ width: 36, height: 12, borderRadius: 6, background: "rgba(255,255,255,0.06)" }} />
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ width: "55%", height: 12, borderRadius: 6, background: "rgba(255,255,255,0.08)", marginBottom: 8 }} />
+                        <div style={{ width: "35%", height: 9, borderRadius: 5, background: "rgba(255,255,255,0.05)" }} />
+                      </div>
+                      <div className="lb-col-lvl" style={{ width: 48, height: 12, borderRadius: 6, background: "rgba(255,255,255,0.06)", justifySelf: "end" }} />
+                      <div style={{ width: 56, height: 12, borderRadius: 6, background: "rgba(255,255,255,0.06)", justifySelf: "end" }} />
+                      <div className="lb-col-guild" style={{ width: 72, height: 12, borderRadius: 6, background: "rgba(255,255,255,0.05)", justifySelf: "end" }} />
+                    </div>
+                  ))}
+                </div>
               ) : players.length === 0 ? (
                 <div style={{ padding: "32px", textAlign: "center", color: "rgba(255,255,255,0.3)", fontSize: "0.85rem" }}>No players yet.</div>
               ) : players.map((p, i) => (
@@ -287,7 +308,24 @@ export default function Leaderboard() {
                 <span style={{ fontSize: "0.68rem", fontWeight: 600, color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: "0.08em", textAlign: "right" }}>Total Kills</span>
               </div>
               {guildLoading ? (
-                <div style={{ padding: "32px", textAlign: "center", color: "rgba(255,255,255,0.3)", fontSize: "0.85rem" }}>Loading guilds...</div>
+                <div aria-busy aria-label="Loading guilds">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="guild-row axr-shimmer"
+                      style={{
+                        padding: "13px 18px",
+                        borderBottom: i < 5 ? "0.5px solid rgba(255,255,255,0.04)" : "none",
+                      }}
+                    >
+                      <div style={{ width: 28, height: 14, borderRadius: 7, background: "rgba(255,255,255,0.06)" }} />
+                      <div style={{ width: "50%", height: 12, borderRadius: 6, background: "rgba(255,255,255,0.08)", minWidth: 0 }} />
+                      <div style={{ width: 96, height: 12, borderRadius: 6, background: "rgba(255,255,255,0.06)", justifySelf: "end" }} />
+                      <div style={{ width: 52, height: 12, borderRadius: 6, background: "rgba(255,255,255,0.05)", justifySelf: "end" }} />
+                      <div style={{ width: 64, height: 12, borderRadius: 6, background: "rgba(255,255,255,0.06)", justifySelf: "end" }} />
+                    </div>
+                  ))}
+                </div>
               ) : guildRanks.length === 0 ? (
                 <div style={{ padding: "32px", textAlign: "center", color: "rgba(255,255,255,0.3)", fontSize: "0.85rem" }}>No guilds yet.</div>
               ) : guildRanks.map((g, i) => (

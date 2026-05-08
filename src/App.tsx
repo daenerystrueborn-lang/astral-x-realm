@@ -29,15 +29,18 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
         <AuthProvider>
-          <div className="site-root">
-            <div className="site-ambient" aria-hidden />
-            <div className="site-aurora" aria-hidden />
-            <div className="site-grain" aria-hidden />
-            <div style={{ position: "relative", zIndex: 1 }}>
-              <Router />
-            </div>
-            <AuthModal />
+          {/* Fixed background layers — z-index: 0, pointer-events: none */}
+          <div className="bg-base"    aria-hidden="true" />
+          <div className="bg-ambient" aria-hidden="true" />
+          <div className="bg-aurora"  aria-hidden="true" />
+          <div className="bg-grain"   aria-hidden="true" />
+
+          {/* All page content lives here — z-index: 1 */}
+          <div className="page-root">
+            <Router />
           </div>
+
+          <AuthModal />
         </AuthProvider>
       </WouterRouter>
     </QueryClientProvider>

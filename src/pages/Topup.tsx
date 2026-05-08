@@ -25,6 +25,19 @@ const PLANS: Plan[] = [
   { id: "god",      label: "Godlike",   solars: 55000,  gems: 550, bonusSolars: 18000, bonusGems: 80, priceUSD: 84.99 },
 ];
 
+/* Row 1: Warrior | Legend (gold centre) | Elite
+   Row 2: Starter  | Champion            | Godlike */
+const PLANS_ROW1: Plan[] = [
+  PLANS.find(p => p.id === "warrior")!,
+  PLANS.find(p => p.id === "legend")!,
+  PLANS.find(p => p.id === "elite")!,
+];
+const PLANS_ROW2: Plan[] = [
+  PLANS.find(p => p.id === "starter")!,
+  PLANS.find(p => p.id === "champion")!,
+  PLANS.find(p => p.id === "god")!,
+];
+
 const perks = [
   { Icon: CoinIcon,  color: "#fbbf24", heading: "Solars",        body: "Primary in-game currency. Buy gear, potions, and upgrades from the shop." },
   { Icon: GemIcon,   color: "#c084fc", heading: "Gems",          body: "Premium crystal. Unlock exclusive items, fast-track progression, and guild boosts." },
@@ -143,7 +156,7 @@ function PlanCard({ plan }: { plan: Plan }) {
         <button
           onClick={handleBuy}
           style={{
-            width: "100%", padding: "11px 0", borderRadius: 12, fontFamily: "Outfit, sans-serif",
+            width: "100%", padding: "11px 0", borderRadius: 999, fontFamily: "Outfit, sans-serif",
             fontSize: "0.87rem", fontWeight: 700, cursor: "pointer", transition: "all 0.2s",
             background: plan.legend
               ? "linear-gradient(135deg, #d97706, #fbbf24)"
@@ -173,8 +186,8 @@ function PlanCard({ plan }: { plan: Plan }) {
               This is a demo — no real payment will be processed. For real purchases, link a valid payment method in settings.
             </p>
             <div style={{ display: "flex", gap: 10 }}>
-              <button onClick={() => setConfirmOpen(false)} style={{ flex: 1, background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.6)", border: "0.5px solid rgba(255,255,255,0.1)", borderRadius: 10, padding: "10px 0", cursor: "pointer", fontFamily: "Outfit, sans-serif", fontSize: "0.82rem" }}>Cancel</button>
-              <button onClick={() => setConfirmOpen(false)} style={{ flex: 1, background: plan.legend ? "linear-gradient(135deg, #d97706, #fbbf24)" : "linear-gradient(135deg, #7c3aed, #22d3ee)", color: "#fff", border: "none", borderRadius: 10, padding: "10px 0", cursor: "pointer", fontFamily: "Outfit, sans-serif", fontSize: "0.82rem", fontWeight: 700 }}>Proceed</button>
+              <button onClick={() => setConfirmOpen(false)} style={{ flex: 1, background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.6)", border: "0.5px solid rgba(255,255,255,0.1)", borderRadius: 999, padding: "11px 0", cursor: "pointer", fontFamily: "Outfit, sans-serif", fontSize: "0.82rem" }}>Cancel</button>
+              <button onClick={() => setConfirmOpen(false)} style={{ flex: 1, background: plan.legend ? "linear-gradient(135deg, #d97706, #fbbf24)" : "linear-gradient(135deg, #7c3aed, #22d3ee)", color: "#fff", border: "none", borderRadius: 999, padding: "11px 0", cursor: "pointer", fontFamily: "Outfit, sans-serif", fontSize: "0.82rem", fontWeight: 700 }}>Proceed</button>
             </div>
           </div>
         </div>
@@ -218,9 +231,16 @@ export default function Topup() {
             )}
           </div>
 
-          {/* Plans grid */}
-          <div className="anim-up d1" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 14, marginBottom: 56 }}>
-            {PLANS.map(p => <PlanCard key={p.id} plan={p} />)}
+          {/* Plans grid — 3 per row, Legend (gold) centre of row 1 */}
+          <div className="anim-up d1" style={{ marginBottom: 56 }}>
+            {/* Row 1: Warrior | Legend (gold, centre) | Elite */}
+            <div className="plans-grid-3" style={{ marginBottom: 14 }}>
+              {PLANS_ROW1.map(p => <PlanCard key={p.id} plan={p} />)}
+            </div>
+            {/* Row 2: Starter | Champion | Godlike */}
+            <div className="plans-grid-3">
+              {PLANS_ROW2.map(p => <PlanCard key={p.id} plan={p} />)}
+            </div>
           </div>
 
           {/* Perks */}

@@ -405,6 +405,27 @@
 .section-wrap { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
 @media (max-width: 640px) { .section-wrap { padding: 0 16px; } }
 
+/* ─── GLOBAL ROUNDED CORNERS — no sharp edges anywhere ──────────── */
+button, input, select, textarea {
+  border-radius: 12px;
+}
+button { border-radius: 999px; }
+input, select, textarea { border-radius: 14px; }
+
+/* ─── TOPUP PLAN GRID — responsive ──────────────────────────────── */
+.plans-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  align-items: stretch;
+}
+@media (max-width: 800px) {
+  .plans-grid-3 { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 520px) {
+  .plans-grid-3 { grid-template-columns: 1fr; }
+}
+
 /* ─── MOBILE OVERFLOW FIX ────────────────────────────────────────── */
 @media (max-width: 768px) {
   .desktop-only { display: none !important; }

@@ -31,6 +31,7 @@ export default function App() {
         <AuthProvider>
           <div className="site-root">
             <div className="site-ambient" aria-hidden />
+            <div className="site-aurora" aria-hidden />
             <div className="site-grain" aria-hidden />
             <div style={{ position: "relative", zIndex: 1 }}>
               <Router />

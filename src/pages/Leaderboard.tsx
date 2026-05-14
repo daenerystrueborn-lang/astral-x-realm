@@ -328,9 +328,9 @@ export default function Leaderboard() {
             <div style={{ display: "flex", gap: 4, background: "rgba(255,255,255,0.04)", borderRadius: 12, padding: 4, width: "fit-content" }}>
               {(["players", "guilds"] as const).map(t => (
                 <button key={t} onClick={() => setTab(t)} style={{
-                  background: tab === t ? "rgba(255,255,255,0.1)" : "transparent",
+                  background: tab === t ? "linear-gradient(135deg, rgba(124,58,237,0.22), rgba(34,211,238,0.1))" : "transparent",
                   color: tab === t ? "#fff" : "rgba(255,255,255,0.42)",
-                  border: tab === t ? "0.5px solid rgba(255,255,255,0.14)" : "0.5px solid transparent",
+                  border: tab === t ? "0.5px solid rgba(139,92,246,0.4)" : "0.5px solid transparent",
                   borderRadius: 9, padding: "7px 18px", fontSize: "0.8rem", fontWeight: tab === t ? 700 : 500,
                   cursor: "pointer", fontFamily: "Outfit, sans-serif", transition: "all 0.18s",
                 }}>

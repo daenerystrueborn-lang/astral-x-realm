@@ -162,10 +162,10 @@ function PlanCard({ plan }: { plan: Plan }) {
               ? "linear-gradient(135deg, #d97706, #fbbf24)"
               : plan.popular
                 ? "linear-gradient(135deg, #7c3aed, #22d3ee)"
-                : "rgba(255,255,255,0.08)",
+                : "linear-gradient(135deg, rgba(124,58,237,0.18), rgba(34,211,238,0.09))",
             color: "#fff",
-            border: plan.legend ? "none" : plan.popular ? "none" : "0.5px solid rgba(255,255,255,0.14)",
-            boxShadow: plan.legend ? "0 0 24px rgba(251,191,36,0.25)" : plan.popular ? "0 0 22px rgba(124,58,237,0.3)" : "none",
+            border: plan.legend ? "none" : plan.popular ? "none" : "0.5px solid rgba(139,92,246,0.28)",
+            boxShadow: plan.legend ? "0 0 24px rgba(251,191,36,0.25)" : plan.popular ? "0 0 22px rgba(124,58,237,0.3)" : "0 0 12px rgba(124,58,237,0.08)",
           }}
           onMouseEnter={e => { e.currentTarget.style.opacity = "0.88"; e.currentTarget.style.transform = "scale(1.02)"; }}
           onMouseLeave={e => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.transform = "scale(1)"; }}

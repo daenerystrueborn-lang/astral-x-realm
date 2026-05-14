@@ -143,9 +143,9 @@ export default function Home() {
             <img src={astralIcon} alt="Astral X Realm" style={{ width: 100, height: 100, borderRadius: "50%", objectFit: "cover", border: "2px solid rgba(255,255,255,0.25)", display: "block", position: "relative", zIndex: 1 }} />
           </div>
 
-          <div className="pill-v anim-up d1" style={{ marginBottom: 22 }}>
-            <span className="live-dot" />
-            Season 1 · Now Live
+          <div className="anim-up d1" style={{ marginBottom: 22, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(139,92,246,0.1)", border: "0.5px solid rgba(139,92,246,0.3)", borderRadius: 999, padding: "4px 14px", fontSize: "0.7rem", fontWeight: 600, color: "rgba(196,181,253,0.85)", letterSpacing: "0.09em", textTransform: "uppercase" }}>
+            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "rgba(196,181,253,0.45)" }} />
+            Season 1 · Ended
           </div>
 
           <h1 className="anim-up d2" style={{
@@ -163,31 +163,32 @@ export default function Home() {
           </p>
 
           {/* Primary CTAs */}
-          <div className="anim-up d4" style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", marginBottom: 16, width: "100%", maxWidth: "100vw" }}>
+          <div className="anim-up d4 cta-row" style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", marginBottom: 16, width: "100%", maxWidth: "100vw" }}>
             <button
               onClick={() => player ? navigate("/profile") : openSignup()}
               style={{
-                background: "#fff", color: "#000", border: "none", borderRadius: 999,
+                background: "linear-gradient(135deg, #7c3aed, #6366f1 55%, #22d3ee)",
+                color: "#fff", border: "none", borderRadius: 999,
                 padding: "13px 30px", fontSize: "0.9rem", fontWeight: 800,
                 cursor: "pointer", fontFamily: "Outfit, sans-serif",
-                boxShadow: "0 0 40px rgba(255,255,255,0.12)",
-                transition: "transform 0.2s, box-shadow 0.2s",
+                boxShadow: "0 0 32px rgba(124,58,237,0.4)",
+                transition: "transform 0.2s, box-shadow 0.2s, opacity 0.2s",
                 whiteSpace: "nowrap",
               }}
-              onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.04)"; e.currentTarget.style.boxShadow = "0 0 60px rgba(255,255,255,0.22)"; }}
-              onMouseLeave={e => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.boxShadow = "0 0 40px rgba(255,255,255,0.12)"; }}
+              onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.04)"; e.currentTarget.style.opacity = "0.9"; e.currentTarget.style.boxShadow = "0 0 52px rgba(124,58,237,0.55)"; }}
+              onMouseLeave={e => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.opacity = "1"; e.currentTarget.style.boxShadow = "0 0 32px rgba(124,58,237,0.4)"; }}
             >
               {player ? "Go to Profile" : "Get Started Free"}
             </button>
             <Link href="/leaderboard" style={{
-              background: "transparent", color: "rgba(255,255,255,0.75)",
-              border: "0.5px solid rgba(255,255,255,0.18)", borderRadius: 999,
+              background: "rgba(139,92,246,0.08)", color: "rgba(255,255,255,0.8)",
+              border: "0.5px solid rgba(139,92,246,0.32)", borderRadius: 999,
               padding: "13px 28px", fontSize: "0.9rem", fontWeight: 600,
               textDecoration: "none", display: "inline-block",
-              transition: "border-color 0.2s, color 0.2s", whiteSpace: "nowrap",
+              transition: "border-color 0.2s, color 0.2s, background 0.2s", whiteSpace: "nowrap",
             }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.32)"; e.currentTarget.style.color = "#fff"; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.18)"; e.currentTarget.style.color = "rgba(255,255,255,0.75)"; }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(139,92,246,0.55)"; e.currentTarget.style.color = "#fff"; e.currentTarget.style.background = "rgba(139,92,246,0.14)"; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(139,92,246,0.32)"; e.currentTarget.style.color = "rgba(255,255,255,0.8)"; e.currentTarget.style.background = "rgba(139,92,246,0.08)"; }}
             >View Leaderboard</Link>
           </div>
 
@@ -283,8 +284,8 @@ export default function Home() {
               <CrownIcon size={20} color="#a78bfa" />
             </div>
             <div>
-              <div style={{ fontSize: "0.94rem", fontWeight: 800, color: "#fff", marginBottom: 3 }}>Astral Premium — Season 1</div>
-              <div style={{ fontSize: "0.76rem", color: "rgba(255,255,255,0.4)", lineHeight: 1.5 }}>1,500 Gold/day · 5 exclusive cards/mo · Elite PvP bracket · from ₦1,000/mo</div>
+              <div style={{ fontSize: "0.94rem", fontWeight: 800, color: "#fff", marginBottom: 3 }}>Astral Premium — Season 2 Coming Soon</div>
+              <div style={{ fontSize: "0.76rem", color: "rgba(255,255,255,0.4)", lineHeight: 1.5 }}>Season 1 rewards locked · New perks &amp; plans arrive with Season 2 · from ₦1,000/mo</div>
             </div>
           </div>
           <Link href="/topup" style={{ background: "linear-gradient(135deg, #7c3aed, #22d3ee)", color: "#fff", borderRadius: 999, padding: "10px 24px", fontSize: "0.8rem", fontWeight: 700, textDecoration: "none", display: "inline-block", whiteSpace: "nowrap", boxShadow: "0 0 20px rgba(124,58,237,0.3)", position: "relative" }}>
@@ -439,9 +440,9 @@ export default function Home() {
           </p>
           <button
             onClick={() => player ? navigate("/profile") : openSignup()}
-            style={{ background: "#fff", color: "#000", border: "none", borderRadius: 999, padding: "14px 44px", fontSize: "0.92rem", fontWeight: 800, cursor: "pointer", fontFamily: "Outfit, sans-serif", boxShadow: "0 0 40px rgba(255,255,255,0.1)", transition: "transform 0.2s, box-shadow 0.2s", position: "relative" }}
-            onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.05)"; e.currentTarget.style.boxShadow = "0 0 60px rgba(255,255,255,0.18)"; }}
-            onMouseLeave={e => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.boxShadow = "0 0 40px rgba(255,255,255,0.1)"; }}
+            style={{ background: "linear-gradient(135deg, #7c3aed, #6366f1 55%, #22d3ee)", color: "#fff", border: "none", borderRadius: 999, padding: "14px 44px", fontSize: "0.92rem", fontWeight: 800, cursor: "pointer", fontFamily: "Outfit, sans-serif", boxShadow: "0 0 40px rgba(124,58,237,0.45)", transition: "transform 0.2s, box-shadow 0.2s, opacity 0.2s", position: "relative" }}
+            onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.05)"; e.currentTarget.style.opacity = "0.88"; e.currentTarget.style.boxShadow = "0 0 60px rgba(124,58,237,0.6)"; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.opacity = "1"; e.currentTarget.style.boxShadow = "0 0 40px rgba(124,58,237,0.45)"; }}
           >
             {player ? "Go to Profile" : "Create Account"}
           </button>

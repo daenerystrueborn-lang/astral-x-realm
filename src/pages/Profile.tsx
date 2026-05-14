@@ -379,9 +379,9 @@ export default function Profile() {
         <div className="anim-up d3" style={{ display: "flex", gap: 4, background: "rgba(255,255,255,0.04)", borderRadius: 14, padding: 4, width: "fit-content", marginBottom: 20 }}>
           {TABS.map(t => (
             <button key={t} onClick={() => setTab(t)} style={{
-              background: tab === t ? "rgba(255,255,255,0.1)" : "transparent",
+              background: tab === t ? "linear-gradient(135deg, rgba(124,58,237,0.22), rgba(34,211,238,0.1))" : "transparent",
               color: tab === t ? "#fff" : "rgba(255,255,255,0.4)",
-              border: tab === t ? "0.5px solid rgba(255,255,255,0.14)" : "0.5px solid transparent",
+              border: tab === t ? "0.5px solid rgba(139,92,246,0.4)" : "0.5px solid transparent",
               borderRadius: 10, padding: "7px 18px", fontSize: "0.8rem", fontWeight: tab === t ? 700 : 500,
               cursor: "pointer", fontFamily: "Outfit, sans-serif", transition: "all 0.18s", whiteSpace: "nowrap",
             }}>{t}</button>
@@ -490,15 +490,18 @@ export default function Profile() {
             <div style={{ background: "rgba(6,6,14,0.9)", border: "0.5px solid rgba(139,92,246,0.22)", borderRadius: 18, padding: "24px 22px", backdropFilter: "blur(14px)", marginBottom: 14 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10, marginBottom: 14 }}>
                 <div>
-                  <div style={{ fontSize: "0.64rem", fontWeight: 700, color: "rgba(255,255,255,0.26)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 4 }}>Season 1 Pass</div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                    <div style={{ fontSize: "0.64rem", fontWeight: 700, color: "rgba(255,255,255,0.26)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Season 1 Pass</div>
+                    <div style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "rgba(139,92,246,0.1)", border: "0.5px solid rgba(139,92,246,0.28)", borderRadius: 999, padding: "2px 10px", fontSize: "0.6rem", fontWeight: 700, color: "rgba(196,181,253,0.75)", letterSpacing: "0.1em", textTransform: "uppercase" }}>Ended</div>
+                  </div>
                   <div style={{ fontSize: "1.2rem", fontWeight: 800, color: "#fff", letterSpacing: "-0.03em" }}>Level {seasonLv} <span style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.35)", fontWeight: 500 }}>/ {SEASON_MAX}</span></div>
                 </div>
-                <div style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.38)" }}>{spWidth.toFixed(0)}% complete</div>
+                <div style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.38)" }}>{spWidth.toFixed(0)}% — Season Closed</div>
               </div>
               <div style={{ height: 10, background: "rgba(255,255,255,0.06)", borderRadius: 999, overflow: "hidden", marginBottom: 8 }}>
                 <div style={{ height: "100%", width: `${spWidth}%`, background: "linear-gradient(90deg, #7c3aed, #a78bfa 55%, #22d3ee)", borderRadius: 999, boxShadow: "0 0 20px rgba(139,92,246,0.4)", transition: "width 1.1s cubic-bezier(0.22,1,0.36,1)" }} />
               </div>
-              <div style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.28)" }}>Based on your character level (same as bot ranking)</div>
+              <div style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.28)" }}>Season 1 has ended — rewards finalized. Season 2 coming soon.</div>
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>

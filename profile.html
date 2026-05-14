@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile — Astral X Realm</title>
+  <link rel="icon" type="image/png" href="public/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .stat-bar-track { height: 6px; border-radius: 999px; background: rgba(255,255,255,0.06); overflow: hidden; }
+    .stat-bar-fill  { height: 100%; border-radius: 999px; animation: growBar 1s ease both; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 640px) { .two-col { grid-template-columns: 1fr; } }
+    .info-panel { background: rgba(6,6,14,0.9); border: 0.5px solid rgba(255,255,255,0.08); border-radius: 18px; padding: 22px; }
+    .panel-label { font-size: 0.64rem; font-weight: 700; color: rgba(255,255,255,0.26); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 16px; }
+    .combat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .combat-cell { background: rgba(0,0,0,0.3); border: 0.5px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 12px 14px; }
+    .combat-label { font-size: 0.62rem; color: rgba(255,255,255,0.28); font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 4px; }
+    .combat-value { font-size: 1.05rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .cmd-chip { background: rgba(255,255,255,0.04); border: 0.5px solid rgba(255,255,255,0.09); border-radius: 8px; padding: 7px 12px; cursor: default; }
+    .cmd-code { font-size: 0.73rem; color: rgba(196,181,253,0.8); font-family: monospace; }
+    .cmd-hint { font-size: 0.62rem; color: rgba(255,255,255,0.26); margin-top: 3px; }
+    .equip-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .equip-slot { display: flex; align-items: center; gap: 9px; background: rgba(0,0,0,0.2); border: 0.5px solid rgba(255,255,255,0.05); border-radius: 11px; padding: 9px 12px; }
+    .login-prompt { text-align: center; padding: 80px 24px; }
+  </style>
+</head>
+<body>
+  <div id="toast-container"></div>
+  <nav class="nav">
+    <a href="index.html" class="nav-logo"><div class="nav-logo-icon"><img src="public/astral_icon.png" alt="Astral X Realm"></div><span class="nav-logo-text">Astral X Realm</span></a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="leaderboard.html">Leaderboard</a></li>
+      <li><a href="cards.html">Cards</a></li>
+      <li><a href="topup.html">Top Up</a></li>
+      <li><a href="profile.html" class="active">Profile</a></li>
+    </ul>
+    <div class="nav-actions desktop-only">
+      <button class="btn btn-ghost" style="padding:8px 18px;font-size:0.8rem;" data-modal-open="login-modal">Log in</button>
+      <button class="btn btn-primary" style="padding:8px 18px;font-size:0.8rem;" data-modal-open="signup-modal">Sign up</button>
+    </div>
+    <button id="hamburger-btn" class="mobile-only" style="width:36px;height:36px;border-radius:999px;background:rgba(255,255,255,0.06);border:0.5px solid rgba(255,255,255,0.15);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3.5px;cursor:pointer;">
+      <span style="width:14px;height:1.3px;background:rgba(255,255,255,0.85);border-radius:2px;display:block;"></span>
+      <span style="width:10px;height:1.3px;background:rgba(255,255,255,0.85);border-radius:2px;display:block;"></span>
+      <span style="width:7px;height:1.3px;background:rgba(255,255,255,0.85);border-radius:2px;display:block;"></span>
+    </button>
+  </nav>
+  <ul class="mobile-menu" id="mobile-menu" style="display:none;">
+    <li><a href="index.html">Home</a></li><li><a href="leaderboard.html">Leaderboard</a></li><li><a href="cards.html">Cards</a></li><li><a href="topup.html">Top Up</a></li><li><a href="profile.html" class="active">Profile</a></li>
+  </ul>
+
+  <div class="page">
+    <div class="wrap">
+      <section class="section">
+
+        <!-- Header -->
+        <div class="anim-up" style="margin-bottom:28px;">
+          <div class="pill anim-up d1" style="display:inline-flex;margin-bottom:14px;"><span class="live-dot"></span> Your portal</div>
+          <h1 class="heading" style="font-size:clamp(1.8rem,5vw,2.5rem);color:#fff;margin-bottom:6px;">Profile</h1>
+          <p style="font-size:0.85rem;color:rgba(255,255,255,0.38);">Sign in to see your full character stats, battle history, and season progress.</p>
+        </div>
+
+        <!-- Profile card (demo — shows placeholder content) -->
+        <div class="profile-header anim-up d1">
+          <div style="display:flex;flex-wrap:wrap;align-items:center;gap:18px;margin-bottom:22px;">
+            <div style="width:56px;height:56px;border-radius:16px;background:linear-gradient(145deg,rgba(124,92,255,0.4),rgba(34,211,238,0.15));border:0.5px solid rgba(255,255,255,0.14);display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-weight:900;color:#fff;flex-shrink:0;">A</div>
+            <div>
+              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
+                <h2 style="font-size:1.2rem;font-weight:800;color:#fff;letter-spacing:-0.03em;font-family:'Plus Jakarta Sans',sans-serif;">Astralborn</h2>
+                <span style="background:rgba(139,92,246,0.14);border:0.5px solid rgba(139,92,246,0.3);border-radius:999px;padding:3px 11px;font-size:0.7rem;font-weight:700;color:#c4b5fd;">Lv. 85</span>
+                <span style="background:rgba(251,191,36,0.12);border:0.5px solid rgba(251,191,36,0.28);border-radius:999px;padding:3px 11px;font-size:0.7rem;font-weight:700;color:#fbbf24;display:flex;align-items:center;gap:5px;">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
+                  Kami
+                </span>
+              </div>
+              <div style="font-size:0.8rem;color:rgba(255,255,255,0.36);">Warrior &middot; Elf &middot; Champion</div>
+              <div style="font-size:0.72rem;color:rgba(196,181,253,0.45);margin-top:2px;">248,000 / 300,000 XP</div>
+            </div>
+          </div>
+
+          <!-- Quick stats -->
+          <div class="quick-stats" style="margin-bottom:16px;">
+            <div class="quick-stat-cell"><div class="quick-stat-value">8,912</div><div class="quick-stat-label">Kills</div></div>
+            <div class="quick-stat-cell"><div class="quick-stat-value">421</div><div class="quick-stat-label">Dungeons</div></div>
+            <div class="quick-stat-cell"><div class="quick-stat-value">156</div><div class="quick-stat-label">PvP Wins</div></div>
+            <div class="quick-stat-cell"><div class="quick-stat-value">34</div><div class="quick-stat-label">PvP Losses</div></div>
+            <div class="quick-stat-cell"><div class="quick-stat-value">4.6</div><div class="quick-stat-label">K/D Ratio</div></div>
+            <div class="quick-stat-cell"><div class="quick-stat-value" style="color:#fbbf24;">42,800</div><div class="quick-stat-label">Solars</div></div>
+            <div class="quick-stat-cell"><div class="quick-stat-value" style="color:#c084fc;">88</div><div class="quick-stat-label">Gems</div></div>
+            <div class="quick-stat-cell"><div class="quick-stat-value">1</div><div class="quick-stat-label">Prestige</div></div>
+          </div>
+
+          <!-- XP bar -->
+          <div style="background:rgba(6,6,14,0.9);border:0.5px solid rgba(139,92,246,0.22);border-radius:14px;padding:16px 18px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+              <span style="font-size:0.67rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.3);">Level progress</span>
+              <span style="font-size:0.75rem;color:rgba(255,255,255,0.38);">83% &middot; 52,000 XP to go</span>
+            </div>
+            <div class="xp-bar-track"><div class="xp-bar-fill" style="width:83%;"></div></div>
+            <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:8px;">
+              <a href="leaderboard.html" style="display:inline-flex;align-items:center;gap:6px;border-radius:999px;background:rgba(167,139,250,0.1);border:0.5px solid rgba(167,139,250,0.28);padding:6px 14px;font-size:0.77rem;font-weight:600;color:#a78bfa;text-decoration:none;transition:background 0.18s;" onmouseenter="this.style.background='rgba(167,139,250,0.18)'" onmouseleave="this.style.background='rgba(167,139,250,0.1)'">Leaderboard</a>
+              <a href="topup.html" style="display:inline-flex;align-items:center;gap:6px;border-radius:999px;background:rgba(74,222,128,0.08);border:0.5px solid rgba(74,222,128,0.25);padding:6px 14px;font-size:0.77rem;font-weight:600;color:#4ade80;text-decoration:none;transition:background 0.18s;" onmouseenter="this.style.background='rgba(74,222,128,0.16)'" onmouseleave="this.style.background='rgba(74,222,128,0.08)'">Top up</a>
+              <a href="cards.html" style="display:inline-flex;align-items:center;gap:6px;border-radius:999px;background:rgba(251,191,36,0.08);border:0.5px solid rgba(251,191,36,0.25);padding:6px 14px;font-size:0.77rem;font-weight:600;color:#fbbf24;text-decoration:none;transition:background 0.18s;" onmouseenter="this.style.background='rgba(251,191,36,0.16)'" onmouseleave="this.style.background='rgba(251,191,36,0.08)'">Cards</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Profile tabs -->
+        <div class="anim-up d2">
+          <div class="tabs" style="margin-bottom:20px;">
+            <button class="tab-btn active" data-profile-tab="overview">Overview</button>
+            <button class="tab-btn" data-profile-tab="season">Season Pass</button>
+            <button class="tab-btn" data-profile-tab="commands">Bot Commands</button>
+          </div>
+
+          <!-- Overview -->
+          <div data-profile-panel="overview">
+            <div class="two-col" style="margin-bottom:14px;">
+              <!-- Char stats -->
+              <div class="info-panel">
+                <div class="panel-label">Character Stats</div>
+                <div style="display:flex;flex-direction:column;gap:10px;">
+                  <div>
+                    <div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span style="font-size:0.78rem;color:rgba(255,255,255,0.55);">Strength</span><span style="font-size:0.78rem;font-weight:700;color:#f87171;">840</span></div>
+                    <div class="stat-bar-track"><div class="stat-bar-fill" style="width:84%;background:linear-gradient(90deg,#f87171,#ef4444);"></div></div>
+                  </div>
+                  <div>
+                    <div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span style="font-size:0.78rem;color:rgba(255,255,255,0.55);">Agility</span><span style="font-size:0.78rem;font-weight:700;color:#4ade80;">720</span></div>
+                    <div class="stat-bar-track"><div class="stat-bar-fill" style="width:72%;background:linear-gradient(90deg,#4ade80,#22c55e);"></div></div>
+                  </div>
+                  <div>
+                    <div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span style="font-size:0.78rem;color:rgba(255,255,255,0.55);">Intelligence</span><span style="font-size:0.78rem;font-weight:700;color:#a78bfa;">610</span></div>
+                    <div class="stat-bar-track"><div class="stat-bar-fill" style="width:61%;background:linear-gradient(90deg,#a78bfa,#7c3aed);"></div></div>
+                  </div>
+                  <div>
+                    <div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span style="font-size:0.78rem;color:rgba(255,255,255,0.55);">Vitality</span><span style="font-size:0.78rem;font-weight:700;color:#22d3ee;">930</span></div>
+                    <div class="stat-bar-track"><div class="stat-bar-fill" style="width:93%;background:linear-gradient(90deg,#22d3ee,#06b6d4);"></div></div>
+                  </div>
+                  <div>
+                    <div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span style="font-size:0.78rem;color:rgba(255,255,255,0.55);">Luck</span><span style="font-size:0.78rem;font-weight:700;color:#fbbf24;">450</span></div>
+                    <div class="stat-bar-track"><div class="stat-bar-fill" style="width:45%;background:linear-gradient(90deg,#fbbf24,#f59e0b);"></div></div>
+                  </div>
+                </div>
+              </div>
+
+              <div style="display:flex;flex-direction:column;gap:14px;">
+                <!-- Combat -->
+                <div class="info-panel" style="flex:1;">
+                  <div class="panel-label">Combat Record</div>
+                  <div class="combat-grid">
+                    <div class="combat-cell"><div class="combat-label">Total Kills</div><div class="combat-value" style="color:#f87171;">8,912</div></div>
+                    <div class="combat-cell"><div class="combat-label">Dungeon Clears</div><div class="combat-value" style="color:#22d3ee;">421</div></div>
+                    <div class="combat-cell"><div class="combat-label">PvP W/L</div><div class="combat-value" style="color:#a78bfa;">156 / 34</div></div>
+                    <div class="combat-cell"><div class="combat-label">KD Score</div><div class="combat-value" style="color:#4ade80;">4.6</div></div>
+                  </div>
+                </div>
+                <!-- Equipment -->
+                <div class="info-panel" style="flex:1;">
+                  <div class="panel-label">Equipment</div>
+                  <div class="equip-grid">
+                    <div class="equip-slot" style="background:rgba(167,139,250,0.06);border-color:rgba(167,139,250,0.2);">
+                      <div style="width:30px;height:30px;border-radius:8px;background:rgba(167,139,250,0.14);border:0.5px solid rgba(167,139,250,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/><path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/><path d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z"/><path d="M3.5 14H5v1.5c0 .83-.67 1.5-1.5 1.5S2 16.33 2 15.5 2.67 14 3.5 14z"/><path d="M14 14.5c0-.83.67-1.5 1.5-1.5h5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5z"/><path d="M15.5 19H14v1.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5-.67-1.5-1.5-1.5z"/><path d="M10 9.5C10 8.67 9.33 8 8.5 8h-5C2.67 8 2 8.67 2 9.5S2.67 11 3.5 11h5c.83 0 1.5-.67 1.5-1.5z"/><path d="M8.5 5H10V3.5C10 2.67 9.33 2 8.5 2S7 2.67 7 3.5 7.67 5 8.5 5z"/></svg>
+                      </div>
+                      <div style="min-width:0;"><div style="font-size:0.63rem;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:2px;">Weapon</div><div style="font-size:0.77rem;font-weight:600;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Void Blade</div></div>
+                    </div>
+                    <div class="equip-slot" style="background:rgba(34,211,238,0.05);border-color:rgba(34,211,238,0.16);">
+                      <div style="width:30px;height:30px;border-radius:8px;background:rgba(34,211,238,0.1);border:0.5px solid rgba(34,211,238,0.25);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                      </div>
+                      <div style="min-width:0;"><div style="font-size:0.63rem;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:2px;">Armor</div><div style="font-size:0.77rem;font-weight:600;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Astral Plate</div></div>
+                    </div>
+                    <div class="equip-slot">
+                      <div style="width:30px;height:30px;border-radius:8px;background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
+                      </div>
+                      <div style="min-width:0;"><div style="font-size:0.63rem;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:2px;">Accessory</div><div style="font-size:0.77rem;font-weight:600;color:rgba(255,255,255,0.22);">Empty</div></div>
+                    </div>
+                    <div class="equip-slot">
+                      <div style="width:30px;height:30px;border-radius:8px;background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="2"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
+                      </div>
+                      <div style="min-width:0;"><div style="font-size:0.63rem;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:2px;">Relic</div><div style="font-size:0.77rem;font-weight:600;color:rgba(255,255,255,0.22);">Empty</div></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Recent activity -->
+            <div class="info-panel" style="margin-bottom:14px;">
+              <div class="panel-label">Recent Activity</div>
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                <div style="display:flex;align-items:flex-start;gap:10px;padding:9px 14px;background:rgba(0,0,0,0.25);border:0.5px solid rgba(255,255,255,0.05);border-radius:11px;">
+                  <div style="width:6px;height:6px;border-radius:50%;background:#f87171;margin-top:5px;flex-shrink:0;"></div>
+                  <div><div style="font-size:0.8rem;color:rgba(255,255,255,0.7);line-height:1.5;">Defeated Shadowprime in PvP combat (+120 XP)</div><div style="font-size:0.66rem;color:rgba(255,255,255,0.25);margin-top:2px;">2 hours ago</div></div>
+                </div>
+                <div style="display:flex;align-items:flex-start;gap:10px;padding:9px 14px;background:rgba(0,0,0,0.25);border:0.5px solid rgba(255,255,255,0.05);border-radius:11px;">
+                  <div style="width:6px;height:6px;border-radius:50%;background:#fbbf24;margin-top:5px;flex-shrink:0;"></div>
+                  <div><div style="font-size:0.8rem;color:rgba(255,255,255,0.7);line-height:1.5;">Looted Void Blade from Dungeon Floor 42 (Legendary drop)</div><div style="font-size:0.66rem;color:rgba(255,255,255,0.25);margin-top:2px;">5 hours ago</div></div>
+                </div>
+                <div style="display:flex;align-items:flex-start;gap:10px;padding:9px 14px;background:rgba(0,0,0,0.25);border:0.5px solid rgba(255,255,255,0.05);border-radius:11px;">
+                  <div style="width:6px;height:6px;border-radius:50%;background:#a78bfa;margin-top:5px;flex-shrink:0;"></div>
+                  <div><div style="font-size:0.8rem;color:rgba(255,255,255,0.7);line-height:1.5;">Completed Daily Quest — Dungeon Rush (+500 XP, +200 Solars)</div><div style="font-size:0.66rem;color:rgba(255,255,255,0.25);margin-top:2px;">Yesterday</div></div>
+                </div>
+                <div style="display:flex;align-items:flex-start;gap:10px;padding:9px 14px;background:rgba(0,0,0,0.25);border:0.5px solid rgba(255,255,255,0.05);border-radius:11px;">
+                  <div style="width:6px;height:6px;border-radius:50%;background:#f87171;margin-top:5px;flex-shrink:0;"></div>
+                  <div><div style="font-size:0.8rem;color:rgba(255,255,255,0.7);line-height:1.5;">Raided guild vault of Iron Legion (+650 Solars seized)</div><div style="font-size:0.66rem;color:rgba(255,255,255,0.25);margin-top:2px;">Yesterday</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Season Pass -->
+          <div data-profile-panel="season" style="display:none;">
+            <div class="info-panel" style="margin-bottom:14px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+                <div>
+                  <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+                    <div class="panel-label" style="margin-bottom:0;">Season 1 Pass</div>
+                    <div class="pill" style="font-size:0.6rem;padding:2px 10px;">Ended</div>
+                  </div>
+                  <div style="font-size:1.2rem;font-weight:800;color:#fff;letter-spacing:-0.03em;">Level 42 <span style="font-size:0.8rem;color:rgba(255,255,255,0.35);font-weight:500;">/ 50</span></div>
+                </div>
+                <div style="font-size:0.78rem;color:rgba(255,255,255,0.38);">84% — Season Closed</div>
+              </div>
+              <div style="height:10px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;margin-bottom:8px;">
+                <div style="height:100%;width:84%;background:linear-gradient(90deg,#7c3aed,#a78bfa 55%,#22d3ee);border-radius:999px;box-shadow:0 0 20px rgba(139,92,246,0.4);animation:growBar 1.2s ease both;"></div>
+              </div>
+              <div style="font-size:0.7rem;color:rgba(255,255,255,0.28);">Season 1 has ended — rewards finalized. Season 2 coming soon.</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div style="display:flex;align-items:center;gap:14px;padding:14px 18px;background:rgba(139,92,246,0.07);border:0.5px solid rgba(139,92,246,0.28);border-radius:14px;">
+                <div style="width:34px;height:34px;border-radius:10px;background:rgba(139,92,246,0.2);border:0.5px solid rgba(139,92,246,0.4);display:flex;align-items:center;justify-content:center;font-size:1rem;">⚔️</div>
+                <div style="flex:1;"><div style="font-size:0.85rem;font-weight:700;color:#fff;">Void Challenger Title</div><div style="font-size:0.7rem;color:rgba(255,255,255,0.38);">Unlocked at Lv. 10</div></div>
+                <div style="font-size:0.72rem;font-weight:700;color:#4ade80;">&#10003; Unlocked</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:14px;padding:14px 18px;background:rgba(139,92,246,0.07);border:0.5px solid rgba(139,92,246,0.28);border-radius:14px;">
+                <div style="width:34px;height:34px;border-radius:10px;background:rgba(139,92,246,0.2);border:0.5px solid rgba(139,92,246,0.4);display:flex;align-items:center;justify-content:center;font-size:1rem;">🛡️</div>
+                <div style="flex:1;"><div style="font-size:0.85rem;font-weight:700;color:#fff;">Astral Shield Cosmetic</div><div style="font-size:0.7rem;color:rgba(255,255,255,0.38);">Unlocked at Lv. 25</div></div>
+                <div style="font-size:0.72rem;font-weight:700;color:#4ade80;">&#10003; Unlocked</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:14px;padding:14px 18px;background:rgba(139,92,246,0.07);border:0.5px solid rgba(139,92,246,0.28);border-radius:14px;">
+                <div style="width:34px;height:34px;border-radius:10px;background:rgba(139,92,246,0.2);border:0.5px solid rgba(139,92,246,0.4);display:flex;align-items:center;justify-content:center;font-size:1rem;">💎</div>
+                <div style="flex:1;"><div style="font-size:0.85rem;font-weight:700;color:#fff;">30 Bonus Gems</div><div style="font-size:0.7rem;color:rgba(255,255,255,0.38);">Unlocked at Lv. 40</div></div>
+                <div style="font-size:0.72rem;font-weight:700;color:#4ade80;">&#10003; Unlocked</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:14px;padding:14px 18px;background:rgba(6,6,14,0.85);border:0.5px solid rgba(255,255,255,0.07);border-radius:14px;opacity:0.6;">
+                <div style="width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;font-size:1rem;">👑</div>
+                <div style="flex:1;"><div style="font-size:0.85rem;font-weight:700;color:rgba(255,255,255,0.5);">Kami Exclusive Armour Set</div><div style="font-size:0.7rem;color:rgba(255,255,255,0.28);">Requires Lv. 50</div></div>
+                <div style="font-size:0.72rem;font-weight:700;color:rgba(255,255,255,0.3);">Locked</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bot Commands -->
+          <div data-profile-panel="commands" style="display:none;">
+            <div class="info-panel">
+              <div class="panel-label">Suggested Commands (Discord / WhatsApp)</div>
+              <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                <div class="cmd-chip"><div class="cmd-code">!daily</div><div class="cmd-hint">Dailies</div></div>
+                <div class="cmd-chip"><div class="cmd-code">!dungeon</div><div class="cmd-hint">Enter dungeon</div></div>
+                <div class="cmd-chip"><div class="cmd-code">!forge</div><div class="cmd-hint">Forge gear</div></div>
+                <div class="cmd-chip"><div class="cmd-code">!cards</div><div class="cmd-hint">Card pulls</div></div>
+                <div class="cmd-chip"><div class="cmd-code">!pvp</div><div class="cmd-hint">PvP combat</div></div>
+                <div class="cmd-chip"><div class="cmd-code">!guild</div><div class="cmd-hint">Guild menu</div></div>
+                <div class="cmd-chip"><div class="cmd-code">!me</div><div class="cmd-hint">Profile card</div></div>
+                <div class="cmd-chip"><div class="cmd-code">!stats</div><div class="cmd-hint">View stats</div></div>
+                <div class="cmd-chip"><div class="cmd-code">!inv</div><div class="cmd-hint">Inventory</div></div>
+                <div class="cmd-chip"><div class="cmd-code">!equip</div><div class="cmd-hint">Equip item</div></div>
+                <div class="cmd-chip"><div class="cmd-code">!raid</div><div class="cmd-hint">Guild raid</div></div>
+                <div class="cmd-chip"><div class="cmd-code">!help</div><div class="cmd-hint">Full help</div></div>
+              </div>
+              <div style="margin-top:18px;padding-top:14px;border-top:0.5px solid rgba(255,255,255,0.06);">
+                <div class="panel-label" style="margin-bottom:10px;">Join the game</div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                  <a href="https://discord.gg/s9fNUgHVT" target="_blank" class="btn btn-discord" style="padding:9px 20px;font-size:0.8rem;">Discord Server</a>
+                  <a href="https://chat.whatsapp.com/HngJ76A2bzkCfK3rV74Ebk" target="_blank" class="btn btn-whatsapp" style="padding:9px 20px;font-size:0.8rem;">WhatsApp Group</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+    </div>
+  </div>
+
+  <footer class="footer"><div class="wrap"><div class="footer-grid"><div><div style="display:flex;align-items:center;gap:10px;"><div class="nav-logo-icon"><img src="public/astral_icon.png" alt=""></div><span class="footer-brand-name">Astral X Realm</span></div><p class="footer-desc">The ultimate Discord &amp; WhatsApp RPG.</p></div><div><div class="footer-col-label">Game</div><ul class="footer-col-links"><li><a href="index.html">Home</a></li><li><a href="leaderboard.html">Leaderboard</a></li><li><a href="topup.html">Pricing</a></li></ul></div><div><div class="footer-col-label">Account</div><ul class="footer-col-links"><li><a href="profile.html">Profile</a></li><li><a href="cards.html">Cards</a></li></ul></div></div><div class="footer-divider"></div><div class="footer-bottom"><span class="footer-copy">&copy; 2025 Astral X Realm. All rights reserved.</span><div class="footer-season"><span class="live-dot"></span>Season 1 &middot; Ended</div></div></div></footer>
+
+  <div class="modal-backdrop" id="login-modal" style="display:none;"><div class="modal" onclick="event.stopPropagation()"><button class="modal-close" data-modal-close="login-modal">&times;</button><form id="login-form" style="margin-top:8px;"><h2 style="font-size:1.2rem;font-weight:800;color:#fff;margin-bottom:18px;text-align:center;">Sign in</h2><input type="text" class="modal-input" placeholder="Username or email"><input type="password" class="modal-input" placeholder="Password"><button type="submit" class="btn btn-primary" style="width:100%;margin-top:6px;">Log in</button></form></div></div>
+  <div class="modal-backdrop" id="signup-modal" style="display:none;"><div class="modal" onclick="event.stopPropagation()"><button class="modal-close" data-modal-close="signup-modal">&times;</button><form id="signup-form" style="margin-top:8px;"><h2 style="font-size:1.2rem;font-weight:800;color:#fff;margin-bottom:18px;text-align:center;">Create account</h2><input type="text" class="modal-input" placeholder="Username"><input type="text" class="modal-input" placeholder="Email"><input type="password" class="modal-input" placeholder="Password"><button type="submit" class="btn btn-primary" style="width:100%;margin-top:6px;">Sign up</button></form></div></div>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

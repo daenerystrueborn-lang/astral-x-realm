@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Top Up — Astral X Realm</title>
+  <link rel="icon" type="image/png" href="public/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="toast-container"></div>
+  <nav class="nav">
+    <a href="index.html" class="nav-logo"><div class="nav-logo-icon"><img src="public/astral_icon.png" alt="Astral X Realm"></div><span class="nav-logo-text">Astral X Realm</span></a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="leaderboard.html">Leaderboard</a></li>
+      <li><a href="cards.html">Cards</a></li>
+      <li><a href="topup.html" class="active">Top Up</a></li>
+      <li><a href="profile.html">Profile</a></li>
+    </ul>
+    <div class="nav-actions desktop-only">
+      <button class="btn btn-ghost" style="padding:8px 18px;font-size:0.8rem;" data-modal-open="login-modal">Log in</button>
+      <button class="btn btn-primary" style="padding:8px 18px;font-size:0.8rem;" data-modal-open="signup-modal">Sign up</button>
+    </div>
+    <button id="hamburger-btn" class="mobile-only" style="width:36px;height:36px;border-radius:999px;background:rgba(255,255,255,0.06);border:0.5px solid rgba(255,255,255,0.15);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3.5px;cursor:pointer;">
+      <span style="width:14px;height:1.3px;background:rgba(255,255,255,0.85);border-radius:2px;display:block;"></span>
+      <span style="width:10px;height:1.3px;background:rgba(255,255,255,0.85);border-radius:2px;display:block;"></span>
+      <span style="width:7px;height:1.3px;background:rgba(255,255,255,0.85);border-radius:2px;display:block;"></span>
+    </button>
+  </nav>
+  <ul class="mobile-menu" id="mobile-menu" style="display:none;">
+    <li><a href="index.html">Home</a></li><li><a href="leaderboard.html">Leaderboard</a></li><li><a href="cards.html">Cards</a></li><li><a href="topup.html" class="active">Top Up</a></li><li><a href="profile.html">Profile</a></li>
+  </ul>
+
+  <div class="page">
+    <div class="wrap">
+      <section class="section">
+
+        <!-- Header -->
+        <div style="text-align:center;margin-bottom:48px;" class="anim-up">
+          <div class="pill anim-up d1" style="display:inline-flex;margin-bottom:16px;">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
+            Astral Premium
+          </div>
+          <h1 style="font-size:clamp(2rem,6vw,3rem);font-weight:900;letter-spacing:-0.05em;line-height:1.05;font-family:'Plus Jakarta Sans',sans-serif;margin-bottom:10px;">
+            <span class="grad-white">Power up your</span><br>
+            <span class="grad-gold">Astral journey</span>
+          </h1>
+          <p style="font-size:0.88rem;color:rgba(255,255,255,0.38);line-height:1.7;max-width:440px;margin:0 auto;">
+            Get Solars &amp; Gems to unlock the best gear, speed up progression, and dominate the leaderboards.
+          </p>
+        </div>
+
+        <!-- Plans grid -->
+        <div class="plans-grid anim-up d1" style="margin-bottom:16px;">
+          <!-- Warrior -->
+          <div class="plan-card">
+            <div style="font-size:0.7rem;font-weight:700;color:rgba(255,255,255,0.32);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">Warrior</div>
+            <div class="plan-price">$4.99</div>
+            <div style="font-size:0.72rem;color:rgba(255,255,255,0.3);margin-bottom:18px;">USD</div>
+            <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <span style="font-size:0.78rem;color:rgba(255,255,255,0.5);">Solars</span>
+                <span style="font-size:0.9rem;font-weight:800;color:#fbbf24;">5,000</span>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <span style="font-size:0.78rem;color:rgba(255,255,255,0.5);">Gems</span>
+                <span style="font-size:0.9rem;font-weight:800;color:#c084fc;">10</span>
+              </div>
+            </div>
+            <div style="height:3px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;margin-bottom:18px;">
+              <div style="height:100%;width:12%;background:linear-gradient(90deg,rgba(255,255,255,0.3),rgba(255,255,255,0.5));border-radius:999px;"></div>
+            </div>
+            <button class="btn btn-ghost plan-buy-btn" data-plan="Warrior" style="width:100%;justify-content:center;">Get Warrior</button>
+          </div>
+
+          <!-- Legend (centre, gold) -->
+          <div class="plan-card legend" style="background:linear-gradient(145deg,rgba(251,191,36,0.07),rgba(249,115,22,0.05));">
+            <div style="position:absolute;top:-1px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#d97706,#fbbf24);border-radius:0 0 10px 10px;padding:4px 14px;font-size:0.62rem;font-weight:700;color:#000;letter-spacing:0.08em;white-space:nowrap;">&#9733; Best Value</div>
+            <div style="font-size:0.7rem;font-weight:700;color:rgba(255,255,255,0.32);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;margin-top:16px;">Legend</div>
+            <div class="plan-price grad-gold">$49.99</div>
+            <div style="font-size:0.72rem;color:rgba(255,255,255,0.3);margin-bottom:18px;">USD</div>
+            <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <span style="font-size:0.78rem;color:rgba(255,255,255,0.5);">Solars</span>
+                <span style="font-size:0.9rem;font-weight:800;color:#fbbf24;">75,000 <span style="font-size:0.65rem;color:rgba(251,191,36,0.55);">+15k bonus</span></span>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <span style="font-size:0.78rem;color:rgba(255,255,255,0.5);">Gems</span>
+                <span style="font-size:0.9rem;font-weight:800;color:#c084fc;">150 <span style="font-size:0.65rem;color:rgba(192,132,252,0.55);">+30 bonus</span></span>
+              </div>
+            </div>
+            <div style="height:3px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;margin-bottom:6px;">
+              <div style="height:100%;width:82%;background:linear-gradient(90deg,#fbbf24,#f97316);border-radius:999px;"></div>
+            </div>
+            <div style="font-size:0.66rem;color:#fbbf24;font-weight:600;margin-bottom:18px;">+15,000 bonus Solars &middot; +30 bonus Gems</div>
+            <button class="btn plan-buy-btn" data-plan="Legend" style="width:100%;justify-content:center;background:linear-gradient(135deg,#d97706,#fbbf24);color:#000;font-weight:800;box-shadow:0 0 24px rgba(251,191,36,0.25);">Get Legend</button>
+          </div>
+
+          <!-- Elite -->
+          <div class="plan-card popular" style="background:linear-gradient(145deg,rgba(139,92,246,0.07),rgba(34,211,238,0.03));">
+            <div style="position:absolute;top:-1px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#7c3aed,#22d3ee);border-radius:0 0 10px 10px;padding:4px 14px;font-size:0.62rem;font-weight:700;color:#fff;letter-spacing:0.08em;white-space:nowrap;">Most Popular</div>
+            <div style="font-size:0.7rem;font-weight:700;color:rgba(255,255,255,0.32);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;margin-top:16px;">Elite</div>
+            <div class="plan-price">$24.99</div>
+            <div style="font-size:0.72rem;color:rgba(255,255,255,0.3);margin-bottom:18px;">USD</div>
+            <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <span style="font-size:0.78rem;color:rgba(255,255,255,0.5);">Solars</span>
+                <span style="font-size:0.9rem;font-weight:800;color:#fbbf24;">32,000 <span style="font-size:0.65rem;color:rgba(251,191,36,0.55);">+5k bonus</span></span>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <span style="font-size:0.78rem;color:rgba(255,255,255,0.5);">Gems</span>
+                <span style="font-size:0.9rem;font-weight:800;color:#c084fc;">65 <span style="font-size:0.65rem;color:rgba(192,132,252,0.55);">+10 bonus</span></span>
+              </div>
+            </div>
+            <div style="height:3px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;margin-bottom:6px;">
+              <div style="height:100%;width:52%;background:linear-gradient(90deg,#a78bfa,#22d3ee);border-radius:999px;"></div>
+            </div>
+            <div style="font-size:0.66rem;color:#a78bfa;font-weight:600;margin-bottom:18px;">+5,000 bonus Solars &middot; +10 bonus Gems</div>
+            <button class="btn btn-primary plan-buy-btn" data-plan="Elite" style="width:100%;justify-content:center;">Get Elite</button>
+          </div>
+        </div>
+
+        <!-- Row 2 -->
+        <div class="plans-grid anim-up d2" style="margin-bottom:56px;">
+          <div class="plan-card">
+            <div style="font-size:0.7rem;font-weight:700;color:rgba(255,255,255,0.32);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">Starter</div>
+            <div class="plan-price">$1.99</div>
+            <div style="font-size:0.72rem;color:rgba(255,255,255,0.3);margin-bottom:18px;">USD</div>
+            <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;"><span style="font-size:0.78rem;color:rgba(255,255,255,0.5);">Solars</span><span style="font-size:0.9rem;font-weight:800;color:#fbbf24;">1,500</span></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;"><span style="font-size:0.78rem;color:rgba(255,255,255,0.5);">Gems</span><span style="font-size:0.9rem;font-weight:800;color:#c084fc;">3</span></div>
+            </div>
+            <div style="height:3px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;margin-bottom:18px;"><div style="height:100%;width:5%;background:linear-gradient(90deg,rgba(255,255,255,0.3),rgba(255,255,255,0.5));border-radius:999px;"></div></div>
+            <button class="btn btn-ghost plan-buy-btn" data-plan="Starter" style="width:100%;justify-content:center;">Get Starter</button>
+          </div>
+          <div class="plan-card">
+            <div style="font-size:0.7rem;font-weight:700;color:rgba(255,255,255,0.32);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">Champion</div>
+            <div class="plan-price">$9.99</div>
+            <div style="font-size:0.72rem;color:rgba(255,255,255,0.3);margin-bottom:18px;">USD</div>
+            <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;"><span style="font-size:0.78rem;color:rgba(255,255,255,0.5);">Solars</span><span style="font-size:0.9rem;font-weight:800;color:#fbbf24;">12,000</span></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;"><span style="font-size:0.78rem;color:rgba(255,255,255,0.5);">Gems</span><span style="font-size:0.9rem;font-weight:800;color:#c084fc;">25</span></div>
+            </div>
+            <div style="height:3px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;margin-bottom:18px;"><div style="height:100%;width:26%;background:linear-gradient(90deg,rgba(255,255,255,0.3),rgba(255,255,255,0.5));border-radius:999px;"></div></div>
+            <button class="btn btn-ghost plan-buy-btn" data-plan="Champion" style="width:100%;justify-content:center;">Get Champion</button>
+          </div>
+          <div class="plan-card">
+            <div style="font-size:0.7rem;font-weight:700;color:rgba(255,255,255,0.32);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">Godlike</div>
+            <div class="plan-price">$84.99</div>
+            <div style="font-size:0.72rem;color:rgba(255,255,255,0.3);margin-bottom:18px;">USD</div>
+            <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;"><span style="font-size:0.78rem;color:rgba(255,255,255,0.5);">Solars</span><span style="font-size:0.9rem;font-weight:800;color:#fbbf24;">150,000 <span style="font-size:0.65rem;color:rgba(251,191,36,0.55);">+35k</span></span></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;"><span style="font-size:0.78rem;color:rgba(255,255,255,0.5);">Gems</span><span style="font-size:0.9rem;font-weight:800;color:#c084fc;">320 <span style="font-size:0.65rem;color:rgba(192,132,252,0.55);">+70</span></span></div>
+            </div>
+            <div style="height:3px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;margin-bottom:6px;"><div style="height:100%;width:100%;background:linear-gradient(90deg,#fbbf24,#f97316,#ef4444);border-radius:999px;"></div></div>
+            <div style="font-size:0.66rem;color:#fbbf24;font-weight:600;margin-bottom:18px;">Max tier &middot; Full domination package</div>
+            <button class="btn plan-buy-btn" data-plan="Godlike" style="width:100%;justify-content:center;background:linear-gradient(135deg,#d97706,#fbbf24,#ef4444);color:#000;font-weight:800;box-shadow:0 0 28px rgba(251,191,36,0.2);">Get Godlike</button>
+          </div>
+        </div>
+
+        <!-- Perks -->
+        <div class="anim-up d3" style="margin-bottom:56px;">
+          <div style="text-align:center;margin-bottom:28px;">
+            <h2 style="font-size:1.25rem;font-weight:800;color:#fff;letter-spacing:-0.03em;margin-bottom:6px;">Why top up?</h2>
+            <p style="font-size:0.8rem;color:rgba(255,255,255,0.32);line-height:1.65;">Every purchase gives you an edge in Astral X Realm.</p>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;">
+            <div class="card-sm" style="padding:20px 18px;display:flex;gap:14px;align-items:flex-start;">
+              <div style="width:38px;height:38px;border-radius:11px;background:rgba(251,191,36,0.1);border:0.5px solid rgba(251,191,36,0.28);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
+              </div>
+              <div><div style="font-size:0.85rem;font-weight:700;color:#fff;margin-bottom:4px;">Exclusive Gear</div><div style="font-size:0.73rem;color:rgba(255,255,255,0.38);line-height:1.6;">Unlock legendary weapons and armour unavailable to free players.</div></div>
+            </div>
+            <div class="card-sm" style="padding:20px 18px;display:flex;gap:14px;align-items:flex-start;">
+              <div style="width:38px;height:38px;border-radius:11px;background:rgba(34,211,238,0.08);border:0.5px solid rgba(34,211,238,0.22);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+              </div>
+              <div><div style="font-size:0.85rem;font-weight:700;color:#fff;margin-bottom:4px;">Faster XP</div><div style="font-size:0.73rem;color:rgba(255,255,255,0.38);line-height:1.6;">Accelerate your progression and reach higher levels sooner.</div></div>
+            </div>
+            <div class="card-sm" style="padding:20px 18px;display:flex;gap:14px;align-items:flex-start;">
+              <div style="width:38px;height:38px;border-radius:11px;background:rgba(167,139,250,0.1);border:0.5px solid rgba(167,139,250,0.25);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+              </div>
+              <div><div style="font-size:0.85rem;font-weight:700;color:#fff;margin-bottom:4px;">Guild Perks</div><div style="font-size:0.73rem;color:rgba(255,255,255,0.38);line-height:1.6;">Boost your guild's power and access exclusive guild events.</div></div>
+            </div>
+            <div class="card-sm" style="padding:20px 18px;display:flex;gap:14px;align-items:flex-start;">
+              <div style="width:38px;height:38px;border-radius:11px;background:rgba(74,222,128,0.08);border:0.5px solid rgba(74,222,128,0.22);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>
+              </div>
+              <div><div style="font-size:0.85rem;font-weight:700;color:#fff;margin-bottom:4px;">Leaderboard Edge</div><div style="font-size:0.73rem;color:rgba(255,255,255,0.38);line-height:1.6;">Climb rankings faster with premium resources and boosts.</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FAQ -->
+        <div class="anim-up d4">
+          <h2 style="font-size:1.15rem;font-weight:800;color:#fff;letter-spacing:-0.025em;margin-bottom:18px;">Frequently asked</h2>
+          <div class="faq-item"><button class="faq-btn">What are Solars?<svg class="faq-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 4L6 8L10 4" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div class="faq-answer">Solars are the primary in-game currency used to buy equipment, enter dungeons, and upgrade your character in Astral X Realm.</div></div>
+          <div class="faq-item"><button class="faq-btn">What are Gems?<svg class="faq-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 4L6 8L10 4" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div class="faq-answer">Gems are the premium currency for rare card pulls, exclusive cosmetics, and special season pass content. They're harder to earn through gameplay.</div></div>
+          <div class="faq-item"><button class="faq-btn">How does delivery work?<svg class="faq-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 4L6 8L10 4" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div class="faq-answer">After a successful payment, your Solars and Gems are credited to your account within minutes. You'll receive a confirmation in your registered Discord or WhatsApp.</div></div>
+          <div class="faq-item"><button class="faq-btn">Are there refunds?<svg class="faq-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 4L6 8L10 4" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div class="faq-answer">All purchases are final unless there was a delivery error on our end. Contact support in our Discord server within 48 hours of purchase.</div></div>
+          <div class="faq-item"><button class="faq-btn">Does currency carry over between seasons?<svg class="faq-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 4L6 8L10 4" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div class="faq-answer">Solars and Gems carry over between seasons. Season-specific cosmetics and pass rewards do not transfer, but are permanently unlocked in your collection.</div></div>
+        </div>
+
+      </section>
+    </div>
+  </div>
+
+  <footer class="footer"><div class="wrap"><div class="footer-grid"><div><div style="display:flex;align-items:center;gap:10px;"><div class="nav-logo-icon"><img src="public/astral_icon.png" alt=""></div><span class="footer-brand-name">Astral X Realm</span></div><p class="footer-desc">The ultimate Discord &amp; WhatsApp RPG.</p></div><div><div class="footer-col-label">Game</div><ul class="footer-col-links"><li><a href="index.html">Home</a></li><li><a href="leaderboard.html">Leaderboard</a></li><li><a href="topup.html">Pricing</a></li></ul></div><div><div class="footer-col-label">Account</div><ul class="footer-col-links"><li><a href="profile.html">Profile</a></li><li><a href="cards.html">Cards</a></li></ul></div></div><div class="footer-divider"></div><div class="footer-bottom"><span class="footer-copy">&copy; 2025 Astral X Realm. All rights reserved.</span><div class="footer-season"><span class="live-dot"></span>Season 1 &middot; Ended</div></div></div></footer>
+
+  <div class="modal-backdrop" id="login-modal" style="display:none;"><div class="modal" onclick="event.stopPropagation()"><button class="modal-close" data-modal-close="login-modal">&times;</button><form id="login-form" style="margin-top:8px;"><h2 style="font-size:1.2rem;font-weight:800;color:#fff;margin-bottom:18px;text-align:center;">Sign in</h2><input type="text" class="modal-input" placeholder="Username or email"><input type="password" class="modal-input" placeholder="Password"><button type="submit" class="btn btn-primary" style="width:100%;margin-top:6px;">Log in</button></form></div></div>
+  <div class="modal-backdrop" id="signup-modal" style="display:none;"><div class="modal" onclick="event.stopPropagation()"><button class="modal-close" data-modal-close="signup-modal">&times;</button><form id="signup-form" style="margin-top:8px;"><h2 style="font-size:1.2rem;font-weight:800;color:#fff;margin-bottom:18px;text-align:center;">Create account</h2><input type="text" class="modal-input" placeholder="Username"><input type="text" class="modal-input" placeholder="Email"><input type="password" class="modal-input" placeholder="Password"><button type="submit" class="btn btn-primary" style="width:100%;margin-top:6px;">Sign up</button></form></div></div>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

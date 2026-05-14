@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/src/styles/style.css">
+  <link rel="stylesheet" href="/css/style.css">
   <style>
     .rarity-legendary { border-color: rgba(251,191,36,0.45) !important; background: linear-gradient(145deg, rgba(251,191,36,0.06), rgba(249,115,22,0.04)) !important; }
     .rarity-epic      { border-color: rgba(167,139,250,0.45) !important; background: linear-gradient(145deg, rgba(167,139,250,0.06), rgba(124,58,237,0.04)) !important; }
@@ -224,7 +224,7 @@
   <div class="modal-backdrop" id="login-modal" style="display:none;"><div class="modal" onclick="event.stopPropagation()"><button class="modal-close" data-modal-close="login-modal">&times;</button><form id="login-form" style="margin-top:8px;"><h2 style="font-size:1.2rem;font-weight:800;color:#fff;margin-bottom:18px;text-align:center;">Sign in</h2><input type="text" class="modal-input" placeholder="Username or email"><input type="password" class="modal-input" placeholder="Password"><button type="submit" class="btn btn-primary" style="width:100%;margin-top:6px;">Log in</button></form></div></div>
   <div class="modal-backdrop" id="signup-modal" style="display:none;"><div class="modal" onclick="event.stopPropagation()"><button class="modal-close" data-modal-close="signup-modal">&times;</button><form id="signup-form" style="margin-top:8px;"><h2 style="font-size:1.2rem;font-weight:800;color:#fff;margin-bottom:18px;text-align:center;">Create account</h2><input type="text" class="modal-input" placeholder="Username"><input type="text" class="modal-input" placeholder="Email"><input type="password" class="modal-input" placeholder="Password"><button type="submit" class="btn btn-primary" style="width:100%;margin-top:6px;">Sign up</button></form></div></div>
 
-  <script src="/src/scripts/main.js"></script>
+  <script src="/js/main.js"></script>
   <script>
     function filterCards(rarity, btn) {
       document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));

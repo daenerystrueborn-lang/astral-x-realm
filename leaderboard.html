@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leaderboard — Astral X Realm</title>
+  <link rel="icon" type="image/png" href="public/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .podium {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .podium-card {
+      background: var(--surface);
+      border: 0.5px solid rgba(255,255,255,0.08);
+      border-radius: 18px;
+      overflow: hidden;
+      position: relative;
+      text-align: center;
+      padding: 20px 16px 18px;
+      box-shadow: 6px 6px 18px #000, -3px -3px 10px #1a1a1a;
+      transition: transform 0.22s;
+    }
+    .podium-card:hover { transform: translateY(-3px); }
+    .podium-card.center {
+      border-color: rgba(251,191,36,0.32);
+      box-shadow: 6px 6px 24px #000, -3px -3px 12px #1c1c1c, 0 0 30px rgba(251,191,36,0.06);
+    }
+    .podium-art {
+      width: 100%; height: 100px;
+      object-fit: cover;
+      filter: brightness(0.55) saturate(0.8);
+      position: absolute; top: 0; left: 0; right: 0;
+    }
+    .podium-inner { position: relative; z-index: 1; }
+    .podium-avatar {
+      width: 52px; height: 52px;
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; font-weight: 900; color: #fff;
+      margin: 64px auto 8px;
+    }
+    .rank-gold   { background: rgba(251,191,36,0.18); border: 0.5px solid rgba(251,191,36,0.4); }
+    .rank-silver { background: rgba(148,163,184,0.18); border: 0.5px solid rgba(148,163,184,0.4); }
+    .rank-bronze { background: rgba(205,127,50,0.18); border: 0.5px solid rgba(205,127,50,0.4); }
+    @media (max-width: 600px) {
+      .podium { grid-template-columns: 1fr; }
+      .podium-card.center { order: -1; }
+    }
+  </style>
+</head>
+<body>
+  <div id="toast-container"></div>
+
+  <nav class="nav">
+    <a href="index.html" class="nav-logo">
+      <div class="nav-logo-icon"><img src="public/astral_icon.png" alt="Astral X Realm"></div>
+      <span class="nav-logo-text">Astral X Realm</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="leaderboard.html" class="active">Leaderboard</a></li>
+      <li><a href="cards.html">Cards</a></li>
+      <li><a href="topup.html">Top Up</a></li>
+      <li><a href="profile.html">Profile</a></li>
+    </ul>
+    <div class="nav-actions desktop-only">
+      <button class="btn btn-ghost" style="padding:8px 18px;font-size:0.8rem;" data-modal-open="login-modal">Log in</button>
+      <button class="btn btn-primary" style="padding:8px 18px;font-size:0.8rem;" data-modal-open="signup-modal">Sign up</button>
+    </div>
+    <button id="hamburger-btn" class="mobile-only" style="width:36px;height:36px;border-radius:999px;background:rgba(255,255,255,0.06);border:0.5px solid rgba(255,255,255,0.15);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3.5px;cursor:pointer;">
+      <span style="width:14px;height:1.3px;background:rgba(255,255,255,0.85);border-radius:2px;display:block;"></span>
+      <span style="width:10px;height:1.3px;background:rgba(255,255,255,0.85);border-radius:2px;display:block;"></span>
+      <span style="width:7px;height:1.3px;background:rgba(255,255,255,0.85);border-radius:2px;display:block;"></span>
+    </button>
+  </nav>
+  <ul class="mobile-menu" id="mobile-menu" style="display:none;">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="leaderboard.html" class="active">Leaderboard</a></li>
+    <li><a href="cards.html">Cards</a></li>
+    <li><a href="topup.html">Top Up</a></li>
+    <li><a href="profile.html">Profile</a></li>
+  </ul>
+
+  <div class="page">
+    <div class="wrap">
+      <section class="section">
+
+        <!-- Header -->
+        <div class="anim-up" style="margin-bottom:32px;">
+          <div class="pill anim-up d1" style="margin-bottom:14px;display:inline-flex;">
+            <span class="live-dot"></span> Live rankings
+          </div>
+          <h1 class="heading" style="font-size:clamp(1.8rem,5vw,2.6rem);color:#fff;margin-bottom:6px;">Leaderboard</h1>
+          <p style="font-size:0.85rem;color:rgba(255,255,255,0.38);max-width:420px;">Top players ranked by level &amp; prestige. Stats update in real time.</p>
+        </div>
+
+        <!-- Live stats strip -->
+        <div class="anim-up d1" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:32px;">
+          <div class="card-sm" style="padding:14px 16px;display:flex;align-items:center;gap:11px;">
+            <div style="width:34px;height:34px;border-radius:10px;background:rgba(167,139,250,0.12);border:0.5px solid rgba(167,139,250,0.28);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            </div>
+            <div><div style="font-size:1.05rem;font-weight:800;color:#fff;line-height:1;" data-count="120" data-suffix="">0</div><div style="font-size:0.68rem;color:rgba(255,255,255,0.35);margin-top:2px;">Ranked Players</div></div>
+          </div>
+          <div class="card-sm" style="padding:14px 16px;display:flex;align-items:center;gap:11px;">
+            <div style="width:34px;height:34px;border-radius:10px;background:rgba(248,113,113,0.1);border:0.5px solid rgba(248,113,113,0.28);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/><path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/><path d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z"/><path d="M3.5 14H5v1.5c0 .83-.67 1.5-1.5 1.5S2 16.33 2 15.5 2.67 14 3.5 14z"/><path d="M14 14.5c0-.83.67-1.5 1.5-1.5h5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5z"/><path d="M15.5 19H14v1.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5-.67-1.5-1.5-1.5z"/><path d="M10 9.5C10 8.67 9.33 8 8.5 8h-5C2.67 8 2 8.67 2 9.5S2.67 11 3.5 11h5c.83 0 1.5-.67 1.5-1.5z"/><path d="M8.5 5H10V3.5C10 2.67 9.33 2 8.5 2S7 2.67 7 3.5 7.67 5 8.5 5z"/></svg>
+            </div>
+            <div><div style="font-size:1.05rem;font-weight:800;color:#fff;line-height:1;" data-count="8400" data-format="k">0k</div><div style="font-size:0.68rem;color:rgba(255,255,255,0.35);margin-top:2px;">Total Kills</div></div>
+          </div>
+          <div class="card-sm" style="padding:14px 16px;display:flex;align-items:center;gap:11px;">
+            <div style="width:34px;height:34px;border-radius:10px;background:rgba(34,211,238,0.08);border:0.5px solid rgba(34,211,238,0.28);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <div><div style="font-size:1.05rem;font-weight:800;color:#fff;line-height:1;" data-count="34" data-suffix="">0</div><div style="font-size:0.68rem;color:rgba(255,255,255,0.35);margin-top:2px;">Guilds Active</div></div>
+          </div>
+          <div class="card-sm" style="padding:14px 16px;display:flex;align-items:center;gap:11px;">
+            <div style="width:34px;height:34px;border-radius:10px;background:rgba(251,191,36,0.08);border:0.5px solid rgba(251,191,36,0.28);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2"><polyline points="15,3 21,3 21,9"/><path d="M21 3L9 15"/><path d="M21 3l-7 7"/><polyline points="9,3 3,3 3,9"/></svg>
+            </div>
+            <div><div style="font-size:1.05rem;font-weight:800;color:#fff;line-height:1;" data-count="85" data-suffix="">0</div><div style="font-size:0.68rem;color:rgba(255,255,255,0.35);margin-top:2px;">Top Level</div></div>
+          </div>
+        </div>
+
+        <!-- Podium -->
+        <div class="podium anim-up d2">
+          <div class="podium-card">
+            <img src="public/leaderboard_art1.jpg" alt="" class="podium-art">
+            <div class="podium-inner">
+              <div class="podium-avatar rank-silver">S</div>
+              <div style="font-size:0.6rem;font-weight:700;color:rgba(148,163,184,0.7);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px;">#2 &mdash; Silver</div>
+              <div style="font-size:0.9rem;font-weight:800;color:#fff;margin-bottom:4px;">Stormwalker</div>
+              <div style="font-size:0.7rem;color:rgba(255,255,255,0.38);">Mage &middot; Lv. 78</div>
+              <div style="margin-top:8px;font-size:0.72rem;font-weight:700;color:rgba(148,163,184,0.8);">6,204 kills</div>
+            </div>
+          </div>
+          <div class="podium-card center">
+            <img src="public/leaderboard_art2.jpg" alt="" class="podium-art">
+            <div class="podium-inner">
+              <div style="font-size:1.2rem;margin:60px auto 4px;text-align:center;">&#127947;</div>
+              <div class="podium-avatar rank-gold" style="margin-top:0;">A</div>
+              <div style="font-size:0.6rem;font-weight:700;color:rgba(251,191,36,0.8);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px;">#1 &mdash; Champion</div>
+              <div style="font-size:1rem;font-weight:900;color:#fff;margin-bottom:4px;">Astralborn</div>
+              <div style="font-size:0.7rem;color:rgba(255,255,255,0.38);">Warrior &middot; Lv. 85</div>
+              <div style="margin-top:8px;font-size:0.78rem;font-weight:700;color:#fbbf24;">8,912 kills</div>
+            </div>
+          </div>
+          <div class="podium-card">
+            <img src="public/leaderboard_art3.jpg" alt="" class="podium-art">
+            <div class="podium-inner">
+              <div class="podium-avatar rank-bronze">V</div>
+              <div style="font-size:0.6rem;font-weight:700;color:rgba(205,127,50,0.7);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px;">#3 &mdash; Bronze</div>
+              <div style="font-size:0.9rem;font-weight:800;color:#fff;margin-bottom:4px;">Voidcaller</div>
+              <div style="font-size:0.7rem;color:rgba(255,255,255,0.38);">Rogue &middot; Lv. 72</div>
+              <div style="margin-top:8px;font-size:0.72rem;font-weight:700;color:rgba(205,127,50,0.8);">5,381 kills</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabs + search -->
+        <div class="anim-up d3" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+          <div style="display:flex;gap:4px;background:rgba(255,255,255,0.04);border-radius:12px;padding:4px;width:fit-content;">
+            <button class="tab-btn active" data-lb-tab="players">Players</button>
+            <button class="tab-btn" data-lb-tab="guilds">Guild Ranks</button>
+          </div>
+          <div class="search-wrap">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" class="input" id="lb-search" placeholder="Search players…" style="border-radius:999px;">
+          </div>
+        </div>
+
+        <!-- Players table -->
+        <div data-lb-panel="players">
+          <div class="lb-table-wrap anim-up d4">
+            <div class="lb-header">
+              <span>#</span><span>Player</span><span style="text-align:right;">Lv.</span><span style="text-align:right;">Kills</span><span style="text-align:right;" class="desktop-only">Guild</span>
+            </div>
+            <!-- Demo rows -->
+            <div class="lb-row" data-name="astralborn" data-guild="realm-kings">
+              <div class="lb-rank"><span style="font-size:1rem;">&#129351;</span></div>
+              <div><div class="lb-player-name" style="color:#fbbf24;">Astralborn</div><div class="lb-player-sub">Warrior &middot; Prestige 1</div></div>
+              <div class="lb-stat">85</div>
+              <div class="lb-stat">8,912</div>
+              <div class="lb-stat desktop-only" style="font-size:0.75rem;color:rgba(255,255,255,0.3);">Realm Kings</div>
+            </div>
+            <div class="lb-row" data-name="stormwalker" data-guild="">
+              <div class="lb-rank"><span style="font-size:1rem;">&#129352;</span></div>
+              <div><div class="lb-player-name" style="color:rgba(148,163,184,0.9);">Stormwalker</div><div class="lb-player-sub">Mage</div></div>
+              <div class="lb-stat">78</div>
+              <div class="lb-stat">6,204</div>
+              <div class="lb-stat desktop-only" style="font-size:0.75rem;color:rgba(255,255,255,0.3);">—</div>
+            </div>
+            <div class="lb-row" data-name="voidcaller" data-guild="shadow-pact">
+              <div class="lb-rank"><span style="font-size:1rem;">&#129353;</span></div>
+              <div><div class="lb-player-name" style="color:rgba(205,127,50,0.9);">Voidcaller</div><div class="lb-player-sub">Rogue</div></div>
+              <div class="lb-stat">72</div>
+              <div class="lb-stat">5,381</div>
+              <div class="lb-stat desktop-only" style="font-size:0.75rem;color:rgba(255,255,255,0.3);">Shadow Pact</div>
+            </div>
+            <div class="lb-row" data-name="lunarblade" data-guild="realm-kings">
+              <div class="lb-rank lb-rank" style="font-size:0.78rem;">#4</div>
+              <div><div class="lb-player-name">Lunarblade</div><div class="lb-player-sub">Paladin</div></div>
+              <div class="lb-stat">69</div>
+              <div class="lb-stat">4,820</div>
+              <div class="lb-stat desktop-only" style="font-size:0.75rem;color:rgba(255,255,255,0.3);">Realm Kings</div>
+            </div>
+            <div class="lb-row" data-name="shadowprime" data-guild="">
+              <div class="lb-rank" style="font-size:0.78rem;">#5</div>
+              <div><div class="lb-player-name">Shadowprime</div><div class="lb-player-sub">Assassin</div></div>
+              <div class="lb-stat">67</div>
+              <div class="lb-stat">4,210</div>
+              <div class="lb-stat desktop-only" style="font-size:0.75rem;color:rgba(255,255,255,0.3);">—</div>
+            </div>
+            <div class="lb-row" data-name="ironveil" data-guild="iron-legion">
+              <div class="lb-rank" style="font-size:0.78rem;">#6</div>
+              <div><div class="lb-player-name">Ironveil</div><div class="lb-player-sub">Knight</div></div>
+              <div class="lb-stat">65</div>
+              <div class="lb-stat">3,950</div>
+              <div class="lb-stat desktop-only" style="font-size:0.75rem;color:rgba(255,255,255,0.3);">Iron Legion</div>
+            </div>
+            <div class="lb-row" data-name="celestia" data-guild="void-walkers">
+              <div class="lb-rank" style="font-size:0.78rem;">#7</div>
+              <div><div class="lb-player-name">Celestia</div><div class="lb-player-sub">Healer</div></div>
+              <div class="lb-stat">63</div>
+              <div class="lb-stat">3,711</div>
+              <div class="lb-stat desktop-only" style="font-size:0.75rem;color:rgba(255,255,255,0.3);">Void Walkers</div>
+            </div>
+            <div class="lb-row" data-name="wrathborn" data-guild="">
+              <div class="lb-rank" style="font-size:0.78rem;">#8</div>
+              <div><div class="lb-player-name">Wrathborn</div><div class="lb-player-sub">Berserker</div></div>
+              <div class="lb-stat">61</div>
+              <div class="lb-stat">3,490</div>
+              <div class="lb-stat desktop-only" style="font-size:0.75rem;color:rgba(255,255,255,0.3);">—</div>
+            </div>
+            <div class="lb-row" data-name="dawnrift" data-guild="realm-kings">
+              <div class="lb-rank" style="font-size:0.78rem;">#9</div>
+              <div><div class="lb-player-name">Dawnrift</div><div class="lb-player-sub">Sorcerer</div></div>
+              <div class="lb-stat">58</div>
+              <div class="lb-stat">3,100</div>
+              <div class="lb-stat desktop-only" style="font-size:0.75rem;color:rgba(255,255,255,0.3);">Realm Kings</div>
+            </div>
+            <div class="lb-row" data-name="nightwhisper" data-guild="shadow-pact">
+              <div class="lb-rank" style="font-size:0.78rem;">#10</div>
+              <div><div class="lb-player-name">Nightwhisper</div><div class="lb-player-sub">Rogue &middot; ✦ P1</div></div>
+              <div class="lb-stat">57</div>
+              <div class="lb-stat">2,880</div>
+              <div class="lb-stat desktop-only" style="font-size:0.75rem;color:rgba(255,255,255,0.3);">Shadow Pact</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Guilds table -->
+        <div data-lb-panel="guilds" style="display:none;">
+          <div class="lb-table-wrap anim-up d4">
+            <div style="display:grid;grid-template-columns:52px 1fr 120px 90px 90px;padding:12px 20px;border-bottom:0.5px solid rgba(255,255,255,0.06);background:rgba(0,0,0,0.3);font-size:0.62rem;font-weight:700;color:rgba(255,255,255,0.28);text-transform:uppercase;letter-spacing:0.09em;">
+              <span>#</span><span>Guild</span><span>Leader</span><span style="text-align:right;">Members</span><span style="text-align:right;">Kills</span>
+            </div>
+            <div style="display:grid;grid-template-columns:52px 1fr 120px 90px 90px;padding:13px 20px;border-bottom:0.5px solid rgba(255,255,255,0.04);align-items:center;">
+              <span style="font-size:1rem;">&#129351;</span>
+              <div><div style="font-size:0.86rem;font-weight:700;color:#fbbf24;">Realm Kings</div><div style="font-size:0.68rem;color:rgba(255,255,255,0.3);">Elite guild</div></div>
+              <span style="font-size:0.82rem;color:rgba(255,255,255,0.6);">Astralborn</span>
+              <span style="font-size:0.82rem;color:rgba(255,255,255,0.6);text-align:right;">18</span>
+              <span style="font-size:0.82rem;color:rgba(255,255,255,0.6);text-align:right;">19,246</span>
+            </div>
+            <div style="display:grid;grid-template-columns:52px 1fr 120px 90px 90px;padding:13px 20px;border-bottom:0.5px solid rgba(255,255,255,0.04);align-items:center;">
+              <span style="font-size:1rem;">&#129352;</span>
+              <div><div style="font-size:0.86rem;font-weight:700;color:rgba(148,163,184,0.85);">Shadow Pact</div><div style="font-size:0.68rem;color:rgba(255,255,255,0.3);">Stealth guild</div></div>
+              <span style="font-size:0.82rem;color:rgba(255,255,255,0.6);">Voidcaller</span>
+              <span style="font-size:0.82rem;color:rgba(255,255,255,0.6);text-align:right;">12</span>
+              <span style="font-size:0.82rem;color:rgba(255,255,255,0.6);text-align:right;">12,088</span>
+            </div>
+            <div style="display:grid;grid-template-columns:52px 1fr 120px 90px 90px;padding:13px 20px;border-bottom:0.5px solid rgba(255,255,255,0.04);align-items:center;">
+              <span style="font-size:1rem;">&#129353;</span>
+              <div><div style="font-size:0.86rem;font-weight:700;color:rgba(205,127,50,0.85);">Iron Legion</div><div style="font-size:0.68rem;color:rgba(255,255,255,0.3);">War guild</div></div>
+              <span style="font-size:0.82rem;color:rgba(255,255,255,0.6);">Ironveil</span>
+              <span style="font-size:0.82rem;color:rgba(255,255,255,0.6);text-align:right;">9</span>
+              <span style="font-size:0.82rem;color:rgba(255,255,255,0.6);text-align:right;">9,112</span>
+            </div>
+            <div style="display:grid;grid-template-columns:52px 1fr 120px 90px 90px;padding:13px 20px;border-bottom:0.5px solid rgba(255,255,255,0.04);align-items:center;">
+              <span style="font-size:0.78rem;font-weight:700;color:rgba(255,255,255,0.28);width:44px;text-align:center;">#4</span>
+              <div><div style="font-size:0.86rem;font-weight:700;color:#fff;">Void Walkers</div><div style="font-size:0.68rem;color:rgba(255,255,255,0.3);">Mage guild</div></div>
+              <span style="font-size:0.82rem;color:rgba(255,255,255,0.6);">Celestia</span>
+              <span style="font-size:0.82rem;color:rgba(255,255,255,0.6);text-align:right;">7</span>
+              <span style="font-size:0.82rem;color:rgba(255,255,255,0.6);text-align:right;">7,540</span>
+            </div>
+          </div>
+        </div>
+
+      </section>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="wrap">
+      <div class="footer-grid">
+        <div>
+          <div style="display:flex;align-items:center;gap:10px;"><div class="nav-logo-icon"><img src="public/astral_icon.png" alt=""></div><span class="footer-brand-name">Astral X Realm</span></div>
+          <p class="footer-desc">The ultimate Discord &amp; WhatsApp RPG. Battle, collect, and conquer.</p>
+        </div>
+        <div>
+          <div class="footer-col-label">Game</div>
+          <ul class="footer-col-links"><li><a href="index.html">Home</a></li><li><a href="leaderboard.html">Leaderboard</a></li><li><a href="topup.html">Pricing</a></li></ul>
+        </div>
+        <div>
+          <div class="footer-col-label">Account</div>
+          <ul class="footer-col-links"><li><a href="profile.html">Profile</a></li><li><a href="cards.html">Cards</a></li></ul>
+        </div>
+      </div>
+      <div class="footer-divider"></div>
+      <div class="footer-bottom">
+        <span class="footer-copy">&copy; 2025 Astral X Realm. All rights reserved.</span>
+        <div class="footer-season"><span class="live-dot"></span>Season 1 &middot; Ended</div>
+      </div>
+    </div>
+  </footer>
+
+  <div class="modal-backdrop" id="login-modal" style="display:none;"><div class="modal" onclick="event.stopPropagation()"><button class="modal-close" data-modal-close="login-modal">&times;</button><div style="text-align:center;margin-bottom:24px;"><h2 style="font-size:1.3rem;font-weight:800;color:#fff;">Sign in</h2></div><form id="login-form"><input type="text" class="modal-input" placeholder="Username or email"><input type="password" class="modal-input" placeholder="Password"><button type="submit" class="btn btn-primary" style="width:100%;margin-top:6px;">Log in</button></form></div></div>
+  <div class="modal-backdrop" id="signup-modal" style="display:none;"><div class="modal" onclick="event.stopPropagation()"><button class="modal-close" data-modal-close="signup-modal">&times;</button><div style="text-align:center;margin-bottom:24px;"><h2 style="font-size:1.3rem;font-weight:800;color:#fff;">Create account</h2></div><form id="signup-form"><input type="text" class="modal-input" placeholder="Username"><input type="text" class="modal-input" placeholder="Email"><input type="password" class="modal-input" placeholder="Password"><button type="submit" class="btn btn-primary" style="width:100%;margin-top:6px;">Sign up</button></form></div></div>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

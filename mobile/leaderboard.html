@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Leaderboard — Astral X Realm</title>
+  <link rel="icon" type="image/png" href="../public/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/mobile.css">
+</head>
+<body>
+  <div id="toast-container"></div>
+  <header class="m-top-bar">
+    <div class="m-top-bar-logo"><img src="../public/astral_icon.png" alt=""></div>
+    <span class="m-top-bar-title">Leaderboard</span>
+    <div class="pill" style="font-size:0.6rem;padding:3px 10px;"><span class="live-dot"></span>Live</div>
+  </header>
+
+  <div class="m-page">
+    <div class="m-wrap" style="padding-top:20px;">
+
+      <!-- Stats strip -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px;">
+        <div class="card-sm" style="padding:12px 14px;display:flex;align-items:center;gap:10px;">
+          <div style="width:30px;height:30px;border-radius:9px;background:rgba(167,139,250,0.12);border:0.5px solid rgba(167,139,250,0.28);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>
+          <div><div style="font-size:0.94rem;font-weight:800;color:#fff;line-height:1;" data-count="120">0</div><div style="font-size:0.62rem;color:rgba(255,255,255,0.35);margin-top:1px;">Players</div></div>
+        </div>
+        <div class="card-sm" style="padding:12px 14px;display:flex;align-items:center;gap:10px;">
+          <div style="width:30px;height:30px;border-radius:9px;background:rgba(248,113,113,0.1);border:0.5px solid rgba(248,113,113,0.28);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/><path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/><path d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z"/><path d="M3.5 14H5v1.5c0 .83-.67 1.5-1.5 1.5S2 16.33 2 15.5 2.67 14 3.5 14z"/><path d="M14 14.5c0-.83.67-1.5 1.5-1.5h5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5z"/></svg></div>
+          <div><div style="font-size:0.94rem;font-weight:800;color:#fff;line-height:1;" data-count="8400" data-format="k">0k</div><div style="font-size:0.62rem;color:rgba(255,255,255,0.35);margin-top:1px;">Total Kills</div></div>
+        </div>
+      </div>
+
+      <!-- Search -->
+      <div style="position:relative;margin-bottom:16px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);opacity:0.35;pointer-events:none;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" class="input" id="lb-search" placeholder="Search players…" style="border-radius:999px;padding-left:38px;">
+      </div>
+
+      <!-- Tabs -->
+      <div style="display:flex;gap:4px;background:rgba(255,255,255,0.04);border-radius:12px;padding:4px;margin-bottom:14px;">
+        <button class="tab-btn active" style="flex:1;justify-content:center;" data-lb-tab="players">Players</button>
+        <button class="tab-btn" style="flex:1;justify-content:center;" data-lb-tab="guilds">Guilds</button>
+      </div>
+
+      <!-- Players list -->
+      <div data-lb-panel="players">
+        <div class="lb-table-wrap">
+          <div class="m-lb-row" data-name="astralborn" data-guild="realm-kings" style="cursor:pointer;">
+            <div><span style="font-size:1rem;">&#129351;</span></div>
+            <div><div style="font-size:0.85rem;font-weight:700;color:#fbbf24;">Astralborn</div><div style="font-size:0.67rem;color:rgba(255,255,255,0.3);">Warrior &middot; Lv.85</div></div>
+            <div style="text-align:right;font-size:0.82rem;font-weight:600;color:rgba(255,255,255,0.6);">8,912</div>
+          </div>
+          <div class="m-lb-row" data-name="stormwalker" data-guild="">
+            <div><span style="font-size:1rem;">&#129352;</span></div>
+            <div><div style="font-size:0.85rem;font-weight:700;color:rgba(148,163,184,0.85);">Stormwalker</div><div style="font-size:0.67rem;color:rgba(255,255,255,0.3);">Mage &middot; Lv.78</div></div>
+            <div style="text-align:right;font-size:0.82rem;font-weight:600;color:rgba(255,255,255,0.6);">6,204</div>
+          </div>
+          <div class="m-lb-row" data-name="voidcaller" data-guild="shadow-pact">
+            <div><span style="font-size:1rem;">&#129353;</span></div>
+            <div><div style="font-size:0.85rem;font-weight:700;color:rgba(205,127,50,0.85);">Voidcaller</div><div style="font-size:0.67rem;color:rgba(255,255,255,0.3);">Rogue &middot; Lv.72</div></div>
+            <div style="text-align:right;font-size:0.82rem;font-weight:600;color:rgba(255,255,255,0.6);">5,381</div>
+          </div>
+          <div class="m-lb-row" data-name="lunarblade" data-guild="">
+            <div style="font-size:0.75rem;font-weight:700;color:rgba(255,255,255,0.28);text-align:center;">#4</div>
+            <div><div style="font-size:0.85rem;font-weight:600;color:#fff;">Lunarblade</div><div style="font-size:0.67rem;color:rgba(255,255,255,0.3);">Paladin &middot; Lv.69</div></div>
+            <div style="text-align:right;font-size:0.82rem;font-weight:600;color:rgba(255,255,255,0.6);">4,820</div>
+          </div>
+          <div class="m-lb-row" data-name="shadowprime" data-guild="">
+            <div style="font-size:0.75rem;font-weight:700;color:rgba(255,255,255,0.28);text-align:center;">#5</div>
+            <div><div style="font-size:0.85rem;font-weight:600;color:#fff;">Shadowprime</div><div style="font-size:0.67rem;color:rgba(255,255,255,0.3);">Assassin &middot; Lv.67</div></div>
+            <div style="text-align:right;font-size:0.82rem;font-weight:600;color:rgba(255,255,255,0.6);">4,210</div>
+          </div>
+          <div class="m-lb-row" data-name="ironveil" data-guild="iron-legion">
+            <div style="font-size:0.75rem;font-weight:700;color:rgba(255,255,255,0.28);text-align:center;">#6</div>
+            <div><div style="font-size:0.85rem;font-weight:600;color:#fff;">Ironveil</div><div style="font-size:0.67rem;color:rgba(255,255,255,0.3);">Knight &middot; Lv.65</div></div>
+            <div style="text-align:right;font-size:0.82rem;font-weight:600;color:rgba(255,255,255,0.6);">3,950</div>
+          </div>
+          <div class="m-lb-row" data-name="celestia" data-guild="">
+            <div style="font-size:0.75rem;font-weight:700;color:rgba(255,255,255,0.28);text-align:center;">#7</div>
+            <div><div style="font-size:0.85rem;font-weight:600;color:#fff;">Celestia</div><div style="font-size:0.67rem;color:rgba(255,255,255,0.3);">Healer &middot; Lv.63</div></div>
+            <div style="text-align:right;font-size:0.82rem;font-weight:600;color:rgba(255,255,255,0.6);">3,711</div>
+          </div>
+          <div class="m-lb-row" data-name="wrathborn" data-guild="">
+            <div style="font-size:0.75rem;font-weight:700;color:rgba(255,255,255,0.28);text-align:center;">#8</div>
+            <div><div style="font-size:0.85rem;font-weight:600;color:#fff;">Wrathborn</div><div style="font-size:0.67rem;color:rgba(255,255,255,0.3);">Berserker &middot; Lv.61</div></div>
+            <div style="text-align:right;font-size:0.82rem;font-weight:600;color:rgba(255,255,255,0.6);">3,490</div>
+          </div>
+          <div class="m-lb-row" data-name="dawnrift" data-guild="realm-kings">
+            <div style="font-size:0.75rem;font-weight:700;color:rgba(255,255,255,0.28);text-align:center;">#9</div>
+            <div><div style="font-size:0.85rem;font-weight:600;color:#fff;">Dawnrift</div><div style="font-size:0.67rem;color:rgba(255,255,255,0.3);">Sorcerer &middot; Lv.58</div></div>
+            <div style="text-align:right;font-size:0.82rem;font-weight:600;color:rgba(255,255,255,0.6);">3,100</div>
+          </div>
+          <div class="m-lb-row" data-name="nightwhisper" data-guild="shadow-pact">
+            <div style="font-size:0.75rem;font-weight:700;color:rgba(255,255,255,0.28);text-align:center;">#10</div>
+            <div><div style="font-size:0.85rem;font-weight:600;color:#fff;">Nightwhisper</div><div style="font-size:0.67rem;color:rgba(255,255,255,0.3);">Rogue &middot; Lv.57</div></div>
+            <div style="text-align:right;font-size:0.82rem;font-weight:600;color:rgba(255,255,255,0.6);">2,880</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Guilds -->
+      <div data-lb-panel="guilds" style="display:none;">
+        <div class="lb-table-wrap">
+          <div class="m-lb-row"><div><span style="font-size:1rem;">&#129351;</span></div><div><div style="font-size:0.85rem;font-weight:700;color:#fbbf24;">Realm Kings</div><div style="font-size:0.67rem;color:rgba(255,255,255,0.3);">18 members</div></div><div style="text-align:right;font-size:0.82rem;font-weight:600;color:rgba(255,255,255,0.6);">19,246</div></div>
+          <div class="m-lb-row"><div><span style="font-size:1rem;">&#129352;</span></div><div><div style="font-size:0.85rem;font-weight:700;color:rgba(148,163,184,0.85);">Shadow Pact</div><div style="font-size:0.67rem;color:rgba(255,255,255,0.3);">12 members</div></div><div style="text-align:right;font-size:0.82rem;font-weight:600;color:rgba(255,255,255,0.6);">12,088</div></div>
+          <div class="m-lb-row"><div><span style="font-size:1rem;">&#129353;</span></div><div><div style="font-size:0.85rem;font-weight:700;color:rgba(205,127,50,0.85);">Iron Legion</div><div style="font-size:0.67rem;color:rgba(255,255,255,0.3);">9 members</div></div><div style="text-align:right;font-size:0.82rem;font-weight:600;color:rgba(255,255,255,0.6);">9,112</div></div>
+          <div class="m-lb-row"><div style="font-size:0.75rem;font-weight:700;color:rgba(255,255,255,0.28);text-align:center;">#4</div><div><div style="font-size:0.85rem;font-weight:600;color:#fff;">Void Walkers</div><div style="font-size:0.67rem;color:rgba(255,255,255,0.3);">7 members</div></div><div style="text-align:right;font-size:0.82rem;font-weight:600;color:rgba(255,255,255,0.6);">7,540</div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <nav class="m-nav">
+    <a href="index.html" class="m-nav-item"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>Home</a>
+    <a href="leaderboard.html" class="m-nav-item active"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>Ranks</a>
+    <a href="cards.html" class="m-nav-item"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Cards</a>
+    <a href="topup.html" class="m-nav-item"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>Top Up</a>
+    <a href="profile.html" class="m-nav-item"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>Profile</a>
+  </nav>
+  <script src="../js/main.js"></script>
+</body>
+</html>

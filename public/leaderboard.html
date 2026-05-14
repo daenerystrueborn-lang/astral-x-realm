@@ -4,11 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Leaderboard — Astral X Realm</title>
-  <link rel="icon" type="image/png" href="public/favicon.png">
+  <link rel="icon" type="image/png" href="/favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="/src/styles/style.css">
   <style>
     .podium {
       display: grid;
@@ -60,7 +60,7 @@
 
   <nav class="nav">
     <a href="index.html" class="nav-logo">
-      <div class="nav-logo-icon"><img src="public/astral_icon.png" alt="Astral X Realm"></div>
+      <div class="nav-logo-icon"><img src="/astral_icon.png" alt="Astral X Realm"></div>
       <span class="nav-logo-text">Astral X Realm</span>
     </a>
     <ul class="nav-links">
@@ -132,7 +132,7 @@
         <!-- Podium -->
         <div class="podium anim-up d2">
           <div class="podium-card">
-            <img src="public/leaderboard_art1.jpg" alt="" class="podium-art">
+            <img src="/leaderboard_art1.jpg" alt="" class="podium-art">
             <div class="podium-inner">
               <div class="podium-avatar rank-silver">S</div>
               <div style="font-size:0.6rem;font-weight:700;color:rgba(148,163,184,0.7);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px;">#2 &mdash; Silver</div>
@@ -142,7 +142,7 @@
             </div>
           </div>
           <div class="podium-card center">
-            <img src="public/leaderboard_art2.jpg" alt="" class="podium-art">
+            <img src="/leaderboard_art2.jpg" alt="" class="podium-art">
             <div class="podium-inner">
               <div style="font-size:1.2rem;margin:60px auto 4px;text-align:center;">&#127947;</div>
               <div class="podium-avatar rank-gold" style="margin-top:0;">A</div>
@@ -153,7 +153,7 @@
             </div>
           </div>
           <div class="podium-card">
-            <img src="public/leaderboard_art3.jpg" alt="" class="podium-art">
+            <img src="/leaderboard_art3.jpg" alt="" class="podium-art">
             <div class="podium-inner">
               <div class="podium-avatar rank-bronze">V</div>
               <div style="font-size:0.6rem;font-weight:700;color:rgba(205,127,50,0.7);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px;">#3 &mdash; Bronze</div>
@@ -301,7 +301,7 @@
     <div class="wrap">
       <div class="footer-grid">
         <div>
-          <div style="display:flex;align-items:center;gap:10px;"><div class="nav-logo-icon"><img src="public/astral_icon.png" alt=""></div><span class="footer-brand-name">Astral X Realm</span></div>
+          <div style="display:flex;align-items:center;gap:10px;"><div class="nav-logo-icon"><img src="/astral_icon.png" alt=""></div><span class="footer-brand-name">Astral X Realm</span></div>
           <p class="footer-desc">The ultimate Discord &amp; WhatsApp RPG. Battle, collect, and conquer.</p>
         </div>
         <div>
@@ -324,6 +324,6 @@
   <div class="modal-backdrop" id="login-modal" style="display:none;"><div class="modal" onclick="event.stopPropagation()"><button class="modal-close" data-modal-close="login-modal">&times;</button><div style="text-align:center;margin-bottom:24px;"><h2 style="font-size:1.3rem;font-weight:800;color:#fff;">Sign in</h2></div><form id="login-form"><input type="text" class="modal-input" placeholder="Username or email"><input type="password" class="modal-input" placeholder="Password"><button type="submit" class="btn btn-primary" style="width:100%;margin-top:6px;">Log in</button></form></div></div>
   <div class="modal-backdrop" id="signup-modal" style="display:none;"><div class="modal" onclick="event.stopPropagation()"><button class="modal-close" data-modal-close="signup-modal">&times;</button><div style="text-align:center;margin-bottom:24px;"><h2 style="font-size:1.3rem;font-weight:800;color:#fff;">Create account</h2></div><form id="signup-form"><input type="text" class="modal-input" placeholder="Username"><input type="text" class="modal-input" placeholder="Email"><input type="password" class="modal-input" placeholder="Password"><button type="submit" class="btn btn-primary" style="width:100%;margin-top:6px;">Sign up</button></form></div></div>
 
-  <script src="js/main.js"></script>
+  <script src="/src/scripts/main.js"></script>
 </body>
 </html>
